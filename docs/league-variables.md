@@ -1,5 +1,7 @@
 # Root League: Variables
 
+**Earlier eight-player analysis.** The current tentative plan has ten players; see the [verified five-slot schedule](standings.md#tentative-matchups) for its matchup spread. The eight-player calculations below are retained as background, not recalculated ten-player claims.
+
 [Document index](README.md) · [Player guide](player-guide.md)
 
 Internal planning reference: the adjustable parts of the league, how they relate, and what the options look like. Current choices are marked in bold; the reasoning is in [decisions](league-decisions.md). See [implementation](league-implementation.md) for operational details.

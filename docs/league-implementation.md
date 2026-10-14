@@ -1,5 +1,7 @@
 # Root League: Implementation
 
+**Earlier eight-player plan.** The current tentative ten-player plan is the [five-slot schedule](standings.md#tentative-matchups). Its final and qualification rules are still open; the round structure below has not been adapted to ten players.
+
 [Document index](README.md) · [Player guide](player-guide.md)
 
 Internal planning reference: how the league runs, end to end. See [variables](league-variables.md) for format options and [decisions](league-decisions.md) for confirmed rules and proposals. Items marked **TBD** are not decided yet; proposals are not confirmed rules.

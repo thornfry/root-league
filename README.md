@@ -3,7 +3,7 @@
 ## For players
 
 - [**Player guide**](docs/player-guide.md) — the short league reference (eight-player format draft).
-- [Players & standings](docs/standings.md) — the roster, qualifying records and game results.
+- [Players, standings & matchups](docs/standings.md) — the roster, tentative schedule and game results.
 
 ## Organizer planning
 

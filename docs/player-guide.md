@@ -2,9 +2,11 @@
 
 *Eight-player format draft for player review.*
 
-[Players & standings](standings.md)
+[Players, standings & matchups](standings.md)
 
-## Format
+The ten-player schedule is the current tentative plan; the eight-player format below is the earlier draft. Finals for ten players are not yet set.
+
+## Earlier eight-player format
 
 - **8 players, 4 games each.** Two tables of four play each round.
 - **Rounds 1–3: qualifying.** Opponents change each round. Each win counts toward your record; other placements and VP totals do not.
