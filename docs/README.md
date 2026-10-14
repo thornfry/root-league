@@ -2,7 +2,9 @@
 
 ## For players
 
-[**Player guide**](player-guide.md) — the brief league reference. Start here; no design background needed.
+- [**Player guide**](player-guide.md) — the brief league reference (eight-player format draft).
+- [Players](players.md) — the current roster.
+- [Standings](standings.md) — qualifying records and game results.
 
 ## Organizer planning
 

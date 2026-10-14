@@ -1,6 +1,8 @@
 # Root League
 
-*Draft for player review.*
+*Eight-player format draft for player review.*
+
+[Players](players.md) · [Standings](standings.md)
 
 ## Format
 
