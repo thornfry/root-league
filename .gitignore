@@ -1,0 +1,7 @@
+.DS_Store
+
+# Local working context and analysis; the public repository is documents-only.
+/CLAUDE.md
+/HANDOFF.md
+/scripts/
+/schedules/
