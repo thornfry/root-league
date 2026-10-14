@@ -60,7 +60,7 @@ Why it is parked:
 5. **Drop-out policy:** what happens if a player drops before round 4 or between rounds.
 6. **Prizes and recognition:** champion, consolation winner.
 7. **Schedule:** generate qualifying pairings with names and balanced seats after confirming the league size.
-8. **Roster and format:** the supplied [player list](players.md) has ten names, while the existing format assumes eight. Confirm participation and any format changes before scheduling. All ten are listed on the blank [standings sheet](standings.md); no byes, reserves or ten-player format have been chosen.
+8. **Roster and format:** the [players and standings sheet](standings.md) lists ten names, while the existing format assumes eight. Confirm participation and any format changes before scheduling; no byes, reserves or ten-player format have been chosen.
 
 ## Background notes
 

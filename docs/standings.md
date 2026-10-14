@@ -1,8 +1,8 @@
-# Standings
+# Players & Standings
 
-[Player guide](player-guide.md) · [Players](players.md)
+[Player guide](player-guide.md)
 
-No games recorded yet. Rows follow roster order, not rank.
+All ten players are listed below. No games recorded yet; rows are not ranked.
 
 ## Qualifying
 

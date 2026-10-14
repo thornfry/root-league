@@ -2,7 +2,7 @@
 
 *Eight-player format draft for player review.*
 
-[Players](players.md) · [Standings](standings.md)
+[Players & standings](standings.md)
 
 ## Format
 
