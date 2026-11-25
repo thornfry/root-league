@@ -61,8 +61,21 @@ FACTIONS = {
     "lizards": ("Lizard Cult", 2),
 }
 
+# Short codes used in the docs (docs/factions.md).
+CODES = {
+    "cats": "cats", "hundreds": "rats", "keepers": "badgers", "duchy": "moles",
+    "lilypad": "frogs", "eyrie": "birds", "vagabond": "vagabond", "riverfolk": "otters",
+    "knaves": "knaves", "twilight": "bats", "alliance": "WA", "corvids": "crows",
+    "lizards": "lizards",
+}
+
+# Militant factions per the Root Database faction listing (checked 2026-11-25);
+# the rest are insurgent.
+MILITANT = {"cats", "eyrie", "duchy", "hundreds", "keepers", "lilypad"}
+
 ALIASES = {name.lower(): key for key, (name, _) in FACTIONS.items()}
 ALIASES.update({key: key for key in FACTIONS})
+ALIASES.update({code.lower(): key for key, code in CODES.items()})
 ALIASES.update({
     "marquise": "cats", "cat": "cats", "eyrie dynasties": "eyrie",
     "woodland alliance": "alliance", "wa": "alliance", "vb": "vagabond",

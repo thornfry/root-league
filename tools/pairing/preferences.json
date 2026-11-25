@@ -1,5 +1,5 @@
 {
- "_note": "Ranked faction lists, best first. Source of truth; docs/faction-picks.md mirrors it and a test keeps them in step. Provisional lists were made up by Will for testing and will be replaced by the players' own lists.",
+ "_note": "Ranked faction lists, best first. Source of truth; docs/faction-picks.md mirrors it and a test keeps them in step. Provisional lists were made up for testing and will be replaced by the players' own lists.",
  "players": {
   "Alex": ["Underground Duchy", "Lord of the Hundreds", "Woodland Alliance", "Vagabond", "Lilypad Diaspora"],
   "Will": ["Eyrie Dynasties", "Underground Duchy", "Lizard Cult", "Twilight Council", "Woodland Alliance"],
@@ -8,7 +8,9 @@
   "Delaney": ["Lord of the Hundreds", "Lizard Cult", "Underground Duchy", "Lilypad Diaspora", "Marquise de Cat"],
   "Kyra": ["Vagabond", "Marquise de Cat", "Riverfolk Company"],
   "Nick": ["Marquise de Cat", "Eyrie Dynasties", "Vagabond", "Woodland Alliance"],
-  "Adam": ["Marquise de Cat", "Vagabond", "Eyrie Dynasties", "Woodland Alliance"]
+  "Adam": ["Marquise de Cat", "Vagabond", "Eyrie Dynasties", "Woodland Alliance"],
+  "Zach": ["Keepers in Iron", "Riverfolk Company", "Lord of the Hundreds", "Corvid Conspiracy", "Eyrie Dynasties"],
+  "Anthony": ["Twilight Council", "Keepers in Iron", "Knaves of the Deepwood", "Marquise de Cat", "Lilypad Diaspora"]
  },
  "status": {
   "Alex": "Submitted",
@@ -18,6 +20,8 @@
   "Delaney": "Provisional",
   "Kyra": "Provisional",
   "Nick": "Provisional",
-  "Adam": "Provisional"
+  "Adam": "Provisional",
+  "Zach": "Provisional",
+  "Anthony": "Provisional"
  }
 }

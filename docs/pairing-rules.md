@@ -1,6 +1,6 @@
 # League Requirements
 
-What the league format and the pairings must satisfy. This is the source of truth to settle before anything is built or reviewed again; earlier tool work was exploratory. Related: [faction picks](faction-picks.md), [pairings](pairings.md).
+What the league format and the pairings must satisfy. This is the source of truth to settle before anything is built or reviewed again; earlier tool work was exploratory. Related: [roster](roster.md), [factions](factions.md), [faction picks](faction-picks.md), [faction popularity](faction-popularity.md), [pairings](pairings.md).
 
 ## League format
 
@@ -85,10 +85,10 @@ Carried over from the earlier analysis. These are findings, not rules, until Wil
 
 ## Still open
 
-- **Player count:** final roster size (see [faction picks](faction-picks.md#roster)). 10 or 12, not 8; see [player counts](#player-counts).
+- **Player count:** final roster size (see [roster](roster.md)). 10 or 12, not 8; see [player counts](#player-counts).
 - **Final table at 10 players, 2 games:** tiebreak order for the cut, how finalists get seats (for example, top seed picks first), factions (for example, the same faction step, with each finalist getting their best unplayed pick), and the map.
 - **Seat tiebreak for factions:** what seat order should favour when two faction choices are equally good.
 - **Final table:** whether to hold one, and if so, how finalists choose seats and factions.
-- **Militant and insurgent split:** which factions count as each, and what "sensible mix" means at a table.
+- **Militant and insurgent mix:** what "sensible mix" means at a table. Each faction's type is on [factions](factions.md).
 - **Faction pool:** which factions and expansions are owned.
 - **Logistics:** deck (standard or Exiles and Partisans), game time cap and the rule when it is hit, drop-out policy, prizes, dates.
