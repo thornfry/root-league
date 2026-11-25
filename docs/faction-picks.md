@@ -11,7 +11,7 @@ Each [roster](roster.md) player's ranked faction list, best first, by [faction c
 | Matt | Submitted | WA | rats | birds | moles | vagabond | |
 | David | Submitted | WA | knaves | vagabond | crows | moles | frogs |
 | Delaney | Provisional | rats | lizards | moles | frogs | cats | |
-| Kyra | Provisional | vagabond | cats | otters | | | |
+| Kyra | Submitted | knaves | vagabond | cats | moles | otters | |
 | Nick | Provisional | cats | birds | vagabond | WA | | |
 | Adam | Provisional | cats | vagabond | birds | WA | | |
 | Zach | Provisional | badgers | otters | rats | crows | birds | |
