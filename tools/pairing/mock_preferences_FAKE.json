@@ -1,5 +1,5 @@
 {
- "_note": "MOCK data for trying out pairings. Alex, Will, Matt, David are real lists; Kira's first two picks are real; everyone else (and Kira's picks 3-5) is INVENTED.",
+ "_note": "MOCK data for trying out pairings. Alex, Will, Matt, David are real lists; Kyra's first two picks are real; everyone else (and Kyra's picks 3-5) is INVENTED.",
  "players": {
   "Delaney": [
    "eyrie",
@@ -48,7 +48,7 @@
    "bats",
    "woodland alliance"
   ],
-  "Kira": [
+  "Kyra": [
    "cats",
    "vagabond",
    "lizards",

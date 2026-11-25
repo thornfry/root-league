@@ -1,12 +1,10 @@
 # Faction Picks
 
-Each player submits ranked faction picks, best first. Five were requested; more are accepted. The pairing tool reads [`tools/pairing/preferences.json`](../tools/pairing/preferences.json), which is the source for the lists below. A test fails if the two disagree, so edit both together.
+Ranked faction lists, best first. **Submitted** lists come from the player. **Provisional** lists are made up for testing the pairings and will be replaced. The source is [`tools/pairing/preferences.json`](../tools/pairing/preferences.json); a test keeps this page in step with it.
 
 ## Roster
 
-Roster size is not final. The format wants a count divisible by 4; 12 is not confirmed (see [league requirements](pairing-rules.md#league-format)).
-
-**Confirmed (10):** Delaney, Alex, Matt, Nick, Adam, Zach, Kira, Anthony, David, Will.
+**Confirmed (10):** Delaney, Alex, Matt, Nick, Adam, Zach, Kyra, Anthony, David, Will.
 
 **Possible (4):** Derek, Chuck, Ryan, Fern.
 
@@ -17,20 +15,14 @@ Roster size is not final. The format wants a count divisible by 4; 12 is not con
 | Alex | Submitted | Underground Duchy, Lord of the Hundreds, Woodland Alliance, Vagabond, Lilypad Diaspora |
 | Will | Submitted | Eyrie Dynasties, Underground Duchy, Lizard Cult, Twilight Council, Woodland Alliance |
 | Matt | Submitted | Woodland Alliance, Lord of the Hundreds, Eyrie Dynasties, Underground Duchy, Vagabond |
-| David | Submitted (six picks, all recorded) | Woodland Alliance, Knaves of the Deepwood, Vagabond, Corvid Conspiracy, Underground Duchy, Lilypad Diaspora |
-| Kira | Partial: 2 picks so far | Marquise de Cat, Vagabond |
-| Delaney | Owes a list | — |
-| Nick | Owes a list (still learning to play) | — |
-| Adam | Owes a list (still learning more factions) | — |
-| Zach | Owes a list | — |
-| Anthony | Owes a list | — |
-| Derek | Possible player, no list yet | — |
-| Chuck | Possible player, no list yet | — |
-| Ryan | Possible player, no list yet | — |
-| Fern | Possible player, no list yet | — |
-
-Nicknames were read as: moles = Underground Duchy, rats = Lord of the Hundreds, frogs = Lilypad Diaspora, bats = Twilight Council, birds = Eyrie Dynasties, cats = Marquise de Cat.
-
-## Who still owes a list
-
-Delaney, Nick, Adam, Zach and Anthony (confirmed players), plus three more picks from Kira. Possible players send a list when they confirm. A player with fewer picks than games gets an off-list faction in some games, which the tool avoids where it can and reports.
+| David | Submitted | Woodland Alliance, Knaves of the Deepwood, Vagabond, Corvid Conspiracy, Underground Duchy, Lilypad Diaspora |
+| Delaney | Provisional | Lord of the Hundreds, Lizard Cult, Underground Duchy, Lilypad Diaspora, Marquise de Cat |
+| Kyra | Provisional | Vagabond, Marquise de Cat, Riverfolk Company |
+| Nick | Provisional | Marquise de Cat, Eyrie Dynasties, Vagabond, Woodland Alliance |
+| Adam | Provisional | Marquise de Cat, Vagabond, Eyrie Dynasties, Woodland Alliance |
+| Zach | Not yet | — |
+| Anthony | Not yet | — |
+| Derek | Not yet | — |
+| Chuck | Not yet | — |
+| Ryan | Not yet | — |
+| Fern | Not yet | — |
