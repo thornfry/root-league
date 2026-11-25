@@ -1,12 +1,10 @@
 # Pairings
 
-No pairings exist yet, so the table below is empty on purpose. A mock schedule would pair real names with invented factions and could be mistaken for the real thing. To see one, run `python3 tools/pairing/league_pairing.py tools/pairing/mock12_preferences_FAKE.json` (fake lists).
+No pairings exist yet, so the tables below are empty on purpose. Once the roster is set and pairings are generated against the [league requirements](pairing-rules.md), they go here. Fill in the result columns after each game.
 
-Once the roster is set, the tool's output goes here. Fill in the result columns after each game. Standings (wins, strength of schedule, summed places) are worked out from this table; see the [cut tiebreaks](pairing-rules.md#finals-format).
+Record the **Winner** of every game. The **2nd to 4th** columns are only needed if a placings tiebreak is confirmed (see [findings to confirm](pairing-rules.md#findings-to-confirm)); places never count as score.
 
-Record **Winner** and the other three **finishing places** for every qualifying game. Places are a tiebreak only; they never count as score.
-
-## Qualifying games
+## Games
 
 | Game | Map | Seat 1 | Seat 2 | Seat 3 | Seat 4 | Winner | 2nd | 3rd | 4th |
 |---:|---|---|---|---|---|---|---|---|---|
@@ -14,9 +12,9 @@ Record **Winner** and the other three **finishing places** for every qualifying 
 
 Seat cells read `Player: Faction`. Seat 1 is first in turn order.
 
-## Final
+## Final (optional)
 
-Top 4 after qualifying, one game. Seat and faction rules for the final are not decided; see [still open](pairing-rules.md#still-open).
+Only if the league holds a final table. Not decided; see [still open](pairing-rules.md#still-open).
 
 | Map | Seat 1 | Seat 2 | Seat 3 | Seat 4 | Winner |
 |---|---|---|---|---|---|

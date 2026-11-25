@@ -4,7 +4,7 @@ Each player submits ranked faction picks, best first. Five were requested; more 
 
 ## Roster
 
-Roster size is not final; the format assumes 12 players (see [pairing rules](pairing-rules.md#still-open)).
+Roster size is not final. The format wants a count divisible by 4; 12 is not confirmed (see [league requirements](pairing-rules.md#league-format)).
 
 **Confirmed (10):** Delaney, Alex, Matt, Nick, Adam, Zach, Kira, Anthony, David, Will.
 
