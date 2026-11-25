@@ -1,17 +1,8 @@
 # Root League
 
-## For players
+A Root board game league. Planning only; no games played yet.
 
-- [**Player guide**](docs/player-guide.md) — the short league reference (eight-player format draft).
-- [Players, standings & matchups](docs/standings.md) — the roster, tentative schedule and game results.
-
-## Organizer planning
-
-Working notes, not additional player rules:
-
-- [Implementation](docs/league-implementation.md) — running the league, scoring and logistics.
-- [Decisions](docs/league-decisions.md) — confirmed rules, proposals and open questions.
-- [Variables](docs/league-variables.md) — format options and pairing analysis.
-- [Research notes](docs/research-notes.md) — tournament precedents and sources.
-
-All documents live together in the [docs folder](docs/README.md).
+- [Pairing rules](docs/pairing-rules.md): requirements, derived constraints, the finals format and open items.
+- [Faction picks](docs/faction-picks.md): roster and each player's ranked faction list.
+- [Pairings](docs/pairings.md): the game table with winners and finishing places.
+- [tools/](tools/): `pairing/` builds the pairings (with tests); `cut_sim.py` simulates the finals cut.
