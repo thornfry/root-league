@@ -1,0 +1,132 @@
+"""Tests for league_pairing. Run: python3 -m unittest -v   (SLOW=1 adds the 10/12-player solves)"""
+import json
+import os
+import random
+import unittest
+
+import league_pairing as L
+
+HERE = os.path.dirname(__file__)
+
+
+def load(name):
+    with open(os.path.join(HERE, name)) as fh:
+        d = json.load(fh)["players"]
+    return list(d), d
+
+
+class Feasibility(unittest.TestCase):
+    def test_game_counts(self):
+        self.assertEqual(L.feasible_game_counts(10), [2, 4, 6, 8])
+        self.assertEqual(L.feasible_game_counts(12), [1, 2, 3, 4, 5, 6, 7, 8])
+
+    def test_map_repeat_lower_bound(self):
+        self.assertEqual(L.min_map_repeats(12, 4, 4), 0)
+        self.assertEqual(L.min_map_repeats(10, 4, 4), 4)
+
+
+class Seats(unittest.TestCase):
+    def test_edge_colouring_always_gives_each_seat_once(self):
+        for seed in range(30):
+            rng = random.Random(seed)
+            n = rng.choice([8, 10, 12])
+            games = L._deal(n, 4, rng)
+            while games is None:
+                games = L._deal(n, 4, rng)
+            plan = L.Plan(games, [0] * len(games))
+            seats = L.assign_seats(plan)
+            for table, row in zip(games, seats):
+                self.assertEqual(sorted(row), sorted(table))
+            for p in range(n):
+                held = [row.index(p) for row in seats if p in row]
+                self.assertEqual(sorted(held), [0, 1, 2, 3])
+
+    def test_too_many_games_rejected(self):
+        plan = L.Plan([[0, 1, 2, 3]] * 5, [0] * 5)
+        with self.assertRaises(ValueError):
+            L.assign_seats(plan)
+
+
+class Validator(unittest.TestCase):
+    def make(self):
+        players, prefs = load("mock_preferences_FAKE.json")
+        return L.solve(players, prefs, g=4, tries=3, finalists=1, seed=5, max_spread=2)
+
+    def test_solution_passes_its_own_rules(self):
+        r = self.make()
+        self.assertEqual(L.check(r, max_spread=2), [])
+
+    def test_catches_repeated_faction(self):
+        r = self.make()
+        keys = [k for k in r.factions if k[1] == 0]
+        r.factions[keys[0]] = r.factions[keys[1]]
+        self.assertTrue(any("repeat" in f or "duplicate" in f for f in L.check(r, 2)))
+
+    def test_catches_low_reach(self):
+        r = self.make()
+        for p, f in zip(r.plan.games[0], ["lizards", "alliance", "corvids", "twilight"]):
+            r.factions[(0, p)] = f
+        self.assertTrue(any("reach" in f for f in L.check(r, 2)))
+
+    def test_catches_repeated_seat(self):
+        r = self.make()
+        p = r.seats[0][0]
+        other = next(i for i, row in enumerate(r.seats) if p in row and i != 0)
+        r.seats[other] = [p] + [q for q in r.seats[other] if q != p]
+        self.assertTrue(any("seat" in f for f in L.check(r, 2)))
+
+
+class ShortLists(unittest.TestCase):
+    def test_short_list_goes_off_list_not_crash(self):
+        players = list("ABCDEFGH")
+        prefs = {p: ["cats"] for p in players}
+        r = L.solve(players, prefs, g=4, n_maps=4, tries=2, finalists=1, max_spread=3)
+        self.assertEqual(L.check(r, 3), [])
+        off = sum(1 for (g, p), f in r.factions.items() if f not in r.prefs[p])
+        self.assertGreaterEqual(off, 8 * 3)  # at most one cats play each
+
+
+class SixPicks(unittest.TestCase):
+    def test_list_longer_than_five_is_accepted(self):
+        players, prefs = load("mock_preferences_FAKE.json")
+        self.assertEqual(len(prefs["David"]), 6)
+        r = L.solve(players, prefs, g=4, tries=2, finalists=1, seed=2, max_spread=2)
+        self.assertEqual(L.check(r, 2), [])
+        L.report(r, 2)  # must not crash on a sixth pick
+
+
+class DocInStep(unittest.TestCase):
+    """docs/faction-picks.md must list the same ranked picks as preferences.json."""
+
+    def test_faction_picks_doc_matches_json(self):
+        with open(os.path.join(HERE, "preferences.json")) as fh:
+            real = json.load(fh)["players"]
+        doc = os.path.join(HERE, "..", "..", "docs", "faction-picks.md")
+        with open(doc) as fh:
+            lines = fh.read().splitlines()
+        in_doc = {}
+        for line in lines:
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if line.startswith("|") and len(cells) == 3 and cells[0] in real:
+                in_doc[cells[0]] = [L.canon(f) for f in cells[2].split(",")]
+        self.assertEqual(set(in_doc), set(real))
+        for name, picks in real.items():
+            self.assertEqual(in_doc[name], [L.canon(f) for f in picks], name)
+
+
+@unittest.skipUnless(os.environ.get("SLOW"), "set SLOW=1")
+class FullSizes(unittest.TestCase):
+    def test_ten_players_spread_one_few_repeats(self):
+        players, prefs = load("mock_preferences_FAKE.json")
+        r = L.solve(players, prefs, g=4, tries=8, seed=1)
+        self.assertEqual(L.check(r), [])
+        self.assertLessEqual(sum(L.map_repeats(r)), 8)
+
+    def test_twelve_players_spread_one(self):
+        players, prefs = load("mock12_preferences_FAKE.json")
+        r = L.solve(players, prefs, g=4, tries=8, seed=1)
+        self.assertEqual(L.check(r), [])
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,88 @@
+{
+ "_note": "MOCK 12-player data. Alex, Will, Matt, David real; Kira's first two picks real; all else INVENTED (Fern and Derek are possible players).",
+ "players": {
+  "Delaney": [
+   "eyrie",
+   "cats",
+   "vagabond",
+   "alliance",
+   "duchy"
+  ],
+  "Alex": [
+   "moles",
+   "rats",
+   "woodland alliance",
+   "vagabond",
+   "frogs"
+  ],
+  "Matt": [
+   "woodland alliance",
+   "rats",
+   "birds",
+   "moles",
+   "vagabond"
+  ],
+  "Nick": [
+   "cats",
+   "eyrie",
+   "duchy",
+   "hundreds",
+   "riverfolk"
+  ],
+  "Adam": [
+   "alliance",
+   "vagabond",
+   "cats"
+  ],
+  "Zach": [
+   "cats",
+   "hundreds",
+   "keepers",
+   "eyrie",
+   "duchy"
+  ],
+  "Will": [
+   "birds",
+   "moles",
+   "lizards",
+   "bats",
+   "woodland alliance"
+  ],
+  "Kira": [
+   "cats",
+   "vagabond",
+   "lizards",
+   "corvids",
+   "twilight"
+  ],
+  "Anthony": [
+   "keepers",
+   "lilypad",
+   "riverfolk",
+   "twilight",
+   "knaves"
+  ],
+  "David": [
+   "woodland alliance",
+   "knaves",
+   "vagabond",
+   "corvids",
+   "duchy",
+   "lilypad"
+  ],
+  "Fern": [
+   "lizards",
+   "corvids",
+   "eyrie",
+   "cats",
+   "vagabond"
+  ],
+  "Derek": [
+   "riverfolk",
+   "duchy",
+   "hundreds",
+   "alliance",
+   "keepers"
+  ]
+ }
+}

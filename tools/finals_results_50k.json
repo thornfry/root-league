@@ -1,0 +1,166 @@
+[
+ {
+  "levels": {
+   "wins": 0.11314,
+   "sos": 0.56618,
+   "last": 0.32068
+  },
+  "sos2_settles": 0.14578,
+  "place_after_sos": 0.24874,
+  "place_only_clean": 0.68928,
+  "records": {
+   "4": {
+    "expected": 0.03866,
+    "make_final": 1.0
+   },
+   "3": {
+    "expected": 0.47118,
+    "make_final": 1.0
+   },
+   "2": {
+    "expected": 2.11036,
+    "make_final": 0.9987395515457085
+   },
+   "1": {
+    "expected": 4.2111,
+    "make_final": 0.3282895205528359
+   },
+   "0": {
+    "expected": 3.1687,
+    "make_final": 0.0
+   }
+  },
+  "last_groups": {
+   "1 seat(s) for 2 players": 0.1819,
+   "1 seat(s) for 4 players": 0.0474,
+   "1 seat(s) for 3 players": 0.04296,
+   "2 seat(s) for 3 players": 0.0337,
+   "2 seat(s) for 4 players": 0.0071
+  },
+  "strong_final": 0.400286,
+  "name": "10 players, 4 games each",
+  "players": 10,
+  "games_each": 4,
+  "runs": 50000,
+  "qualifying_games": 10,
+  "total_games": 11,
+  "hours": 22,
+  "schedule": {
+   "pairs meeting 1x": 30,
+   "pairs meeting 2x": 15
+  },
+  "skill": {
+   "1.5": 0.5367299999999997,
+   "2.0": 0.63285,
+   "3.0": 0.7733266666666662
+  }
+ },
+ {
+  "levels": {
+   "wins": 0.01408,
+   "sos": 0.37412,
+   "last": 0.6118
+  },
+  "sos2_settles": 0.0,
+  "place_after_sos": 0.40362,
+  "place_only_clean": 0.52836,
+  "records": {
+   "3": {
+    "expected": 0.18632,
+    "make_final": 1.0
+   },
+   "2": {
+    "expected": 1.69356,
+    "make_final": 1.0
+   },
+   "1": {
+    "expected": 5.05392,
+    "make_final": 0.41950011080503063
+   },
+   "0": {
+    "expected": 5.0662,
+    "make_final": 0.0
+   }
+  },
+  "last_groups": {
+   "1 seat(s) for 2 players": 0.22592,
+   "2 seat(s) for 4 players": 0.12784,
+   "1 seat(s) for 3 players": 0.08054,
+   "1 seat(s) for 4 players": 0.05764,
+   "3 seat(s) for 6 players": 0.03242
+  },
+  "strong_final": 0.3353880952380939,
+  "name": "12 players, 3 games each",
+  "players": 12,
+  "games_each": 3,
+  "runs": 50000,
+  "qualifying_games": 9,
+  "total_games": 10,
+  "hours": 20,
+  "schedule": {
+   "pairs meeting 0x": 12,
+   "pairs meeting 1x": 54
+  },
+  "skill": {
+   "1.5": 0.4518980952380961,
+   "2.0": 0.5330735714285723,
+   "3.0": 0.6651937301587304
+  }
+ },
+ {
+  "levels": {
+   "wins": 0.28446,
+   "sos": 0.33996,
+   "last": 0.37558
+  },
+  "sos2_settles": 0.0,
+  "place_after_sos": 0.27268,
+  "place_only_clean": 0.7179,
+  "records": {
+   "4": {
+    "expected": 0.04848,
+    "make_final": 1.0
+   },
+   "3": {
+    "expected": 0.56128,
+    "make_final": 1.0
+   },
+   "2": {
+    "expected": 2.52784,
+    "make_final": 0.9826096588391989
+   },
+   "1": {
+    "expected": 5.06656,
+    "make_final": 0.17889060822333658
+   },
+   "0": {
+    "expected": 3.79584,
+    "make_final": 0.0
+   }
+  },
+  "last_groups": {
+   "1 seat(s) for 2 players": 0.16252,
+   "1 seat(s) for 4 players": 0.07654,
+   "1 seat(s) for 6 players": 0.03498,
+   "1 seat(s) for 3 players": 0.03394,
+   "2 seat(s) for 6 players": 0.02074
+  },
+  "strong_final": 0.3319231666666666,
+  "name": "12 players, 4 games each",
+  "players": 12,
+  "games_each": 4,
+  "runs": 50000,
+  "qualifying_games": 12,
+  "total_games": 13,
+  "hours": 26,
+  "schedule": {
+   "pairs meeting 1x": 60,
+   "pairs meeting 2x": 6
+  },
+  "skill": {
+   "1.5": 0.4748141666666671,
+   "2.0": 0.5814616666666665,
+   "3.0": 0.724095
+  }
+ }
+]

@@ -1,0 +1,43 @@
+
+=== 10 players, 4 games each: 10 qualifying games + final = 11 games, about 22 hours (50000 runs)
+schedule: {'pairs meeting 1x': 30, 'pairs meeting 2x': 15}
+cut settled by wins alone 11%, by SoS 57%, needs last resort 32%
+opponents' SoS as a third level would settle 15% of all runs, leaving 17% for the last resort
+places after SoS would settle 25%, leaving 7.2%; wins then places (no SoS) leaves 31.1%
+wins  expected players  chance to make final
+   4              0.04                100.0%
+   3              0.47                100.0%
+   2              2.11                 99.9%
+   1              4.21                 32.8%
+   0              3.17                  0.0%
+last-resort groups: {'1 seat(s) for 2 players': '18.2%', '1 seat(s) for 4 players': '4.7%', '1 seat(s) for 3 players': '4.3%', '2 seat(s) for 3 players': '3.4%', '2 seat(s) for 4 players': '0.7%'}
+one stronger player makes the final: average 40%, strength 1.5 -> 54%, strength 2.0 -> 63%, strength 3.0 -> 77%
+
+=== 12 players, 3 games each: 9 qualifying games + final = 10 games, about 20 hours (50000 runs)
+schedule: {'pairs meeting 0x': 12, 'pairs meeting 1x': 54}
+cut settled by wins alone 1%, by SoS 37%, needs last resort 61%
+opponents' SoS as a third level would settle 0% of all runs, leaving 61% for the last resort
+places after SoS would settle 40%, leaving 20.8%; wins then places (no SoS) leaves 47.2%
+wins  expected players  chance to make final
+   3              0.19                100.0%
+   2              1.69                100.0%
+   1              5.05                 42.0%
+   0              5.07                  0.0%
+last-resort groups: {'1 seat(s) for 2 players': '22.6%', '2 seat(s) for 4 players': '12.8%', '1 seat(s) for 3 players': '8.1%', '1 seat(s) for 4 players': '5.8%', '3 seat(s) for 6 players': '3.2%'}
+one stronger player makes the final: average 33%, strength 1.5 -> 45%, strength 2.0 -> 53%, strength 3.0 -> 67%
+
+=== 12 players, 4 games each: 12 qualifying games + final = 13 games, about 26 hours (50000 runs)
+schedule: {'pairs meeting 1x': 60, 'pairs meeting 2x': 6}
+cut settled by wins alone 28%, by SoS 34%, needs last resort 38%
+opponents' SoS as a third level would settle 0% of all runs, leaving 38% for the last resort
+places after SoS would settle 27%, leaving 10.3%; wins then places (no SoS) leaves 28.2%
+wins  expected players  chance to make final
+   4              0.05                100.0%
+   3              0.56                100.0%
+   2              2.53                 98.3%
+   1              5.07                 17.9%
+   0              3.80                  0.0%
+last-resort groups: {'1 seat(s) for 2 players': '16.3%', '1 seat(s) for 4 players': '7.7%', '1 seat(s) for 6 players': '3.5%', '1 seat(s) for 3 players': '3.4%', '2 seat(s) for 6 players': '2.1%'}
+one stronger player makes the final: average 33%, strength 1.5 -> 47%, strength 2.0 -> 58%, strength 3.0 -> 72%
+
+strength 1.5 wins 33% against three average players, 2.0 wins 40%, 3.0 wins 50%
