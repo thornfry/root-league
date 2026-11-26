@@ -1,6 +1,6 @@
 # Roster
 
-Who is in the league. Each player's faction list is on [faction picks](faction-picks.md).
+Who is in the league. Each player's faction list is in [`preferences.json`](preferences.json).
 
 | Player | Status |
 |---|---|

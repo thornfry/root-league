@@ -1,6 +1,6 @@
 # Sample Pairings: 4 Games
 
-A sample layout for 12 players, 4 games each, which makes 12 games. For the 3-game version, see [sample pairings: 3 games](sample-pairings-3-games.md). For how a cut to a final table would go in either format, see [final table](final-table.md). The 12 are the 10 [confirmed players](../../season-1/roster.md) plus Chuck and Corey, who are still possible. It is not the real pairings. Factions come from the current [faction picks](../../season-1/faction-picks.md), many of which are still provisional. Players were placed into slots at random, so who gets which schedule means nothing.
+A sample layout for 12 players, 4 games each, which makes 12 games. For the 3-game version, see [sample pairings: 3 games](sample-pairings-3-games.md). For how a cut to a final table would go in either format, see [final table](final-table.md). The 12 are the 10 [confirmed players](../../season-1/roster.md) plus Chuck and Corey, who are still possible. It is not the real pairings. Factions come from the current [faction lists](../../season-1/preferences.json), many of which are still provisional. Players were placed into slots at random, so who gets which schedule means nothing.
 
 There are no rounds. With 12 players, grouping the games into rounds of 3 tables forces extra repeat meetings: a round-2 table draws 4 players from only 3 round-1 tables, so two of them have met. Even meetings come first, so the games can be played in any order.
 

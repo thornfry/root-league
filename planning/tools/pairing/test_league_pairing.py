@@ -124,15 +124,6 @@ class DocInStep(unittest.TestCase):
         with open(PREFS) as fh:
             self.real = json.load(fh)["players"]
 
-    def test_faction_picks_doc_matches_json(self):
-        in_doc = {}
-        for cells in table_rows("season-1/faction-picks.md", "Player"):
-            if cells[0] in self.real:
-                in_doc[cells[0]] = [L.canon(c) for c in cells[2:] if c]
-        self.assertEqual(set(in_doc), set(self.real))
-        for name, picks in self.real.items():
-            self.assertEqual(in_doc[name], [L.canon(f) for f in picks], name)
-
     def test_picks_per_faction_matches_json(self):
         rows = {L.canon(c[0]): c for c in table_rows("planning/season-1/faction-popularity.md", "Code")}
         self.assertEqual(set(rows), set(L.FACTIONS))

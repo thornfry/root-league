@@ -16,4 +16,4 @@ Working material for Will: design notes, spikes, samples and tools. Nothing here
 - [Sample pairings: 4 games](season-1/sample-pairings-4-games.md): the same for 4 games each. No final.
 - [Final table](season-1/final-table.md): the math of a cut to a 4-player final at 12 players.
 
-The season's faction lists live in [`season-1/preferences.json`](../season-1/preferences.json), which is the tool's input and the source for [faction picks](../season-1/faction-picks.md).
+The season's faction lists live in [`season-1/preferences.json`](../season-1/preferences.json), which is the tool's input.

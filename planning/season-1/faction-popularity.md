@@ -1,6 +1,6 @@
 # Faction Popularity
 
-How many [faction picks](../../season-1/faction-picks.md) lists rank each [faction](../../league/factions.md) at each position, most picked first. Every faction is listed, picked or not. A test keeps this page in step with [`season-1/preferences.json`](../../season-1/preferences.json).
+How many of the [faction lists](../../season-1/preferences.json) rank each [faction](../../league/factions.md) at each position, most picked first. Every faction is listed, picked or not. A test keeps this page in step with [`season-1/preferences.json`](../../season-1/preferences.json).
 
 | Code | Type | Reach | 1 | 2 | 3 | 4 | 5 | 6 | Total |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|

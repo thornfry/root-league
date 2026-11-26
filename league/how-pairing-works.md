@@ -2,7 +2,7 @@
 
 How the pairing tool decides who plays whom, in which seat, on which map and with which faction. The goal is that you can see why you were placed where you were. The code is in [`league_pairing.py`](../planning/tools/pairing/league_pairing.py) if you want to check it.
 
-The tool aims at the [pairing rules](pairing-rules.md). Your input is your ranked list on [faction picks](../season-1/faction-picks.md); nothing else about you, such as skill or past results, is used.
+The tool aims at the [pairing rules](pairing-rules.md). Your input is your ranked faction list in [`preferences.json`](../season-1/preferences.json); nothing else about you, such as skill or past results, is used.
 
 ## The three steps
 
@@ -23,7 +23,7 @@ At the end, a check confirms every hard rule holds. See [`check`](../planning/to
 - **Who you play is random but fair.** Players are mixed so nobody faces the same opponent much more than anyone else. Which particular players you meet comes down to the shuffle.
 - **Your factions come from your list.** Higher on your list means more likely to be played. If you got a lower pick, it is because giving you a higher one would have left someone else worse off, or your table needed more reach.
 - **Your seat is just a rotation.** Seats carry no meaning beyond turn order, and you get a different one each game.
-- **Anyone can rerun it.** The tool uses a numbered seed for its random choices. The same faction picks and seed give the same pairings, so the published pairings can be checked.
+- **Anyone can rerun it.** The tool uses a numbered seed for its random choices. The same faction lists and seed give the same pairings, so the published pairings can be checked.
 
 ## Known gaps
 

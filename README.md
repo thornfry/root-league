@@ -6,7 +6,7 @@ A league for the board game Root. You play 3 or 4 games across the season, each 
 
 1. **Read** the [format](league/format.md) to see how the league runs.
 2. **Check** the [roster](season-1/roster.md) to see who is in.
-3. **Rank** the factions you want to play, best first. Each faction's code, type and reach are on [factions](league/factions.md); everyone's lists are on [faction picks](season-1/faction-picks.md).
+3. **Rank** the factions you want to play, best first. Each faction's code, type and reach are on [factions](league/factions.md); everyone's lists are in [`preferences.json`](season-1/preferences.json).
 4. **Look** at [how pairing works](league/how-pairing-works.md) to see how your games and factions are chosen.
 
 ## How the league works
@@ -25,7 +25,7 @@ These apply to every season.
 | Page | What it covers |
 |---|---|
 | [Roster](season-1/roster.md) | Confirmed and possible players. |
-| [Faction picks](season-1/faction-picks.md) | Each player's ranked faction list. |
+| [`preferences.json`](season-1/preferences.json) | Each player's ranked faction list, and whether it is submitted or provisional. |
 | [Pairings](season-1/pairings.md) | Who plays whom, where and as what, with results once games are played. |
 
 ## Planning
