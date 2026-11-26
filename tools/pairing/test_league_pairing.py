@@ -95,23 +95,64 @@ class SixPicks(unittest.TestCase):
         L.report(r, 2)  # must not crash on a sixth pick
 
 
+DOCS = os.path.join(HERE, "..", "..", "docs")
+
+
+def table_rows(doc, header):
+    """Rows of the markdown table whose first cell is `header`, as cell lists."""
+    with open(os.path.join(DOCS, doc)) as fh:
+        lines = fh.read().splitlines()
+    rows, inside = [], False
+    for line in lines:
+        if not line.startswith("|"):
+            if inside:
+                break
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if cells[0] == header:
+            inside = True
+        elif inside and not set(cells[0]) <= set("-:"):
+            rows.append(cells)
+    return rows
+
+
 class DocInStep(unittest.TestCase):
-    """docs/faction-picks.md must list the same ranked picks as preferences.json."""
+    """The docs must match preferences.json and the faction table in the tool."""
+
+    def setUp(self):
+        with open(os.path.join(HERE, "preferences.json")) as fh:
+            self.real = json.load(fh)["players"]
 
     def test_faction_picks_doc_matches_json(self):
-        with open(os.path.join(HERE, "preferences.json")) as fh:
-            real = json.load(fh)["players"]
-        doc = os.path.join(HERE, "..", "..", "docs", "faction-picks.md")
-        with open(doc) as fh:
-            lines = fh.read().splitlines()
         in_doc = {}
-        for line in lines:
-            cells = [c.strip() for c in line.strip().strip("|").split("|")]
-            if line.startswith("|") and len(cells) == 3 and cells[0] in real:
-                in_doc[cells[0]] = [L.canon(f) for f in cells[2].split(",")]
-        self.assertEqual(set(in_doc), set(real))
-        for name, picks in real.items():
+        for cells in table_rows("faction-picks.md", "Player"):
+            if cells[0] in self.real:
+                in_doc[cells[0]] = [L.canon(c) for c in cells[2:] if c]
+        self.assertEqual(set(in_doc), set(self.real))
+        for name, picks in self.real.items():
             self.assertEqual(in_doc[name], [L.canon(f) for f in picks], name)
+
+    def test_picks_per_faction_matches_json(self):
+        rows = {L.canon(c[0]): c for c in table_rows("faction-popularity.md", "Code")}
+        self.assertEqual(set(rows), set(L.FACTIONS))
+        for key, cells in rows.items():
+            counts = [0] * 6
+            for picks in self.real.values():
+                for i, f in enumerate(picks):
+                    if L.canon(f) == key:
+                        counts[i] += 1
+            in_doc = [0 if c == "\u2014" else int(c) for c in cells[3:9]]
+            self.assertEqual(in_doc, counts, cells[0])
+            self.assertEqual(int(cells[9]), sum(counts), cells[0])
+
+    def test_factions_doc_matches_tool(self):
+        rows = table_rows("factions.md", "Code")
+        self.assertEqual({c[0] for c in rows}, set(L.CODES.values()))
+        for code, name, kind, reach in rows:
+            key = L.canon(code)
+            self.assertEqual(name, L.FACTIONS[key][0], code)
+            self.assertEqual(int(reach), L.FACTIONS[key][1], code)
+            self.assertEqual(kind, "Militant" if key in L.MILITANT else "Insurgent", code)
 
 
 @unittest.skipUnless(os.environ.get("SLOW"), "set SLOW=1")

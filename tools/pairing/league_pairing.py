@@ -10,7 +10,7 @@ Hard rules (see docs/league-decisions.md):
     and nobody meets the same opponent in every one of their games.
   - A player never plays the same faction twice.
   - At most one of each faction per table (so one Vagabond per table).
-  - Every table's total reach is at least MIN_REACH (17).
+  - Every table's total reach is at least MIN_REACH (21).
   - Nobody holds the same seat twice (possible for up to 4 games each).
 Soft goals:
   - Maps: each player plays each map once where possible. Where the player
@@ -40,7 +40,7 @@ import sys
 from dataclasses import dataclass, field
 
 TABLE_SIZE = 4
-MIN_REACH = 17
+MIN_REACH = 21  # Law of Root 5.2.1, 4 players
 MAX_SPREAD = 1
 OFF_LIST_COST = 8  # regret for an unlisted faction; worse than pick #5 (4)
 
@@ -61,8 +61,21 @@ FACTIONS = {
     "lizards": ("Lizard Cult", 2),
 }
 
+# Short codes used in the docs (docs/factions.md).
+CODES = {
+    "cats": "cats", "hundreds": "rats", "keepers": "badgers", "duchy": "moles",
+    "lilypad": "frogs", "eyrie": "birds", "vagabond": "vagabond", "riverfolk": "otters",
+    "knaves": "knaves", "twilight": "bats", "alliance": "WA", "corvids": "crows",
+    "lizards": "lizards",
+}
+
+# Militant factions per the Root Database faction listing (checked 2026-11-25);
+# the rest are insurgent.
+MILITANT = {"cats", "eyrie", "duchy", "hundreds", "keepers", "lilypad"}
+
 ALIASES = {name.lower(): key for key, (name, _) in FACTIONS.items()}
 ALIASES.update({key: key for key in FACTIONS})
+ALIASES.update({code.lower(): key for key, code in CODES.items()})
 ALIASES.update({
     "marquise": "cats", "cat": "cats", "eyrie dynasties": "eyrie",
     "woodland alliance": "alliance", "wa": "alliance", "vb": "vagabond",
