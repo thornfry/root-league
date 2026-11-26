@@ -6,9 +6,9 @@ What the league format and the pairings must satisfy. This is the source of trut
 
 1. **Score is a win.** Other places earn nothing.
 2. **Every table has 4 players.**
-3. **Player count is ideally divisible by 4.** 12 is not confirmed.
-4. **Every player plays 3 games.**
-5. **A final table is optional.**
+3. **Player count is ideally divisible by 4.** The [roster](roster.md) is at 12, with 2 of them still possible.
+4. **Every player plays 3 or 4 games.** Not picked yet; there is a sample of each: [3 games](sample-pairings-3-games.md) and [4 games](sample-pairings-4-games.md).
+5. **A final table is optional.** See [final table](final-table.md) for how a cut to 4 would go.
 6. **No Advanced Setup (AdSet).** Factions come from each player's preferred list, through the pairings.
 7. **Two games at once is allowed** but not something to optimize for. It is a scheduling detail, not a format rule.
 8. **Rounds are a grouping, not a time slot.** Games may be described in rounds, but a round's games need not be played at the same time. So the one-per-table limits (one copy of each faction, one board) apply per table, never per round. Two games in a round can use the same faction or the same board.
@@ -81,14 +81,14 @@ Carried over from the earlier analysis. These are findings, not rules, until Wil
 
 - **Players × games must be a multiple of 4.** With 3 games each, that means a player count divisible by 4, which matches format rule 3. 10 players works only with an even number of games each.
 - **Cut ladder, if there is a final:** wins, then strength of schedule, then sum of finishing places, then a random draw. Finishing places would be recorded for tiebreaks only, never as score. Will picked this when the final was required. Check that it still stands now the final is optional.
-- **Strength of schedule separates little when pairings are even.** At 12 players and 3 games, each player meets 9 opponents once. Strength of schedule then only reflects the wins of the 2 opponents a player never met. If there is a final, a placings tiebreak matters more than strength of schedule.
+- **Strength of schedule still earns its place.** At 12 players and 3 games it only reflects the wins of the 2 opponents a player never met, yet it settles over a third of cuts. Dropping it more than doubles the random draws; see [final table](final-table.md).
 
 ## Still open
 
-- **Player count:** final roster size (see [roster](roster.md)). 10 or 12, not 8; see [player counts](#player-counts).
-- **Final table at 10 players, 2 games:** tiebreak order for the cut, how finalists get seats (for example, top seed picks first), factions (for example, the same faction step, with each finalist getting their best unplayed pick), and the map.
+- **Player count:** final roster size (see [roster](roster.md)). 12 for now, with Chuck and Corey still possible.
+- **Games each:** 3 or 4.
 - **Seat tiebreak for factions:** what seat order should favour when two faction choices are equally good.
-- **Final table:** whether to hold one, and if so, how finalists choose seats and factions.
+- **Final table:** whether to hold one, and if so, the tiebreak order for the cut, how finalists choose seats and factions, and the map. See [final table](final-table.md).
 - **Militant and insurgent mix:** what "sensible mix" means at a table. Each faction's type is on [factions](factions.md).
 - **Faction pool:** which factions and expansions are owned.
 - **Logistics:** deck (standard or Exiles and Partisans), game time cap and the rule when it is hit, drop-out policy, prizes, dates.
