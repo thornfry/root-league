@@ -22,7 +22,7 @@ Roughly in priority order.
 3. **Even meetings.** Every pair of players meets about the same number of times. No pair sits together every game while other pairs never meet.
 4. **Different seat every game.** Each player sits in a different seat in each of their games.
 5. **Different map every game.** Each player plays a different map in each of their games.
-6. **Table reach at least 17.** 17 is the minimum. Flag any table below it.
+6. **Table reach at least 21.** This is the Law of Root's recommended sum for 4 players (5.2.1); see [reach](factions.md#reach). Flag any table below it.
 7. **Militant and insurgent mix.** Each table has a sensible mix of militant ("red") and insurgent factions.
 
 ## Suggested approach

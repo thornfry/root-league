@@ -10,7 +10,7 @@ Hard rules (see docs/league-decisions.md):
     and nobody meets the same opponent in every one of their games.
   - A player never plays the same faction twice.
   - At most one of each faction per table (so one Vagabond per table).
-  - Every table's total reach is at least MIN_REACH (17).
+  - Every table's total reach is at least MIN_REACH (21).
   - Nobody holds the same seat twice (possible for up to 4 games each).
 Soft goals:
   - Maps: each player plays each map once where possible. Where the player
@@ -40,7 +40,7 @@ import sys
 from dataclasses import dataclass, field
 
 TABLE_SIZE = 4
-MIN_REACH = 17
+MIN_REACH = 21  # Law of Root 5.2.1, 4 players
 MAX_SPREAD = 1
 OFF_LIST_COST = 8  # regret for an unlisted faction; worse than pick #5 (4)
 
