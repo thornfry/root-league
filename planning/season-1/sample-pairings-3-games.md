@@ -2,14 +2,14 @@
 
 A sample layout for 12 players, 3 games each, which makes 9 games. For how a cut to a final table would go, see [final table](final-table.md). For the 4-game version, see [sample pairings: 4 games](sample-pairings-4-games.md).
 
-The 12 are the 10 [confirmed players](roster.md) plus Chuck and Corey, who are still possible. It is not the real pairings. Factions come from the current [faction picks](faction-picks.md), many of which are still provisional. Players were placed into slots at random, so who gets which schedule means nothing.
+The 12 are the 10 [confirmed players](../../season-1/roster.md) plus Chuck and Corey, who are still possible. It is not the real pairings. Factions come from the current [faction lists](../../season-1/preferences.json), many of which are still provisional. Players were placed into slots at random, so who gets which schedule means nothing.
 
 There are no rounds. With 12 players, grouping the games into rounds of 3 tables forces repeat meetings: a round-2 table draws 4 players from only 3 round-1 tables, so two of them have met. The best 3-round layout found had 3 pairs playing each other in every game. Even meetings come first, so the games can be played in any order.
 
 - **Meetings:** every player meets 9 opponents once and misses 2. Nobody meets anyone twice. That is the best possible for 12 players and 3 games.
 - **Seats:** every player sits in a different seat in each game. Seat 1 is first in turn order.
 - **Maps:** all four are used. Winter (the base board, several copies) hosts 3 games; Autumn, Lake and Mountain host 2 each. 8 players play three different maps, 3 play one map twice and David plays Winter all three times. That is the best possible with no repeat meetings (see [how the layout works](#how-the-layout-works)).
-- **Factions:** every player plays their top 3 picks, one per game, and nobody repeats a faction. Every table has one of each faction, reach of at least 21 ([Law of Root 5.2.1](factions.md#reach)), at least one militant and one insurgent faction, and never both Vagabond and Knaves. Which of a player's top 3 lands in which game is arbitrary; the [seat tiebreak](pairing-rules.md#still-open) is still open.
+- **Factions:** every player plays their top 3 picks, one per game, and nobody repeats a faction. Every table has one of each faction, reach of at least 21 ([Law of Root 5.2.1](../../league/factions.md#reach)), at least one militant and one insurgent faction, and never both Vagabond and Knaves. Which of a player's top 3 lands in which game is arbitrary; the [seat tiebreak](../open-questions.md#still-open-every-season) is still open.
 
 ## How the layout works
 
@@ -19,7 +19,7 @@ The same grid limits the maps. No way of painting the 9 cells with 4 maps gives 
 
 ## Games
 
-Seat cells read `Player: faction`, by [faction code](factions.md). Seat 1 goes first. Mix is militant / insurgent.
+Seat cells read `Player: faction`, by [faction code](../../league/factions.md). Seat 1 goes first. Mix is militant / insurgent.
 
 | Game | Map | Seat 1 | Seat 2 | Seat 3 | Seat 4 | Reach | Mix |
 |---:|---|---|---|---|---|---:|---|

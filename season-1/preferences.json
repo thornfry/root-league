@@ -1,5 +1,5 @@
 {
- "_note": "Ranked faction lists, best first. Source of truth; docs/faction-picks.md mirrors it and a test keeps them in step. Provisional lists were made up for testing and will be replaced by the players' own lists.",
+ "_note": "Ranked faction lists, best first. Source of truth for the pairing tool; planning/season-1/faction-popularity.md is counted from it and a test keeps them in step. Provisional lists were made up for testing and will be replaced by the players' own lists.",
  "players": {
   "Alex": ["Underground Duchy", "Lord of the Hundreds", "Woodland Alliance", "Vagabond", "Lilypad Diaspora"],
   "Will": ["Eyrie Dynasties", "Underground Duchy", "Lizard Cult", "Twilight Council", "Woodland Alliance"],
