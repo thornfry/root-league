@@ -95,12 +95,13 @@ class SixPicks(unittest.TestCase):
         L.report(r, 2)  # must not crash on a sixth pick
 
 
-DOCS = os.path.join(HERE, "..", "..", "docs")
+ROOT = os.path.join(HERE, "..", "..", "..")
+PREFS = os.path.join(ROOT, "season-1", "preferences.json")
 
 
 def table_rows(doc, header):
-    """Rows of the markdown table whose first cell is `header`, as cell lists."""
-    with open(os.path.join(DOCS, doc)) as fh:
+    """Rows of the repo-relative doc's markdown table whose first cell is `header`, as cell lists."""
+    with open(os.path.join(ROOT, doc)) as fh:
         lines = fh.read().splitlines()
     rows, inside = [], False
     for line in lines:
@@ -120,12 +121,12 @@ class DocInStep(unittest.TestCase):
     """The docs must match preferences.json and the faction table in the tool."""
 
     def setUp(self):
-        with open(os.path.join(HERE, "preferences.json")) as fh:
+        with open(PREFS) as fh:
             self.real = json.load(fh)["players"]
 
     def test_faction_picks_doc_matches_json(self):
         in_doc = {}
-        for cells in table_rows("faction-picks.md", "Player"):
+        for cells in table_rows("season-1/faction-picks.md", "Player"):
             if cells[0] in self.real:
                 in_doc[cells[0]] = [L.canon(c) for c in cells[2:] if c]
         self.assertEqual(set(in_doc), set(self.real))
@@ -133,7 +134,7 @@ class DocInStep(unittest.TestCase):
             self.assertEqual(in_doc[name], [L.canon(f) for f in picks], name)
 
     def test_picks_per_faction_matches_json(self):
-        rows = {L.canon(c[0]): c for c in table_rows("faction-popularity.md", "Code")}
+        rows = {L.canon(c[0]): c for c in table_rows("planning/season-1/faction-popularity.md", "Code")}
         self.assertEqual(set(rows), set(L.FACTIONS))
         for key, cells in rows.items():
             counts = [0] * 6
@@ -146,7 +147,7 @@ class DocInStep(unittest.TestCase):
             self.assertEqual(int(cells[9]), sum(counts), cells[0])
 
     def test_factions_doc_matches_tool(self):
-        rows = table_rows("factions.md", "Code")
+        rows = table_rows("league/factions.md", "Code")
         self.assertEqual({c[0] for c in rows}, set(L.CODES.values()))
         for code, name, kind, reach in rows:
             key = L.canon(code)

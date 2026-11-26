@@ -1,6 +1,6 @@
 # Faction Picks
 
-Each [roster](roster.md) player's ranked faction list, best first, by [faction code](factions.md). **Submitted** lists come from the player. **Provisional** lists are made up for testing the pairings and will be replaced. The source is [`tools/pairing/preferences.json`](../tools/pairing/preferences.json); a test keeps this page in step with it.
+Each [roster](roster.md) player's ranked faction list, best first, by [faction code](../league/factions.md). **Submitted** lists come from the player. **Provisional** lists are made up for testing the pairings and will be replaced. The source is [`preferences.json`](preferences.json); a test keeps this page in step with it.
 
 ## Ranked lists
 

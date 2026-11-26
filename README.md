@@ -1,14 +1,33 @@
 # Root League
 
-A Root board game league. Planning only; no games played yet.
+A league for the board game Root. You play 3 or 4 games across the season, each at a table of 4 and with a faction from your own ranked list, and wins are what count. Season 1 is being set up now; no games have been played yet.
 
-- [League requirements](docs/pairing-rules.md): format, pairing rules, findings to confirm and open items.
-- [Roster](docs/roster.md): confirmed and possible players.
-- [Factions](docs/factions.md): every faction with its code, type and reach.
-- [Faction picks](docs/faction-picks.md): each player's ranked faction list.
-- [Faction popularity](docs/faction-popularity.md): how often each faction is picked, at each rank.
-- [Pairings](docs/pairings.md): the game table, with results once games are played.
-- [Sample pairings: 3 games](docs/sample-pairings-3-games.md): a sample 12-player layout, 3 games each, with seats, maps, factions and meetings. Leaves room for a final.
-- [Sample pairings: 4 games](docs/sample-pairings-4-games.md): the same for 4 games each. No final.
-- [Final table](docs/final-table.md): the math of a cut to a 4-player final at 12 players and 3 games.
-- [tools/pairing/](tools/pairing/): an exploratory pairing tool built before the current requirements. It assumes 4 games each and allows off-list factions as a fallback, so it does not meet the requirements yet.
+## New here
+
+1. **Read** the [format](league/format.md) to see how the league runs.
+2. **Check** the [roster](season-1/roster.md) to see who is in.
+3. **Rank** the factions you want to play, best first. Each faction's code, type and reach are on [factions](league/factions.md); everyone's lists are on [faction picks](season-1/faction-picks.md).
+4. **Look** at [how pairing works](league/how-pairing-works.md) to see how your games and factions are chosen.
+
+## How the league works
+
+These apply to every season.
+
+| Page | What it covers |
+|---|---|
+| [Format](league/format.md) | Scoring, table size, Advanced Setup and how games are grouped. |
+| [Pairing rules](league/pairing-rules.md) | What every set of pairings must satisfy: factions, meetings, seats, maps and reach. |
+| [How pairing works](league/how-pairing-works.md) | The steps the pairing tool takes, in plain terms, with links to the code. |
+| [Factions](league/factions.md) | Every faction with its code, type and reach, and the Law of Root reach rule. |
+
+## Season 1
+
+| Page | What it covers |
+|---|---|
+| [Roster](season-1/roster.md) | Confirmed and possible players. |
+| [Faction picks](season-1/faction-picks.md) | Each player's ranked faction list. |
+| [Pairings](season-1/pairings.md) | Who plays whom, where and as what, with results once games are played. |
+
+## Planning
+
+Will's working notes: decisions so far, open questions, sample pairings, the final-table math and the pairing tool. Nothing there is a league rule. Start at [planning/](planning/README.md).

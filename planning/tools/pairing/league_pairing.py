@@ -4,7 +4,7 @@
 The schedule is a plain list of games. Each game has a map, four seats in
 turn order, and a faction per seat. Standard library only.
 
-Hard rules (see docs/league-decisions.md):
+Hard rules (see league/pairing-rules.md):
   - Every game has exactly 4 players; each player plays the same number of games.
   - Pair meetings are even: max - min over all pairs <= MAX_SPREAD (default 1),
     and nobody meets the same opponent in every one of their games.
@@ -61,7 +61,7 @@ FACTIONS = {
     "lizards": ("Lizard Cult", 2),
 }
 
-# Short codes used in the docs (docs/factions.md).
+# Short codes used in the docs (league/factions.md).
 CODES = {
     "cats": "cats", "hundreds": "rats", "keepers": "badgers", "duchy": "moles",
     "lilypad": "frogs", "eyrie": "birds", "vagabond": "vagabond", "riverfolk": "otters",

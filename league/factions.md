@@ -1,6 +1,6 @@
 # Factions
 
-Every faction in the pool, with the short code used on the other pages. Highest reach first. Reach and type are from the [Root Database faction listing](https://www.therootdatabase.com/search/faction/), checked 2026-11-25. The tool's copy is in [`tools/pairing/league_pairing.py`](../tools/pairing/league_pairing.py); a test keeps this page in step with it.
+Every faction in the pool, with the short code used on the other pages. Highest reach first. Reach and type are from the [Root Database faction listing](https://www.therootdatabase.com/search/faction/), checked 2026-11-25. The tool's copy is in [`tools/pairing/league_pairing.py`](../planning/tools/pairing/league_pairing.py); a test keeps this page in step with it.
 
 | Code | Faction | Type | Reach |
 |---|---|---|---:|
@@ -20,7 +20,7 @@ Every faction in the pool, with the short code used on the other pages. Highest 
 
 Vagabond's reach is 5 for the first Vagabond and 2 for a second one; the league never seats two at one table.
 
-Militant factions have a red name with a sword on their Advanced Setup card; insurgent ones a grey name with no sword. Which factions are owned is [still open](pairing-rules.md#still-open).
+Militant factions have a red name with a sword on their Advanced Setup card; insurgent ones a grey name with no sword. The [pairing rules](pairing-rules.md) use type and reach to balance each table.
 
 ## Reach
 
