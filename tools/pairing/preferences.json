@@ -7,10 +7,12 @@
   "David": ["Woodland Alliance", "Knaves of the Deepwood", "Vagabond", "Corvid Conspiracy", "Underground Duchy", "Lilypad Diaspora"],
   "Delaney": ["Lord of the Hundreds", "Lizard Cult", "Underground Duchy", "Lilypad Diaspora", "Marquise de Cat"],
   "Kyra": ["Knaves of the Deepwood", "Vagabond", "Marquise de Cat", "Underground Duchy", "Riverfolk Company"],
-  "Nick": ["Marquise de Cat", "Eyrie Dynasties", "Vagabond", "Woodland Alliance"],
+  "Nick": ["Corvid Conspiracy", "Lizard Cult", "Woodland Alliance", "Eyrie Dynasties", "Marquise de Cat"],
   "Adam": ["Marquise de Cat", "Vagabond", "Eyrie Dynasties", "Woodland Alliance"],
-  "Zach": ["Keepers in Iron", "Riverfolk Company", "Lord of the Hundreds", "Corvid Conspiracy", "Eyrie Dynasties"],
-  "Anthony": ["Twilight Council", "Keepers in Iron", "Knaves of the Deepwood", "Marquise de Cat", "Lilypad Diaspora"]
+  "Zach": ["Lord of the Hundreds", "Twilight Council", "Marquise de Cat", "Woodland Alliance", "Corvid Conspiracy"],
+  "Anthony": ["Lord of the Hundreds", "Eyrie Dynasties", "Marquise de Cat", "Woodland Alliance", "Vagabond"],
+  "Chuck": ["Marquise de Cat", "Eyrie Dynasties", "Woodland Alliance", "Vagabond"],
+  "Corey": ["Vagabond", "Lord of the Hundreds", "Riverfolk Company", "Eyrie Dynasties", "Marquise de Cat"]
  },
  "status": {
   "Alex": "Submitted",
@@ -22,6 +24,8 @@
   "Nick": "Provisional",
   "Adam": "Provisional",
   "Zach": "Provisional",
-  "Anthony": "Provisional"
+  "Anthony": "Provisional",
+  "Chuck": "Provisional",
+  "Corey": "Provisional"
  }
 }

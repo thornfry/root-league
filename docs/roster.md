@@ -14,9 +14,7 @@ Who is in the league. Each player's faction list is on [faction picks](faction-p
 | Anthony | Confirmed |
 | David | Confirmed |
 | Will | Confirmed |
-| Derek | Possible |
 | Chuck | Possible |
-| Ryan | Possible |
-| Fern | Possible |
+| Corey | Possible |
 
-**Confirmed: 10. Possible: 4.**
+**Confirmed: 10. Possible: 2.**
