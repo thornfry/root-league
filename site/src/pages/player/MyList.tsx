@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Link, useSearchParams } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { useSession } from '../../auth/session'
 import { FACTIONS, findFaction } from '../../data/factions'
 import { getSupabase } from '../../db/client'
+import { MEMBERSHIP_KEY } from '../../db/membership'
 import type { Database } from '../../db/types'
 import { Alert, Button, Tag } from '../../ui'
 import { FactionRow } from '../../ui/FactionRow'
@@ -67,15 +68,17 @@ export function MyList() {
       </select>
     </label>}
     {!entry ? <Alert tone="info">Join the league to rank factions. <Link to="/">Back to Home</Link></Alert>
-      : <ListEditor key={`${season.id}:${entry.person_id}`} season={season} entry={entry} editable={admin || stage === 'open'} admin={admin} />}
+      : <ListEditor key={`${season.id}:${entry.person_id}`} season={season} entry={entry} editable={admin || stage === 'open'} admin={admin} goHomeAfterSave={entry.person_id === personId} />}
   </div>
 }
 
-function ListEditor({ season, entry, editable, admin }: { season: Season; entry: Entry; editable: boolean; admin: boolean }) {
+/** An admin editing someone else's list stays on the page to keep going; everyone saving their own list goes Home. */
+function ListEditor({ season, entry, editable, admin, goHomeAfterSave }: { season: Season; entry: Entry; editable: boolean; admin: boolean; goHomeAfterSave: boolean }) {
   const [codes, setCodes] = useState(entry.ranked_factions ?? [])
   const [saved, setSaved] = useState(entry.ranked_factions ?? [])
   const [message, setMessage] = useState('')
   const client = useQueryClient()
+  const navigate = useNavigate()
   const pool = season.faction_pool ?? []
   const minimum = season.min_list_length
   const problems = listProblems(codes, pool)
@@ -93,6 +96,10 @@ function ListEditor({ season, entry, editable, admin }: { season: Season; entry:
       setSaved([...codes])
       setMessage(ready ? 'Factions saved. You are ready.' : 'Factions saved. Not ready yet.')
       await client.invalidateQueries({ queryKey: ['my-list'] })
+      if (goHomeAfterSave) {
+        await client.invalidateQueries({ queryKey: MEMBERSHIP_KEY })
+        navigate('/', { state: { listSaved: true } })
+      }
     },
     onError: async () => { await client.invalidateQueries({ queryKey: ['my-list'] }) },
   })

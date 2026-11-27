@@ -105,3 +105,10 @@ it('asks the admin about a flagged list after lock', async () => {
   expect(screen.getByText(/faction pool changed/)).toBeInTheDocument()
   expect(screen.queryByRole('link', { name: 'Finish my factions' })).not.toBeInTheDocument()
 })
+
+it('confirms a saved list on Home with the factions and Ready status', async () => {
+  scenario(true, 'open', true)
+  renderApp({ pathname: '/', state: { listSaved: true } })
+  expect(await screen.findByText('Factions saved.')).toBeInTheDocument()
+  expect(screen.getByText('Ready', { exact: true })).toBeInTheDocument()
+})

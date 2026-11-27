@@ -11,10 +11,12 @@ export function MembershipListEntry({ children }: { children: ReactNode }) {
 }
 
 export function ProspectHome({ membership: { season, stage, member } }: { membership: Membership }) {
+  const { state } = useLocation()
   if (!member) return null
   const ready = member.list_in && !member.list_flagged
   const factions = member.ranked_factions ?? []
   return <>
+    {state?.listSaved === true ? <Alert tone="ok"><span role="status">Factions saved.</span></Alert> : null}
     {stage === 'locked' ? <Alert tone="info">Lists are locked. The season has not started yet.</Alert> : null}
     {season.lists_lock_at ? <p className="muted">Lists {stage === 'open' ? 'lock' : 'locked'}: {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'long' }).format(new Date(season.lists_lock_at))}</p> : null}
     <div className="cols2">

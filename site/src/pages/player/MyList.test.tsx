@@ -37,7 +37,7 @@ function fixture({ admin = false, stage = 'open', codes = [] as string[], flagge
 it.each([375, 1280])('adds, reorders, removes, submits and reloads at %i px', async width => {
   const { rpc } = fixture()
   const user = userEvent.setup()
-  const view = renderApp('/my-list', width)
+  const { router, ...view } = renderApp('/my-list', width)
   await screen.findByRole('heading', { name: 'Add a faction' })
   expect(screen.getAllByRole('button', { name: 'Save factions' })).toHaveLength(1)
   expect(screen.getByRole('button', { name: 'Save factions' })).toBeDisabled()
@@ -52,7 +52,8 @@ it.each([375, 1280])('adds, reorders, removes, submits and reloads at %i px', as
   expect(screen.getByText('Pick 2 to 5 factions to be ready. You have 1.')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Add Woodland Alliance' }))
   await user.click(screen.getByRole('button', { name: 'Save factions' }))
-  await screen.findByText('Factions saved. You are ready.')
+  await vi.waitFor(() => expect(router.state.location.pathname).toBe('/'))
+  expect(router.state.location.state).toEqual({ listSaved: true })
   expect(rpc).toHaveBeenCalledWith('save_ranked_list', { p_season_id: 'season', p_factions: ['birds', 'WA'] })
   view.unmount()
   renderApp('/my-list', width)
@@ -85,11 +86,12 @@ it.each(['locked', 'live'])('renders %s lists read-only', async stage => {
 
 it('lets an admin edit another list after lock', async () => {
   const { rpc } = fixture({ admin: true, stage: 'locked', codes: ['cats', 'birds'] })
-  renderApp('/my-list')
+  const { router } = renderApp('/my-list')
   await userEvent.selectOptions(await screen.findByLabelText('Edit a player’s factions'), 'p-alex')
   await userEvent.click(screen.getByRole('button', { name: 'Move Eyrie Dynasties up' }))
   await userEvent.click(screen.getByRole('button', { name: 'Save factions' }))
   await screen.findByText('Factions saved. You are ready.')
+  expect(router.state.location.pathname).toBe('/my-list')
   expect(rpc).toHaveBeenCalledWith('roster_set_list', { p_season_id: 'season', p_person_id: 'p-alex', p_factions: ['birds', 'cats'] })
 })
 
@@ -108,16 +110,22 @@ it('asks a viewer to join without exposing list controls', async () => {
   expect(screen.queryByRole('button', { name: 'Save factions' })).toBeNull()
 })
 
-it('saves a partial list as not ready and stops at five factions', async () => {
-  const { state, rpc } = fixture()
+it('saves a partial list and returns Home', async () => {
+  const { rpc } = fixture()
+  const user = userEvent.setup()
+  const { router } = renderApp('/my-list')
+  await user.click(await screen.findByRole('button', { name: 'Add Marquise de Cat' }))
+  await user.click(screen.getByRole('button', { name: 'Save factions' }))
+  await vi.waitFor(() => expect(router.state.location.pathname).toBe('/'))
+  expect(rpc).toHaveBeenCalledWith('save_ranked_list', { p_season_id: 'season', p_factions: ['cats'] })
+})
+
+it('stops at five factions', async () => {
+  const { state } = fixture()
   state.season.faction_pool = ['cats', 'birds', 'WA', 'otters', 'frogs', 'rats']
   const user = userEvent.setup()
   renderApp('/my-list')
-  await user.click(await screen.findByRole('button', { name: 'Add Marquise de Cat' }))
-  await user.click(screen.getByRole('button', { name: 'Save factions' }))
-  await screen.findByText('Factions saved. Not ready yet.')
-  expect(rpc).toHaveBeenCalledWith('save_ranked_list', { p_season_id: 'season', p_factions: ['cats'] })
-  for (const name of ['Lord of the Hundreds', 'Eyrie Dynasties', 'Lilypad Diaspora', 'Riverfolk Company']) await user.click(screen.getByRole('button', { name: `Add ${name}` }))
+  for (const name of ['Marquise de Cat', 'Lord of the Hundreds', 'Eyrie Dynasties', 'Lilypad Diaspora', 'Riverfolk Company']) await user.click(await screen.findByRole('button', { name: `Add ${name}` }))
   expect(screen.getByRole('button', { name: 'Add Woodland Alliance' })).toBeDisabled()
   expect(screen.getByText(/the most it can/)).toBeInTheDocument()
 })
