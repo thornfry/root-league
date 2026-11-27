@@ -8,7 +8,7 @@
 <!--
   Root League website: clickable UX prototype, version 2.
   One self-contained file. No build step, no libraries, no network calls except the Google Fonts stylesheet.
-  Built from the approved user stories (planning/website/user-stories.md), the design canvas, and the later decisions in planning/website/decisions.md (26 to 28).
+  Built from the approved user stories (planning/website/user-stories.md), the design canvas, and the later decisions in planning/website/decisions.md (26 and 27).
   Discord sign-in, Supabase and the faction step are stubbed in this page. League info text is the repo's league/*.md, embedded.
   Data is saved in this browser's localStorage when available. Use "Reset data" in the purple prototype bar at the foot of the page.
 -->
@@ -1240,7 +1240,12 @@ function pMyList(m) {
 function pPlayers(m) {
   const se = SE(), ids = se.league.concat(se.wait).slice().sort((a, b) => pname(a).localeCompare(pname(b)));
   const open = stage() === 'open';
-  const head = '<div class="stack8"><h1 class="disp h1s">Players</h1>' + (open ? '<span class="muted">Lists show here once they lock.</span>' : '') + '</div>';
+  const head = '<div class="stack8"><h1 class="disp h1s">Players</h1>' + (open ? '<span class="muted">' + (m.admin ? 'Ranked lists show to players once they lock. As admin you see them now.' : 'Ranked lists show here once they lock. Until then only the owner and the admin see them.') + '</span>' : '') + '</div>';
+  if (open && m.admin) {
+    return '<main class="page" id="main">' + head + '<div class="cols2" style="align-items:start">' + ids.map(p => { const l = listOf(p), done = l.st === 'submitted' && l.codes.length >= se.minList;
+      return '<div class="card p16 stack" style="gap:10px"><div class="rowb"><b>' + esc(pname(p)) + '</b>' + (done ? tag('ok', 'List in', 'check') : '<span class="muted">Waiting</span>') + '</div>' +
+        (l.codes.length ? l.codes.map((c, i) => '<span class="fchip"><span class="num" style="width:18px;font-size:20px">' + (i + 1) + '</span>' + seal(c) + '<span class="fn">' + esc(FA[c].name) + '</span></span>').join('') : '<span class="muted">No list yet</span>') + '</div>'; }).join('') + '</div></main>';
+  }
   if (open) {
     return '<main class="page" id="main">' + head + '<div class="card" style="max-width:640px">' + ids.map(p => { const l = listOf(p), done = l.st === 'submitted' && l.codes.length >= se.minList;
       return '<div class="lrow" style="grid-template-columns:minmax(0,1fr) auto"><span>' + esc(pname(p)) + (p === m.pid ? ' ' + youTag : '') + '</span>' + (done ? tag('ok', 'List in', 'check') : '<span class="muted">Waiting</span>') + '</div>'; }).join('') + '</div></main>';
