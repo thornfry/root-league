@@ -35,3 +35,15 @@ S01 already proves that the open session's next API request loses access, and
 that adding an outsider lets the existing session in on reload.
 Full S01 and reset timing require Docker and are CI-only on machines without it.
 Failure traces, screenshots and the HTML report are uploaded by CI.
+
+E2 adds three helpers. `people.ts` is the cast: fixed placeholder Discord IDs, so a
+persona links to the person a scenario inserted. `api.ts` has `apiAs(who)`, a typed
+supabase-js client that sends that person's JWT, and `signInFast(page, who, path)`,
+which places a real session in browser storage. Sessions are cached per worker
+because local Auth rate-limits sign-ins; the sign-in page itself is used only where
+a scenario proves it (S01, S14). `scenario.ts` seeds a configured season, people,
+roster lists and a started season with one game per requested state.
+
+S14 sets the season through the admin screens before anyone joins, because no
+faction pool exists until the admin saves it. S15 runs on both widths but touches
+only the API. S16 checks keyboard order on desktop only.
