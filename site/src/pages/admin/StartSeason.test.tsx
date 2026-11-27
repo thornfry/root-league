@@ -25,6 +25,14 @@ function setup(d = data()) {
   return { user: userEvent.setup(), rpc }
 }
 beforeEach(() => { h.pending = false; h.cancel.mockClear() })
+it('offers Lock lists now only while lists are open', async () => {
+  const d = data(); d.stage = 'open'
+  const { user, rpc } = setup(d)
+  await user.click(await screen.findByRole('button', { name: 'Lock lists now' }))
+  await user.click(screen.getByRole('button', { name: 'Lock lists' }))
+  await vi.waitFor(() => expect(rpc).toHaveBeenCalledWith('season_lock_lists', { p_season_id: 's' }))
+})
+
 it('names missing preconditions and blocks assignment', async () => {
   const d = data(); d.stage = 'open'; d.roster.pop(); d.roster[0]!.list_in = false
   setup(d)

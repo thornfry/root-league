@@ -15,6 +15,13 @@ Entries 40 to 51 come from writing the [build sequence](build.md). They are numb
 
 Entries from 52 on come from Will's click-through of the running site on 2026-11-27.
 
+## 56. The admin can lock lists now, with a button
+
+- **Date:** 2026-11-27
+- **Context:** Lists lock when `seasons.lists_lock_at` passes (the stage is derived by `app.stage_of`; see decision 20). Will does not want to wait for the date once everyone has submitted.
+- **Decision:** An admin-only function `season_lock_lists(p_season_id)` sets `lists_lock_at` to now. It does nothing if lists are already locked and refuses once the season has started. A "Lock lists now" button with a confirmation sits on the Season page beside the lock date and on the Start season page while lists are open. There is no unlock function: setting a later lock date (or clearing it) on the Season page and saving reopens lists, because the stage is derived on every read.
+- **Consequence:** Locking early overwrites the planned lock date, and decision 20's single lock date is now the date the admin chose or the moment they pressed the button. The change is in the edit log like any other season change. Ranked lists become visible to everyone at that moment (decision 27).
+
 ## 55. Type is Baskervville, IM Fell English and Alegreya Sans
 
 - **Date:** 2026-11-27

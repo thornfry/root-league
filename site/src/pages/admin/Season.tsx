@@ -6,6 +6,7 @@ import type { Database } from '../../db/types'
 import { FACTIONS } from '../../data/factions'
 import { CAPACITIES, getLayout, isCapacity, MAX_MAPS, TEN_WITH_THREE_REASON, VALID_GAMES_EACH } from '../../data/valid-pairs'
 import { Alert, Button, ButtonLink, Card, Field, FactionSeal, Tag, type FactionCode } from '../../ui'
+import { LockListsNow } from './LockListsNow'
 
 import './Season.css'
 
@@ -34,13 +35,13 @@ export function Season() {
     <div className="kicker">Admin</div>
     <h1 className="disp h1s">Season</h1>
     {query.isPending ? <p role="status">Loading season</p> : query.isError ? <Alert tone="bad">{query.error.message}</Alert> : <>
-      {query.data ? <SeasonForm key={query.data.id} season={query.data} refresh={refresh} /> : <Alert tone="info">No current season. Create one to set it up.</Alert>}
+      {query.data ? <SeasonForm key={query.data.id} season={query.data} asOf={query.dataUpdatedAt} refresh={refresh} /> : <Alert tone="info">No current season. Create one to set it up.</Alert>}
       <CreateSeason refresh={refresh} />
     </>}
   </>
 }
 
-function SeasonForm({ season, refresh }: { season: SeasonRow; refresh: () => Promise<void> }) {
+function SeasonForm({ season, asOf, refresh }: { season: SeasonRow; asOf: number; refresh: () => Promise<void> }) {
   const [name, setName] = useState(season.name)
   const [capacity, setCapacity] = useState(season.capacity?.toString() ?? '')
   const [games, setGames] = useState(season.games_each?.toString() ?? '')
@@ -53,6 +54,8 @@ function SeasonForm({ season, refresh }: { season: SeasonRow; refresh: () => Pro
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
   const live = season.started_at !== null
+  const [justLocked, setJustLocked] = useState(false)
+  const listsLocked = justLocked || (season.lists_lock_at !== null && new Date(season.lists_lock_at).getTime() <= asOf)
   const cap = Number(capacity)
   const each = Number(games)
   const layout = getLayout(cap, each, maps.length)
@@ -78,6 +81,7 @@ function SeasonForm({ season, refresh }: { season: SeasonRow; refresh: () => Pro
         p_lists_lock_at: lock ? new Date(lock).toISOString() : undefined,
       })
       if (failure) throw failure
+      setJustLocked(false)
       await refresh()
       setSaved(true)
     } catch (failure) {
@@ -114,6 +118,9 @@ function SeasonForm({ season, refresh }: { season: SeasonRow; refresh: () => Pro
       </div><p className="muted">{pool.length} of {FACTIONS.length} in the pool. Removing a ranked faction flags affected lists for attention.</p></fieldset>
       <Field label="Minimum list length" type="number" min={1} max={pool.length || undefined} value={minimum} onChange={(e) => setMinimum(e.target.value)} />
       <Field label="Lists lock date and time" type="datetime-local" step={1} value={lock} onChange={(e) => setLock(e.target.value)} hint={`Your time zone is ${zone}. Everyone sees their local time; the date is stored in UTC.`} />
+      {!live && (listsLocked
+        ? <p className="muted">Lists are locked. To reopen them, set a later lock date and save.</p>
+        : <div className="row"><LockListsNow seasonId={season.id} onLocked={(locked) => { setLock(localDateTime(locked.lists_lock_at)); setJustLocked(true) }} /><span className="muted">Locks lists immediately, without waiting for the date.</span></div>)}
       <div className="row"><Button type="submit" variant="pri" disabled={busy || (uneven && !ack)}>{busy ? 'Saving' : 'Save season'}</Button><ButtonLink to="/admin/start">Start season</ButtonLink></div>
       {error && <Alert tone="bad">{error}</Alert>}
       {saved && <p role="status">Season saved.</p>}
