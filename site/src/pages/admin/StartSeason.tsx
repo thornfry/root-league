@@ -48,7 +48,9 @@ function StartFlow({ data }: { data: StartData }) {
   if (published || data.stage === 'live') return <Alert tone="ok">The season has started. <Link to="/pairings">See the pairings</Link>. Joining is closed.</Alert>
   return <div className="stack18">
     <h2 className="disp h2b">{ready ? 'Ready to start' : 'Not ready to start'}</h2>
-    {checks.map(c => <Alert key={c.link + c.text} tone={c.ok ? 'ok' : 'bad'}>{c.text} {!c.ok && <Link to={c.link}>Fix this</Link>}</Alert>)}
+    {checks.map(c => <Alert key={c.link + c.text} tone={c.ok ? 'ok' : 'bad'}>{c.text} {!c.ok && !c.problems?.length && <Link to={c.link}>Fix this</Link>}
+      {c.problems?.length ? <ul style={{ margin: '6px 0 0', paddingLeft: 20 }}>{c.problems.map(p => <li key={p.personId}><b>{p.name}:</b> {p.reason} <Link to={p.link}>Edit {p.name}’s factions</Link></li>)}</ul> : null}
+    </Alert>)}
     <Card pad={20}><div className="stack18"><h2 className="disp h2b">1. Player numbers</h2><p>Numbers are dealt at random from the seed. Same seed and lists, same draft. Reloading discards the unpublished draft.</p>
       <Field label="Seed" value={seed} disabled={busy} onChange={e => changeSeed(e.target.value)} />
       <Button disabled={busy} onClick={() => changeSeed(crypto.randomUUID())}>Re-roll with a new seed</Button>

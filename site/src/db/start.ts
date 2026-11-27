@@ -17,14 +17,30 @@ export async function loadStart() {
   return { season: season.data, stage: stage.data.stage, roster: roster.data }
 }
 export type StartData = NonNullable<Awaited<ReturnType<typeof loadStart>>>
+/** Why a league player's list blocks the start, in plain words, or null when it is fine. */
+export function listBlocker(r: StartData['roster'][number], pool: string[], need: number): string | null {
+  const codes = r.ranked_factions ?? []
+  if (r.list_flagged) return 'A faction on the list left the season pool. Open the list and save it again.'
+  if (new Set(codes).size !== codes.length) return 'The list has a faction twice.'
+  const outside = codes.filter(f => !pool.includes(f))
+  if (outside.length) return `The list has factions outside the season pool: ${outside.join(', ')}.`
+  if (codes.length < need) return `${codes.length} of at least ${need} factions picked.`
+  if (!r.list_in) return `${codes.length} factions picked, but the list is not marked Ready. Open it and save it.`
+  return null
+}
+
 export function startChecks({ season: s, stage, roster }: StartData) {
   const settings = !!(s.capacity && s.games_each && s.maps && getLayout(s.capacity, s.games_each, s.maps.length) && s.faction_pool?.length && s.min_list_length)
-  const invalid = roster.filter(r => !r.list_in || r.list_flagged || !r.ranked_factions || r.ranked_factions.length < Math.max(s.min_list_length ?? 1, s.games_each ?? 1) || new Set(r.ranked_factions).size !== r.ranked_factions.length || r.ranked_factions.some(f => !s.faction_pool?.includes(f)))
+  const need = Math.max(s.min_list_length ?? 1, s.games_each ?? 1)
+  const problems = roster.flatMap(r => {
+    const reason = listBlocker(r, s.faction_pool ?? [], need)
+    return reason ? [{ personId: r.person_id, name: r.display_name, reason, link: `/my-list?player=${r.person_id}` }] : []
+  })
   return [
     { ok: settings, text: settings ? 'Season settings complete.' : 'Complete the season settings.', link: '/admin/season' },
     { ok: stage === 'locked', text: stage === 'locked' ? 'Lists are locked.' : 'Lists must be locked before starting.', link: '/admin/season' },
     { ok: roster.length === s.capacity, text: `League list: ${roster.length} of ${s.capacity ?? 'unset'} players.`, link: '/admin/roster' },
-    { ok: !invalid.length, text: invalid.length ? `Lists need attention: ${invalid.map(r => r.display_name).join(', ')}.` : 'Every league player has a valid submitted list.', link: '/admin/fixit' },
+    { ok: !problems.length, text: problems.length ? `Lists need attention: ${problems.map(p => p.name).join(', ')}.` : 'Every league player has a Ready list.', link: '/admin/roster', problems },
   ]
 }
 export async function publishDraft(season: Tables<'seasons'>, draft: AssignedDraft) {

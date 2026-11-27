@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { useSession } from '../../auth/session'
 import { FACTIONS, findFaction } from '../../data/factions'
 import { getSupabase } from '../../db/client'
@@ -29,7 +29,8 @@ export function MyList() {
   const session = useSession()
   const admin = session.status === 'in' && session.whoami.isAdmin
   const personId = session.status === 'in' ? session.whoami.personId : null
-  const [selected, setSelected] = useState<string>('')
+  const [params] = useSearchParams()
+  const [selected, setSelected] = useState<string>(() => params.get('player') ?? '')
   const query = useQuery({
     queryKey: ['my-list', personId],
     staleTime: 0,

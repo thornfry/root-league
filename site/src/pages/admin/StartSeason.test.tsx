@@ -30,6 +30,8 @@ it('names missing preconditions and blocks assignment', async () => {
   setup(d)
   expect(await screen.findByRole('button', { name: 'Assign factions' }, { timeout: 10000 })).toBeDisabled()
   expect(screen.getByText(/Lists need attention: Player 0/)).toBeInTheDocument()
+  expect(screen.getByText(/not marked Ready/)).toBeInTheDocument()
+  expect(screen.getByRole('link', { name: 'Edit Player 0’s factions' })).toHaveAttribute('href', '/my-list?player=p0')
   expect(startChecks(d).filter(c => !c.ok)).toHaveLength(3)
 })
 it('cancels and allows another run', async () => {
@@ -54,7 +56,7 @@ it('reports repeatable drafts and publishes number order', async () => {
 })
 it('rejects shrunk lists naming the player', () => {
   const d = data(); d.roster[0]!.ranked_factions = ['cats']
-  expect(startChecks(d).at(-1)).toMatchObject({ ok: false, text: 'Lists need attention: Player 0.' })
+  expect(startChecks(d).at(-1)).toMatchObject({ ok: false, text: 'Lists need attention: Player 0.', problems: [{ name: 'Player 0', reason: '1 of at least 2 factions picked.' }] })
 })
 it('names blocking players and tables without offering publication', async () => {
   const d = data(); d.roster.forEach(r => { r.ranked_factions = ['cats', 'birds'] })

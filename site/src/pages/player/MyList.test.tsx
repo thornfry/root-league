@@ -93,6 +93,13 @@ it('lets an admin edit another list after lock', async () => {
   expect(rpc).toHaveBeenCalledWith('roster_set_list', { p_season_id: 'season', p_person_id: 'p-alex', p_factions: ['birds', 'cats'] })
 })
 
+it('opens the player named in the link for an admin', async () => {
+  fixture({ admin: true, codes: ['cats', 'birds'] })
+  renderApp('/my-list?player=p-alex')
+  expect(await screen.findByLabelText('Edit a player’s factions')).toHaveValue('p-alex')
+  expect(screen.getByRole('button', { name: 'Move Eyrie Dynasties up' })).toBeInTheDocument()
+})
+
 it('asks a viewer to join without exposing list controls', async () => {
   const { state } = fixture()
   state.roster = []
