@@ -20,7 +20,7 @@ export const routes: RouteObject[] = [
       { path: '/players', element: <Players /> },
       { path: '/pairings', element: <Pairings /> },
       { path: '/game/:gameNo', element: <Game /> },
-      { path: '/pickems', element: <Placeholder title="Pick'ems" /> },
+      { path: '/pickems', HydrateFallback: () => <h1>Pick&apos;ems</h1>, lazy: async () => ({ Component: (await import('./pages/player/Pickems')).Pickems }) },
       { path: '/my-list', element: <MembershipListEntry><MyList /></MembershipListEntry> },
       { path: '/info', element: <LeagueInfo /> },
       { path: '/info/:page', element: <LeagueInfo /> },

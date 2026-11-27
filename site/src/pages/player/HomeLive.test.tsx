@@ -17,6 +17,7 @@ function setup(player = true, failure = false) {
     const result = () => ({ data: table === 'seasons' ? { id: 's1', name: 'Season', maps: ['Autumn'] }
       : table === 'season_stage' ? { stage: 'live' }
       : table === 'roster_public' ? null
+      : table === 'leaderboard' ? []
       : table === 'standings' ? [{ person_id: person, display_name: 'Alex', rank: 1, wins: 2, games_played: 3, games_left: 1 }]
       : table === 'game_outcome' ? [{ game_id: 'g1', state: 'upcoming', winners: null }, { game_id: 'g2', state: 'disputed', winners: ['other'] }]
       : [1, 2, 3].map(n => ({ id: `g${n}`, game_no: n, map_index: 0, game_seats: [{ person_id: n === 3 ? 'unrelated' : person, seat: 1, faction: 'cats', people: { display_name: 'Alex' } }] })),
@@ -38,7 +39,7 @@ it.each([375, 1280])('renders database standings and only seated tables at %i', 
   expect(within(games).getByRole('link', { name: 'Enter result' })).toHaveAttribute('href', '/game/1')
   expect(games).toHaveTextContent('Disputed')
   expect(games).not.toHaveTextContent('Won by')
-  expect(calls.filter(t => ['submissions', 'settlements', 'picks', 'leaderboard'].includes(t))).toEqual([])
+  expect(calls.filter(t => ['submissions', 'settlements', 'picks'].includes(t))).toEqual([])
 })
 
 it('shows standings to a spectator without a Your games section', async () => {
@@ -46,7 +47,7 @@ it('shows standings to a spectator without a Your games section', async () => {
   renderApp('/')
   await screen.findByRole('table', { name: 'Season standings' })
   expect(screen.queryByRole('region', { name: 'Your games' })).not.toBeInTheDocument()
-  expect(screen.getByText('Leaderboard coming soon.')).toBeInTheDocument()
+  expect(screen.getByText('No picks yet.')).toBeInTheDocument()
 })
 
 it('reports a failed standings read without presenting an empty leaderboard', async () => {

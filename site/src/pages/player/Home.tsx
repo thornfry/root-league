@@ -7,6 +7,7 @@ import { getSupabase } from '../../db/client'
 import { pairingsQuery, filterGames } from '../../db/games'
 import { standingsQuery } from '../../db/standings'
 import { GameStatus, GameWinners, SeatFaction } from './Pairings'
+import { Leaderboard } from './Pickems'
 import { ProspectHome } from './ProspectHome'
 
 export function Home() {
@@ -85,8 +86,8 @@ function LiveHome({ seasonId, personId }: { seasonId: string; personId: string |
       </section>
       <section className="stack" aria-labelledby="home-pickem-title" data-pickem-leaderboard-slot>
         <h2 id="home-pickem-title" className="disp h2b">Pick'em leaderboard</h2>
-        {/* U14 / D5 integration slot: replace with the top five from D5's leaderboard contract. */}
-        <Card pad={16}><p className="muted">Leaderboard coming soon.</p></Card>
+        <Leaderboard seasonId={seasonId} personId={personId} limit={5} />
+        <Link to="/pickems">Full leaderboard and my picks</Link>
       </section>
     </div>
   </>

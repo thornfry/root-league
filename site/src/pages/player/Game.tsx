@@ -1,3 +1,4 @@
+import { PickPanel } from './Pickems'
 import { useState } from 'react'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router'
@@ -28,7 +29,7 @@ export function Game() {
     <h1 className="disp h1s">Table {game.game_no} <span className="muted">{game.mapName}</span></h1>
     <div className="row"><GameStatus game={game} /><Tag tone={reach >= MIN_REACH ? 'neutral' : 'warn'}>Reach {reach}</Tag><Tag tone={mix ? 'warn' : 'neutral'}>{mix ? 'Mix needs attention' : 'Militant + Insurgent'}</Tag></div>
     <div className="game-columns">
-      <ResultBlock key={game.id} game={game} />
+      <div className="stack18"><ResultBlock key={game.id} game={game} /><PickPanel key={`picks-${game.id}`} game={game} /></div>
       <div className="stack18">
         <Card as="section"><ol className="pairing-seats game-seats">{game.seats.map(s => {
           const f = findFaction(s.faction)
@@ -58,6 +59,8 @@ function ResultBlock({ game }: { game: LeagueGame }) {
         client.invalidateQueries({ queryKey: ['own-result', game.id] }),
         client.invalidateQueries({ queryKey: ['game-history', game.id] }),
         client.invalidateQueries({ queryKey: ['standings'] }),
+        client.invalidateQueries({ queryKey: ['picks'] }),
+        client.invalidateQueries({ queryKey: ['leaderboard'] }),
       ])
       setDraft(null)
     },
