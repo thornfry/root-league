@@ -15,6 +15,13 @@ Entries 40 to 51 come from writing the [build sequence](build.md). They are numb
 
 Entries from 52 on come from Will's click-through of the running site on 2026-11-27.
 
+## 53. A list is Ready at three to five factions, and holds at most five
+
+- **Date:** 2026-11-27
+- **Context:** Story 5 lets a list grow to the whole pool and calls it Submitted once it reaches the season minimum. Will wants at most five factions, partial lists saved, and the words Ready and Not ready.
+- **Decision:** A ranked list holds at most five factions; `save_ranked_list` and `roster_set_list` refuse a longer one. Any shorter list saves, so players can stop part way. A list is Ready (the stored `list_submitted`) when it has from the season minimum up to five factions and is not flagged. The site says Ready and Not ready instead of Submitted, List in and Waiting, and My list is renamed My factions; the route stays `/my-list`. The cap of five is a constant in the database (`app.list_max()`) and the site (`LIST_MAX`), not a season setting. This supersedes the length line of story 5.
+- **Consequence:** Known gaps: a season minimum above five, or games each above five, leaves no list able to be Ready, and the Season page does not warn about it. Lists written directly (Fix it, CSV import, test fixtures) are not capped.
+
 ## 52. Players cannot leave the league from the site
 
 - **Date:** 2026-11-27

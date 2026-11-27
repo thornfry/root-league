@@ -112,10 +112,10 @@ test('S14: the full journey from the empty season to a played one', async ({ pag
       await page.getByRole('button', { name: 'Add Eyrie Dynasties' }).click()
       await page.getByRole('button', { name: 'Add Woodland Alliance' }).click()
       await page.getByRole('button', { name: 'Add Vagabond' }).click()
-      await page.getByRole('button', { name: 'Submit list', exact: true }).first().click()
-      await expect(page.getByRole('status', { name: 'List updates' })).toHaveText('List submitted.')
+      await page.getByRole('button', { name: 'Save factions', exact: true }).click()
+      await expect(page.getByRole('status', { name: 'List updates' })).toHaveText('Factions saved. You are ready.')
       await navigate(page, 'Home')
-      await expect(page.getByText('Submitted', { exact: true })).toBeVisible()
+      await expect(page.getByText('Ready', { exact: true })).toBeVisible()
       await expectNoHorizontalScroll(page)
     })
 

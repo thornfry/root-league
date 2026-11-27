@@ -12,12 +12,15 @@ import './my-list.css'
 type Season = Database['public']['Tables']['seasons']['Row']
 type Entry = Database['public']['Views']['roster_public']['Row']
 
+/** The most factions a list can hold; the database refuses more (decision 53). */
+export const LIST_MAX = 5
+
 /** Validation also handles old lists invalidated by a pool change, without silently dropping ranks. */
 export function listProblems(codes: string[], pool: string[]) {
   const problems: string[] = []
   if (new Set(codes).size !== codes.length) problems.push('Each faction can appear only once. Remove the duplicate faction.')
   for (const code of new Set(codes)) {
-    if (!pool.includes(code)) problems.push(`${findFaction(code)?.name ?? code} is outside the season pool. Remove it before submitting.`)
+    if (!pool.includes(code)) problems.push(`${findFaction(code)?.name ?? code} is outside the season pool. Remove it before saving.`)
   }
   return problems
 }
@@ -46,17 +49,17 @@ export function MyList() {
       return { season, stage: stage.data.stage, roster: roster.data }
     },
   })
-  if (query.isPending) return <><h1 className="disp h1s">My list</h1><p role="status">Loading your list…</p></>
-  if (query.error) return <><h1 className="disp h1s">My list</h1><Alert tone="bad">{query.error.message}</Alert></>
-  if (!query.data) return <><h1 className="disp h1s">My list</h1><p>No current season yet.</p></>
+  if (query.isPending) return <><h1 className="disp h1s">My factions</h1><p role="status">Loading your factions…</p></>
+  if (query.error) return <><h1 className="disp h1s">My factions</h1><Alert tone="bad">{query.error.message}</Alert></>
+  if (!query.data) return <><h1 className="disp h1s">My factions</h1><p>No current season yet.</p></>
   const { season, stage, roster } = query.data
   const entry = roster.find(row => row.person_id === (admin && selected ? selected : personId))
   return <div className="my-list stack">
-    <h1 className="disp h1s">My list</h1>
+    <h1 className="disp h1s">My factions</h1>
     <p className="muted my-list-lock">{season.lists_lock_at
       ? `Lists lock: ${new Intl.DateTimeFormat(undefined, { dateStyle: 'full', timeStyle: 'long' }).format(new Date(season.lists_lock_at))} (${Intl.DateTimeFormat().resolvedOptions().timeZone})`
       : 'Lists lock date has not been set.'}</p>
-    {admin && <label className="stack8">Edit a player’s list
+    {admin && <label className="stack8">Edit a player’s factions
       <select value={entry?.person_id ?? ''} onChange={e => setSelected(e.target.value)}>
         <option value="">Choose a player</option>
         {roster.map(row => <option key={row.person_id} value={row.person_id}>{row.display_name}</option>)}
@@ -75,7 +78,8 @@ function ListEditor({ season, entry, editable, admin }: { season: Season; entry:
   const pool = season.faction_pool ?? []
   const minimum = season.min_list_length
   const problems = listProblems(codes, pool)
-  const ready = minimum !== null && codes.length >= minimum && problems.length === 0
+  const ready = minimum !== null && codes.length >= minimum && codes.length <= LIST_MAX && problems.length === 0
+  const full = codes.length >= LIST_MAX
   const mutation = useMutation({
     mutationFn: async () => {
       const args = { p_season_id: season.id, p_factions: codes }
@@ -86,7 +90,7 @@ function ListEditor({ season, entry, editable, admin }: { season: Season; entry:
     },
     onSuccess: async () => {
       setSaved([...codes])
-      setMessage('List submitted.')
+      setMessage(ready ? 'Factions saved. You are ready.' : 'Factions saved. Not ready yet.')
       await client.invalidateQueries({ queryKey: ['my-list'] })
     },
     onError: async () => { await client.invalidateQueries({ queryKey: ['my-list'] }) },
@@ -102,14 +106,18 @@ function ListEditor({ season, entry, editable, admin }: { season: Season; entry:
     change(next, `${findFaction(code)?.name ?? code} moved to rank ${index + delta + 1}.`)
   }
   const dirty = JSON.stringify(codes) !== JSON.stringify(saved)
-  const submit = <Button variant="pri" disabled={!ready || mutation.isPending} onClick={() => mutation.mutate()}>{mutation.isPending ? 'Submitting…' : 'Submit list'}</Button>
+  const savable = dirty && problems.length === 0 && codes.length <= LIST_MAX
+  const save = <Button variant="pri" disabled={!savable || mutation.isPending} onClick={() => mutation.mutate()}>{mutation.isPending ? 'Saving…' : 'Save factions'}</Button>
+  const range = minimum === null ? null : minimum >= LIST_MAX ? `${LIST_MAX}` : `${minimum} to ${LIST_MAX}`
   return <>
     {editable ? <>
-      <p className="muted">Best first. {minimum === null ? 'The admin must set a minimum list length before you can submit.' : `Pick at least ${minimum}.${codes.length < minimum ? ` ${minimum - codes.length} to go.` : ''}`} Each faction can appear only once.</p>
-      {submit}
-      {dirty ? <Tag tone="warn">Unsaved changes</Tag> : entry.list_in && !entry.list_flagged && problems.length === 0 ? <Tag tone="ok">Submitted</Tag> : <Tag tone="warn">Not submitted yet</Tag>}
+      <p className="muted">Best first. {range === null ? 'The admin must set a minimum list length before your list can be ready.' : `Pick ${range} factions.`} Each faction can appear only once. You can save part of a list and come back to it.</p>
+      <div className="row">{dirty ? <Tag tone="warn">Unsaved changes</Tag> : entry.list_in && !entry.list_flagged && problems.length === 0 ? <Tag tone="ok" icon="check">Ready</Tag> : <Tag tone="warn">Not ready</Tag>}</div>
+      {range !== null && !ready && problems.length === 0 && <Alert tone="warn">{codes.length > LIST_MAX
+        ? `A list can hold at most ${LIST_MAX} factions. Remove ${codes.length - LIST_MAX} to be ready.`
+        : `Pick ${range} factions to be ready. You have ${codes.length}.`}</Alert>}
     </> : <><Tag icon="lock">Locked</Tag><Alert tone="info">Lists are locked. Ask the admin if something needs changing.</Alert></>}
-    {entry.list_flagged && <Alert tone="warn">The faction pool changed. Review your list before submitting again.</Alert>}
+    {entry.list_flagged && <Alert tone="warn">The faction pool changed. Review your list and save it again.</Alert>}
     {problems.map(problem => <Alert key={problem} tone="warn">{problem}</Alert>)}
     <p role="status" aria-label="List updates" aria-live="polite">{message}</p>
     {mutation.error && <Alert tone="bad">{mutation.error.message}</Alert>}
@@ -125,12 +133,13 @@ function ListEditor({ season, entry, editable, admin }: { season: Season; entry:
     </div>
     {editable && <>
       <h2 className="disp h2">Add a faction</h2>
+      {full && <p className="muted">Your list holds {LIST_MAX} factions, the most it can. Remove one to add another.</p>}
       <div className="my-list-pool">{FACTIONS.filter(f => pool.includes(f.code) && !codes.includes(f.code)).map(f => <FactionRow key={f.code} code={f.code}>
-        <Button disabled={mutation.isPending} aria-label={`Add ${f.name}`} onClick={() => change([...codes, f.code], `${f.name} added.`)}>Add</Button>
+        <Button disabled={mutation.isPending || full} aria-label={`Add ${f.name}`} onClick={() => change([...codes, f.code], `${f.name} added.`)}>Add</Button>
       </FactionRow>)}</div>
-      {pool.every(code => codes.includes(code)) && <p>All factions in the season pool are ranked.</p>}
+      {!full && pool.every(code => codes.includes(code)) && <p>All factions in the season pool are ranked.</p>}
       <Button disabled={mutation.isPending || !dirty} onClick={() => change([...saved], 'Changes discarded.')}>Discard changes</Button>
-      <div className="my-list-bottom">{submit}</div>
+      <div className="my-list-bottom">{save}</div>
     </>}
   </>
 }

@@ -3,7 +3,7 @@ import { expectNoHorizontalScroll, restAsPage, signInAs } from './support/browse
 import { SEASON_ID, setListsLocked } from './support/database'
 import { expectAccessible } from './support/axe'
 
-test('S04: Join opens My list, joins once, and Home offers no Leave button', async ({ page }) => {
+test('S04: Join opens My factions, joins once, and Home offers no Leave button', async ({ page }) => {
   await signInAs(page, 'viewer')
   await page.getByRole('button', { name: 'Join league', exact: true }).click()
   await expect(page).toHaveURL(/\/my-list$/)
@@ -14,7 +14,7 @@ test('S04: Join opens My list, joins once, and Home offers no Leave button', asy
   const own = await restAsPage(page, `roster_public?select=person_id&season_id=eq.${SEASON_ID}&is_me=eq.true`)
   expect(JSON.parse(own.text)).toHaveLength(1)
   await page.goto('/')
-  await expect(page.getByText('Not submitted yet.', { exact: true })).toBeVisible()
+  await expect(page.getByText('Not ready yet.', { exact: true })).toBeVisible()
   await expect(page.getByRole('main')).not.toContainText(/waitlist|league list|queue|position/i)
   await expectNoHorizontalScroll(page)
   await expectAccessible(page)

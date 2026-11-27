@@ -81,11 +81,11 @@ describe('Shell at phone width (375)', () => {
     expect(screen.queryByText('Admin')).toBeNull()
   })
 
-  it('leaves My list out of the menu for someone not on the roster', async () => {
+  it('leaves My factions out of the menu for someone not on the roster', async () => {
     const user = userEvent.setup()
     renderShell({ ...player, onRoster: false })
     await user.click(screen.getByRole('button', { name: 'Menu' }))
-    expect(screen.queryByRole('link', { name: 'My list' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'My factions' })).toBeNull()
     expect(screen.getByRole('link', { name: 'League info' })).toBeInTheDocument()
   })
 

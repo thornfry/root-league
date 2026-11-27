@@ -37,13 +37,13 @@ function scenario(joined = false, stage = 'open', submitted = false, flagged = f
   return { ...fake, state, selects, from }
 }
 
-it('joins straight to My list with an acknowledgement and updates the menu', async () => {
+it('joins straight to My factions with an acknowledgement and updates the menu', async () => {
   const fake = scenario()
   const { router } = renderApp('/')
   await userEvent.click(await screen.findByRole('button', { name: 'Join league' }))
   await screen.findByRole('heading', { name: "You're on the list!" })
   expect(router.state.location.pathname).toBe('/my-list')
-  expect(screen.getByRole('link', { name: 'My list' })).toBeInTheDocument()
+  expect(screen.getByRole('link', { name: 'My factions' })).toBeInTheDocument()
   expect(fake.rpc).toHaveBeenCalledWith('join_league', { p_season_id: 's-1' })
   expect(fake.from.mock.calls.flat()).not.toContain('roster')
   expect(fake.selects.join(' ')).not.toMatch(/\b(?:list|position|joined_at)\b/)
@@ -52,23 +52,23 @@ it('joins straight to My list with an acknowledgement and updates the menu', asy
 it.each([375, 1280])('warns an unsubmitted prospect without placement details at %i', async width => {
   scenario(true)
   renderApp('/', width)
-  await screen.findByText('Not submitted yet.')
+  await screen.findByText('Not ready yet.')
   expect(screen.getByRole('main').textContent).not.toMatch(/waitlist|league list|position|queue/i)
   expect(screen.queryByRole('button', { name: 'Join league' })).not.toBeInTheDocument()
-  expect(screen.getByRole('link', { name: 'Review and submit' })).toHaveAttribute('href', '/my-list')
+  expect(screen.getByRole('link', { name: 'Finish my factions' })).toHaveAttribute('href', '/my-list')
 })
 
 it('shows a submitted list', async () => {
   scenario(true, 'open', true)
   renderApp('/')
-  expect(await screen.findByText('Submitted')).toBeInTheDocument()
+  expect(await screen.findByText('Ready')).toBeInTheDocument()
   expect(screen.getByText('Marquise de Cat, Eyrie Dynasties')).toBeInTheDocument()
 })
 
 it('offers no Leave league button: the admin removes people', async () => {
   scenario(true, 'open', true)
   renderApp('/')
-  await screen.findByText('Submitted')
+  await screen.findByText('Ready')
   expect(screen.queryByRole('button', { name: 'Leave league' })).not.toBeInTheDocument()
 })
 
@@ -101,7 +101,7 @@ it('shows a lock race as an error and preserves the viewer state', async () => {
 it('asks the admin about a flagged list after lock', async () => {
   scenario(true, 'locked', true, true)
   renderApp('/')
-  await screen.findByText('Not submitted yet.')
+  await screen.findByText('Not ready yet.')
   expect(screen.getByText(/faction pool changed/)).toBeInTheDocument()
-  expect(screen.queryByRole('link', { name: 'Review and submit' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('link', { name: 'Finish my factions' })).not.toBeInTheDocument()
 })

@@ -9,7 +9,7 @@
 -- started_at directly as the table owner.
 begin;
 
-select plan(232);
+select plan(234);
 
 grant all on all tables in schema pg_temp to anon, authenticated, service_role;
 grant all on all sequences in schema pg_temp to anon, authenticated, service_role;
@@ -241,6 +241,7 @@ select is((select list_in from public.roster_public where is_me), false, 'prospe
 select throws_ok($$select public.save_ranked_list(pg_temp.sid(), '{cats,cats}')$$, '22023', 'Each faction can be on the list once only: "cats" is repeated.', 'prospect: a repeated faction is refused');
 select throws_ok($$select public.save_ranked_list(pg_temp.sid(), '{cats,lizards}')$$, '22023', '"lizards" is not in this season''s faction pool.', 'prospect: a faction outside the pool is refused');
 select throws_ok($$select public.save_ranked_list(pg_temp.sid(), '{cats,""}')$$, '22023', 'The list has an empty entry.', 'prospect: an empty entry is refused');
+select throws_ok($$select public.save_ranked_list(pg_temp.sid(), '{cats,rats,badgers,moles,birds,frogs}')$$, '22023', 'A list can hold at most 5 factions.', 'prospect: a list longer than five is refused');
 select lives_ok($$select public.save_ranked_list(pg_temp.sid(), '{rats,cats,badgers}')$$, 'prospect: a list that reaches the minimum saves');
 select is((select list_in from public.roster_public where is_me), true, 'prospect: reaching the minimum submits the list');
 select is((select ranked_factions from public.roster_public where is_me), array['rats','cats','badgers'], 'prospect: the owner reads their own ranked list, in order');
@@ -363,6 +364,7 @@ select is((select ranked_factions from public.roster_public where display_name =
 select lives_ok($$select public.save_ranked_list(pg_temp.sid(), '{vagabond,otters,frogs}')$$, 'lock: the admin edits their own list after the lock');
 select lives_ok($$select public.roster_move(pg_temp.sid(), pg_temp.pid('P22'), 'waitlist', 1)$$, 'lock: the admin can still move people while locked');
 select throws_ok($$select public.roster_set_list(pg_temp.sid(), pg_temp.pid('P12'), '{badgers,wolves}')$$, '22023', '"wolves" is not in this season''s faction pool.', 'lock: the admin''s list edit still checks the pool');
+select throws_ok($$select public.roster_set_list(pg_temp.sid(), pg_temp.pid('P12'), '{cats,rats,badgers,moles,birds,frogs}')$$, '22023', 'A list can hold at most 5 factions.', 'lock: the admin''s list edit holds at most five factions');
 select throws_ok($$select public.roster_set_list(pg_temp.sid(), pg_temp.u(2), '{cats}')$$, 'P0002', 'That person is not on the roster.', 'lock: the admin''s list edit needs a person on the roster');
 
 select pg_temp.as_anon();

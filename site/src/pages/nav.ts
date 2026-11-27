@@ -16,7 +16,7 @@ export const PLAYER_NAV: NavItem[] = [
 ]
 
 /** Shown only to someone on the roster. */
-export const MY_LIST_NAV: NavItem = { to: '/my-list', label: 'My list' }
+export const MY_LIST_NAV: NavItem = { to: '/my-list', label: 'My factions' }
 
 export const INFO_NAV: NavItem = { to: '/info', label: 'League info' }
 
