@@ -1,5 +1,6 @@
 /// <reference types="vitest/config" />
 import react from '@vitejs/plugin-react'
+import { leagueContent } from './src/content/build.ts'
 import { defineConfig, loadEnv } from 'vite'
 
 /** Modes that may carry the dev sign-in stand-in. Every other build mode is a real deployment. */
@@ -18,7 +19,7 @@ export default defineConfig(({ command, mode }) => {
     )
   }
   return {
-    plugins: [react()],
+    plugins: [react(), leagueContent(env.VITE_REPO_URL)],
     test: {
       environment: 'jsdom',
       globals: true,

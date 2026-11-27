@@ -202,7 +202,7 @@ describe('routes', () => {
 
   it.each([...playerNav(true), ...ADMIN_NAV].map((i) => [i.label, i.to]))('has a placeholder page for %s at %s', async (label, to) => {
     await at(to!)
-    expect(screen.getByRole('heading', { level: 1, name: label })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: to === '/info' ? 'League Format' : label })).toBeInTheDocument()
   })
 
   it.each(['/game/7', '/info/format', '/nowhere'])('renders a page at %s', async (path) => {

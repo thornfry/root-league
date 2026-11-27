@@ -1,0 +1,25 @@
+.league-info { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.league-info > * { min-width: 0; }
+.league-info-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+.league-info-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border: 1px solid var(--line2); border-radius: var(--radius); color: var(--ink); font-weight: 600; text-decoration: none; }
+.league-info-nav a.selected { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.league-info-prose { max-width: 780px; font-size: 16px; line-height: 1.65; overflow-wrap: anywhere; }
+.league-info-prose h1, .league-info-prose h2, .league-info-prose h3 { font-family: var(--f-display); line-height: 1.05; scroll-margin-top: 24px; }
+.league-info-prose h1 { margin: 0 0 14px; text-transform: uppercase; letter-spacing: .02em; font-size: clamp(44px, 12vw, 64px); font-weight: 700; }
+.league-info-prose h2 { margin: 28px 0 12px; font-size: 30px; text-transform: uppercase; }
+.league-info-prose h3 { margin: 24px 0 12px; font-size: 24px; }
+.league-info-prose p { margin: 0 0 14px; }
+.league-info-prose ul, .league-info-prose ol { margin: 0 0 20px; padding-left: 24px; }
+.league-info-prose li { margin-bottom: 12px; }
+.league-info-prose li > ul, .league-info-prose li > ol { margin-top: 12px; }
+.league-info-prose code { font-size: .9em; }
+.league-info-prose pre { overflow-x: auto; }
+@media (min-width: 900px) {
+  .league-info { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 40px; align-items: start; }
+  .league-info-nav { flex-direction: column; gap: 8px; }
+  .league-info-nav a { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 8px 0; }
+  .league-info-nav a.selected { background: transparent; color: var(--ink); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+}
+
+.league-info-prose ol > li::marker { font-family: var(--f-display); font-weight: 700; font-size: 1.15em; color: var(--ink2); }
+.league-info-prose code { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }

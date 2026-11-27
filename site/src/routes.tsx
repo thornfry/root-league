@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router'
 import { AppRoot, CONSENT_PATH, LeaveGate, RequireAdmin } from './auth/AppGate'
 import { Placeholder } from './pages/Placeholder'
+import { LeagueInfo } from './pages/player/LeagueInfo'
 
 // One line per route, to keep merges small. A later commit replaces a line's element with its page.
 export const routes: RouteObject[] = [
@@ -14,8 +15,8 @@ export const routes: RouteObject[] = [
       { path: '/game/:gameNo', element: <Placeholder title="Game" /> },
       { path: '/pickems', element: <Placeholder title="Pick'ems" /> },
       { path: '/my-list', element: <Placeholder title="My list" /> },
-      { path: '/info', element: <Placeholder title="League info" /> },
-      { path: '/info/:page', element: <Placeholder title="League info" /> },
+      { path: '/info', element: <LeagueInfo /> },
+      { path: '/info/:page', element: <LeagueInfo /> },
       // Admin pages sit behind the admin guard. One line per route, as above.
       {
         element: <RequireAdmin />,
