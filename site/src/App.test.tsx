@@ -1,14 +1,16 @@
 import '@testing-library/jest-dom/vitest'
-import { render, screen } from '@testing-library/react'
-import { createMemoryRouter } from 'react-router'
-import { RouterProvider } from 'react-router/dom'
-import { routes } from './routes'
+import { screen } from '@testing-library/react'
+import { makeFakeDb } from './test-support/fakeDb'
+import { renderApp } from './test-support/renderApp'
+
+const h = vi.hoisted(() => ({ db: null as unknown }))
+vi.mock('./db/client', () => ({ getSupabase: () => h.db, isConfigured: () => true }))
 
 describe('routes', () => {
-  it('renders the placeholder home page at /', () => {
-    const router = createMemoryRouter(routes, { initialEntries: ['/'] })
-    render(<RouterProvider router={router} />)
-    expect(screen.getByRole('heading', { name: 'Home' })).toBeInTheDocument()
+  it('renders Home inside the shell for a signed-in viewer', async () => {
+    h.db = makeFakeDb().db
+    renderApp('/')
+    expect(await screen.findByRole('heading', { name: 'Home' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Root League' })).toBeInTheDocument()
   })
 })

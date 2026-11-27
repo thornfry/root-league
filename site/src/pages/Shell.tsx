@@ -161,16 +161,3 @@ export function Shell({ session, onSignOut }: { session: ShellSession; onSignOut
     </ToastProvider>
   )
 }
-
-/**
- * Stand-in session until sign-in exists (U1 replaces it). A production build shows no admin bar to anyone;
- * the dev and test builds show it so every route can be clicked.
- */
-export function PlaceholderShell() {
-  const session: ShellSession = {
-    name: 'Alex',
-    isAdmin: import.meta.env.MODE !== 'production',
-    onRoster: true,
-  }
-  return <Shell session={session} />
-}

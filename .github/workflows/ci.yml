@@ -36,6 +36,8 @@ jobs:
       - run: npm run build
       - name: Production build has no dev sign-in reference
         run: "! grep -r 'dev.invalid' dist"
+      - name: Production build has no dev sign-in stand-in
+        run: npm run check:no-dev
 
   python:
     runs-on: ubuntu-latest

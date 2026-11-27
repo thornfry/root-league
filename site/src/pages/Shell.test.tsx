@@ -5,11 +5,15 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
+import { adminJson, makeFakeDb } from '../test-support/fakeDb'
 import { setViewport } from '../test-support/viewport'
 import { routes } from '../routes'
 import { ADMIN_NAV, playerNav } from './nav'
 import { Placeholder } from './Placeholder'
 import { Shell, type ShellSession } from './Shell'
+
+const h = vi.hoisted(() => ({ db: null as unknown }))
+vi.mock('../db/client', () => ({ getSupabase: () => h.db, isConfigured: () => true }))
 
 const player: ShellSession = { name: 'Alex', isAdmin: false, onRoster: true, seasonLabel: 'Season 1, live' }
 const admin: ShellSession = { ...player, name: 'Will', isAdmin: true }
@@ -187,25 +191,28 @@ describe('no horizontal scroll at 375', () => {
 })
 
 describe('routes', () => {
-  function at(path: string, width = 1280) {
+  // The real routes now sit behind sign-in, so these run as a signed-in admin through a fake client.
+  async function at(path: string, width = 1280) {
+    h.db = makeFakeDb({ whoami: adminJson() }).db
     setViewport(width)
     const router = createMemoryRouter(routes, { initialEntries: [path] })
     render(<RouterProvider router={router} />)
+    await screen.findByRole('heading', { level: 1 })
   }
 
-  it.each([...playerNav(true), ...ADMIN_NAV].map((i) => [i.label, i.to]))('has a placeholder page for %s at %s', (label, to) => {
-    at(to!)
+  it.each([...playerNav(true), ...ADMIN_NAV].map((i) => [i.label, i.to]))('has a placeholder page for %s at %s', async (label, to) => {
+    await at(to!)
     expect(screen.getByRole('heading', { level: 1, name: label })).toBeInTheDocument()
   })
 
-  it.each(['/game/7', '/info/format', '/nowhere'])('renders a page at %s', (path) => {
-    at(path)
+  it.each(['/game/7', '/info/format', '/nowhere'])('renders a page at %s', async (path) => {
+    await at(path)
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
   })
 
   it('can be clicked through from the top bar', async () => {
     const user = userEvent.setup()
-    at('/')
+    await at('/')
     await user.click(screen.getByRole('link', { name: 'Players' }))
     expect(screen.getByRole('heading', { level: 1, name: 'Players' })).toBeInTheDocument()
     await user.click(screen.getByRole('link', { name: 'Fix it' }))
