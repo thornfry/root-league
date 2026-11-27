@@ -70,7 +70,7 @@ test('S16: a viewer with the season open', async ({ page }, testInfo: TestInfo) 
     await expectAccessible(page)
     await page.getByRole('button', { name: 'Close menu', exact: true }).click()
   }
-  await visit(page, '/players', 'Waiting')
+  await visit(page, '/players', 'Not ready')
   await visit(page, '/pairings', 'Not started.')
   await visit(page, '/pickems', /open when pairings are published/)
   await visit(page, '/info', 'League info')
@@ -85,7 +85,7 @@ test('S16: a prospect with the season open', async ({ page }) => {
   await signInFast(page, cast('Delaney'))
   await audit(page, 'Submitted')
   await visit(page, '/my-list', 'Add a faction')
-  await visit(page, '/players', 'List in')
+  await visit(page, '/players', 'Ready')
   // A prospect who has ranked nothing: the warning state and the empty list.
   await signInFast(page, cast('Spectator'))
   await audit(page, 'Not submitted yet.')

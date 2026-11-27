@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router'
 import { useSession } from '../../auth/session'
 import { findFaction } from '../../data/factions'
 import { getSupabase } from '../../db/client'
-import { Alert, Button, Card, FactionSeal, type FactionCode } from '../../ui'
+import { Alert, Button, Card, FactionSeal, Icon, type FactionCode } from '../../ui'
 import './Players.css'
 
 // Privacy belongs to roster_public: never fetch the underlying roster table here.
@@ -53,7 +54,11 @@ export function Players() {
         {players.data.players.map((player) => <Card as="section" key={player.person_id} className="players-entry" pad={16}>
           <div className="players-heading">
             <h2>{player.display_name}</h2>
-            {open && <span className={player.list_in ? 'players-list-in' : 'muted'}>{player.list_in ? 'List in' : 'Waiting'}</span>}
+            {open && (player.is_me
+              ? <Link to="/my-list" className={`players-status ${player.list_in ? 'players-list-in' : 'players-not-ready'}`} aria-label={`${player.list_in ? 'Ready' : 'Not ready'}, edit my factions`}>
+                {player.list_in ? 'Ready' : 'Not ready'}<Icon name="arrow" size={14} />
+              </Link>
+              : <span className={player.list_in ? 'players-list-in' : 'muted'}>{player.list_in ? 'Ready' : 'Not ready'}</span>)}
           </div>
           {player.ranked_factions !== null && (player.ranked_factions.length
             ? <ol className="players-factions" aria-label={`${player.display_name}'s ranked factions`}>
