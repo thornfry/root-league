@@ -69,7 +69,4 @@ select
 
 ## 5. Deploy on Railway and test sign-in
 
-1. **Open** the [Railway setup steps](setup-runbook.md#railway) and create the service. Once its Variables panel is open, go to Supabase's **Connect** dialog for the **Project URL** and **Publishable key** (or use the legacy `anon` key from **Project Settings → API Keys**). Paste them into Railway as `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. [Supabase API keys](https://supabase.com/docs/guides/api/api-keys)
-2. **Generate** the public Railway domain. In Supabase **Authentication → URL Configuration**, set **Site URL** and add an allowed **Redirect URL** for the Railway home page. Use its full HTTPS URL. Discord returns the browser to the Supabase callback first, then Supabase returns it to Railway. [Supabase redirect URLs](https://supabase.com/docs/guides/auth/redirect-urls)
-3. **Test** the Discord button from the deployed Railway home page. After consent, expect to return to the site and see “not invited” until your ID is whitelisted.
-4. **Continue** with [Real IDs and data](setup-runbook.md#real-ids-and-data). Open Supabase's database connection details when you're ready to seed the real season.
+**Follow** the [Railway walkthrough](railway-walkthrough.md) to deploy the site, set the Supabase return URL, and test Discord sign-in.

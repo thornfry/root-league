@@ -1,29 +1,28 @@
 # Deploy Root League on Railway
 
-Start here once the Supabase migrations are applied and the Discord provider is enabled. You'll deploy the site from GitHub, then use its Railway address to finish Supabase Auth.
+Start here once the Supabase migrations are applied and the Discord provider is enabled. If your service already exists, open it and follow the steps from its **Variables** tab.
 
-## 1. Connect the GitHub repository
+## 1. Prepare the Railway service
 
-1. **Open** the [Railway dashboard](https://railway.com/dashboard) and create an **Empty Project**. If you already have a Root League service, open it and continue with its settings.
-2. **Add** an **Empty Service** to the project. In the service's **Settings → Source**, choose **Connect Repo** and select `thornfry/root-league`. If it’s missing, connect GitHub and grant Railway access to that repository. [Railway services](https://docs.railway.com/services)
-3. **Confirm** the connected branch is `main`, which contains the merged website.
-4. **Set** **Root Directory** to `/` or leave it blank if it shows the default. The Docker build uses the whole repository, including the league Markdown. [Railway build configuration](https://docs.railway.com/builds/build-configuration)
-5. **Set** **Settings → Deploy → Healthcheck Path** to `/`. Leave the custom **Start Command** blank so the image starts Caddy. [Railway healthchecks](https://docs.railway.com/deployments/healthchecks)
+1. **Create** an **Empty Project** in the [Railway dashboard](https://railway.com/dashboard), then add an **Empty Service**. This lets you stage the build settings before connecting GitHub. [Railway services](https://docs.railway.com/services)
+2. **Add** `RAILWAY_DOCKERFILE_PATH` with the value `/site/Dockerfile` in the service's **Variables → New Variable**. This tells Railway which Dockerfile to use. The **Config-as-Code** panel is legacy and new services use the variable instead. [Railway custom Dockerfile path](https://docs.railway.com/builds/dockerfiles#custom-dockerfile-path)
 
 ## 2. Add the build variables and deploy
 
-1. **Add** `RAILWAY_DOCKERFILE_PATH` with value `/site/Dockerfile` under the service's **Variables → New Variable**. This selects the Dockerfile with the repository root as its build context. [Railway custom Dockerfile path](https://docs.railway.com/builds/dockerfiles#custom-dockerfile-path)
-2. **Open** the Root League project's [Supabase dashboard](https://supabase.com/dashboard/project/zxidkklftyuqgsqvkknl) alongside Railway, then click **Connect**.
-3. **Paste** the Supabase **Project URL** into a new Railway variable named `VITE_SUPABASE_URL`. For this project, the value is `https://zxidkklftyuqgsqvkknl.supabase.co`.
-4. **Paste** the Supabase **Publishable key** into `VITE_SUPABASE_ANON_KEY`. Find it in **Connect** or **Project Settings → API Keys**. The legacy `anon` key also works. These variables go into browser code, so use the public key. [Supabase API keys](https://supabase.com/docs/guides/api/api-keys)
-5. **Leave** `VITE_AUTH_MODE` and `VITE_REPO_URL` unset for the default Discord sign-in and GitHub links.
-6. **Deploy** the staged changes from the Railway project canvas once all three variables are in place. Changes to either Supabase variable require a fresh build. [Railway variables](https://docs.railway.com/variables) · [Docker build arguments](https://docs.railway.com/builds/dockerfiles)
-7. **Check** the new **Build Logs** for `site/Dockerfile`, then wait for the deployment to become **Active**. If you see Railpack or a missing `start.sh`, check that the new deployment includes `RAILWAY_DOCKERFILE_PATH`. For startup failures, open **Deploy Logs**. [Railway deployment states](https://docs.railway.com/deployments/reference)
+1. **Confirm** you're editing the Root League service in the **production** environment. Add `VITE_SUPABASE_URL` with the value `https://zxidkklftyuqgsqvkknl.supabase.co`.
+2. **Open** [API Keys for the Root League Supabase project](https://supabase.com/dashboard/project/zxidkklftyuqgsqvkknl/settings/api-keys) and copy the **Publishable key** that starts with `sb_publishable_`. Paste it directly into Railway as `VITE_SUPABASE_ANON_KEY`. The variable name is older than the key format. It accepts the publishable key. [Supabase API keys](https://supabase.com/docs/guides/getting-started/api-keys#find-your-keys)
+3. **Connect** `thornfry/root-league` under the service's **Settings → Source → Connect Repo** and confirm the branch is `main`. If the repository is missing, connect GitHub and grant Railway access to it. [Railway service source](https://docs.railway.com/services#service-source)
+4. **Keep** **Root Directory** at `/` so Docker can read the league Markdown and site files. Leave **Start Command** blank so the image starts Caddy. Set **Settings → Deploy → Healthcheck Path** to `/`. [Railway build settings](https://docs.railway.com/builds/build-configuration) · [Railway healthchecks](https://docs.railway.com/deployments/healthchecks)
+5. **Deploy** from the staged-changes banner on the project canvas. Check that the new **Build Logs** show `site/Dockerfile` and wait for the deployment to become **Active**. [Railway staged changes](https://docs.railway.com/deployments/staged-changes)
+
+**If the build shows Railpack or `start.sh not found)**, check that `RAILWAY_DOCKERFILE_PATH=/site/Dockerfile` is staged on the service, then apply the staged changes.
+
+**If the live site says “This site has no Supabase address”**, check that both `VITE_SUPABASE_*` names are spelled exactly as above and have values in the production service. Click **Deploy** on the staged changes and wait for the new build. Vite embeds these values during the Docker build, so restarting the current deployment can't supply them. [Railway Docker build arguments](https://docs.railway.com/builds/dockerfiles#using-variables-at-build-time)
 
 ## 3. Generate the domain and finish Supabase Auth
 
-1. **Generate** the service's public domain under **Settings → Networking → Public Networking → Generate Domain**. Use the detected target port if Railway asks. [Railway public domains](https://docs.railway.com/deployments/monorepo#3-generate-public-domains)
-2. **Open** Supabase **Authentication → URL Configuration**. Paste the new Railway HTTPS address into **Site URL** and add the exact home-page URL, including the trailing `/`, under **Redirect URLs**. Save the changes. Discord still sends the browser back through the Supabase callback you already registered. [Supabase redirect URLs](https://supabase.com/docs/guides/auth/redirect-urls)
-3. **Check** the Railway home page and `/pairings/game/3` in a signed-out browser. Both should load the app's sign-in gate.
-4. **Test** the Discord button from the Railway home page. After approving access, you should land back on Railway and see **Not invited** until your Discord ID is whitelisted.
+1. **Generate** a domain under **Settings → Networking → Public Networking → Generate Domain**. Use Railway's detected target port, or enter `8080` if it asks you to choose a port. The current site is [root-league-production.up.railway.app](https://root-league-production.up.railway.app/). [Railway public domains](https://docs.railway.com/deployments/monorepo#3-generate-public-domains)
+2. **Open** Supabase **Authentication → URL Configuration**. Set **Site URL** to the Railway HTTPS address and add the exact home-page URL with a trailing `/` under **Redirect URLs**. Save. Discord continues to use the Supabase callback already registered in the Discord portal. [Supabase redirect URLs](https://supabase.com/docs/guides/auth/redirect-urls)
+3. **Check** the Railway home page and `/pairings/game/3` in a signed-out browser. Both should show the Discord sign-in gate.
+4. **Test** the Discord button from the home page. After consent, you should land back on Railway and see **Not invited** until your Discord ID is whitelisted.
 5. **Continue** to [Real IDs and data](setup-runbook.md#real-ids-and-data) once sign-in returns to the site.

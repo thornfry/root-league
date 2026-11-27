@@ -34,19 +34,7 @@ Run shell commands from `site/` unless a step says otherwise. Replace quoted pla
 
 ## Railway
 
-Follow the [Railway walkthrough](railway-walkthrough.md) for the dashboard steps and first Discord sign-in test.
-
-- **Create** a service connected to this repository and the branch you intend to deploy.
-- **Set** service root `/` and add the service variable `RAILWAY_DOCKERFILE_PATH` with value `/site/Dockerfile`. This selects [site/Dockerfile](../Dockerfile) with the repository root as build context.
-- **Set** the service healthcheck path to `/` under **Settings → Deploy**.
-- **Open** the Variables panel in Railway and Supabase's **Connect** dialog side by side. Paste the hosted Project URL into `VITE_SUPABASE_URL` and the publishable key into `VITE_SUPABASE_ANON_KEY`. The legacy `anon` key from **Project Settings → API Keys** also works.
-- **Set** `VITE_REPO_URL` to the HTTPS GitHub repository or `blob/ref` base for League info links; omit it to use the README's default.
-- **Leave** `VITE_AUTH_MODE` unset or set it to `discord`; never deploy `dev`.
-- **Keep** secrets out of all `VITE_*` variables; these values are public browser code and require a rebuild after changes.
-- **Leave** the start command unchanged; Railway supplies `PORT`, and Caddy defaults to 8080 locally.
-- **Generate** a Railway public domain and set hosted Supabase Auth's Site URL and allowed redirect URL to its exact HTTPS origin.
-- **Deploy** and open `/` and `/pairings/game/3`; both should load the app's sign-in gate rather than a server 404.
-- **Test** the Discord button; consent must return to the Railway site.
+- **Follow** the [Railway walkthrough](railway-walkthrough.md) to deploy from GitHub, connect the public domain to Supabase Auth, and test Discord sign-in.
 
 ✓ Success: the sign-in gate and deep link load, and Discord returns to the site.
 
