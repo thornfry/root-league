@@ -50,6 +50,17 @@ jobs:
         with:
           python-version: '3.14'
       - run: python3 -m unittest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - name: Install parity wrapper dependencies
+        working-directory: site
+        run: npm ci
+      - name: Cross-check pairing hard rules in both directions
+        working-directory: site
+        run: python3 scripts/parity.py
 
   db:
     runs-on: ubuntu-latest
