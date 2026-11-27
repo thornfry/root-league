@@ -10,17 +10,18 @@ let stage: string
 let current: boolean
 let failure: boolean
 let rows: typeof initialRows
+let standingRows: { person_id: string; display_name: string; wins: number; games_played: number; games_left: number; rank: number }[]
 const initialRows = [
   { person_id: 'p-alex', display_name: 'Alex', is_me: true, list_in: true, ranked_factions: ['birds', 'cats'] as string[] | null },
   { person_id: 'p-other', display_name: 'Other player', is_me: false, list_in: false, ranked_factions: null as string[] | null },
 ]
 const from = vi.fn((table: string) => {
   const result = () => ({
-    data: table === 'seasons' ? (current ? { id: 'season-1' } : null) : table === 'season_stage' ? { stage } : rows,
+    data: table === 'seasons' ? (current ? { id: 'season-1' } : null) : table === 'season_stage' ? { stage } : table === 'standings' ? standingRows : rows,
     error: failure ? { message: 'Database unavailable' } : null,
   })
   const query = { select: vi.fn(() => query), eq: vi.fn(() => query), maybeSingle: vi.fn(async () => result()),
-    single: vi.fn(async () => result()), order: vi.fn(async () => result()) }
+    single: vi.fn(async () => result()), order: vi.fn(() => query), then: (resolve: (value: unknown) => unknown) => Promise.resolve(result()).then(resolve) }
   return query
 })
 
@@ -29,6 +30,10 @@ beforeEach(() => {
   current = true
   failure = false
   rows = structuredClone(initialRows)
+  standingRows = [
+    { person_id: 'p-sam', display_name: 'Sam', wins: 2, games_played: 3, games_left: 1, rank: 1 },
+    { person_id: 'p-alex', display_name: 'Alex', wins: 1, games_played: 3, games_left: 1, rank: 2 },
+  ]
   fake.state.whoami = viewerJson()
   Object.assign(fake.db, { from })
   from.mockClear()
@@ -61,8 +66,8 @@ it('shows only status for others before lock, with the owner list in rank order 
   }
 })
 
-it.each(['locked', 'live'])('shows every returned list in %s stage', async (nextStage) => {
-  stage = nextStage
+it('shows every returned list once locked', async () => {
+  stage = 'locked'
   rows[1]!.ranked_factions = ['WA', 'otters']
   renderApp('/players')
   expect(await screen.findByRole('list', { name: "Other player's ranked factions" })).toBeVisible()
@@ -99,4 +104,18 @@ it('reports query failures and offers a retry', async () => {
   renderApp('/players')
   await waitFor(() => expect(screen.getByText(/Could not load players: Database unavailable/)).toBeVisible(), { timeout: 4000 })
   expect(screen.getByRole('button', { name: 'Try again' })).toBeVisible()
+})
+
+it.each([375, 1280])('shows standings instead of faction lists once live, at %i', async (width) => {
+  stage = 'live'
+  rows[1]!.ranked_factions = ['WA', 'otters']
+  renderApp('/players', width)
+  const table = await screen.findByRole('table', { name: 'Season standings' })
+  expect(within(table).getAllByRole('columnheader').map((c) => c.textContent)).toEqual(['Player', 'Record'])
+  expect(within(table).getAllByRole('row').slice(1).map((r) => r.textContent)).toEqual(['Sam2-1', 'Alex (you)1-2'])
+  expect(screen.queryByRole('list', { name: /ranked factions/ })).not.toBeInTheDocument()
+  expect(table).not.toHaveTextContent(/left|played|wins/i)
+  // The shell may still read the viewer's own membership; the page itself must not list the roster.
+  const rosterReads = from.mock.calls.flatMap(([name], i) => name === 'roster_public' ? [from.mock.results[i]!.value] : [])
+  for (const query of rosterReads) expect(query.order).not.toHaveBeenCalled()
 })

@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { useSession } from '../../auth/session'
 import { findFaction } from '../../data/factions'
 import { getSupabase } from '../../db/client'
+import { fetchStandings } from '../../db/standings'
 import { Alert, Button, Card, FactionSeal, Icon, type FactionCode } from '../../ui'
 import './Players.css'
 
@@ -13,14 +14,14 @@ async function loadPlayers() {
   if (season.error) throw new Error(season.error.message)
   if (!season.data) return null
   const seasonId = season.data.id
-  const [stage, roster] = await Promise.all([
-    db.from('season_stage').select('stage').eq('season_id', seasonId).single(),
-    db.from('roster_public').select('person_id, display_name, is_me, list_in, ranked_factions')
-      .eq('season_id', seasonId).order('display_name'),
-  ])
+  const stage = await db.from('season_stage').select('stage').eq('season_id', seasonId).single()
   if (stage.error) throw new Error(stage.error.message)
+  // Once the season is live the page is the standings. Faction lists no longer matter.
+  if (stage.data.stage === 'live') return { stage: 'live', players: [], standings: await fetchStandings(db, seasonId) }
+  const roster = await db.from('roster_public').select('person_id, display_name, is_me, list_in, ranked_factions')
+    .eq('season_id', seasonId).order('display_name')
   if (roster.error) throw new Error(roster.error.message)
-  return { stage: stage.data.stage, players: roster.data }
+  return { stage: stage.data.stage, players: roster.data, standings: [] }
 }
 
 export function Players() {
@@ -34,6 +35,7 @@ export function Players() {
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
   })
+  const live = players.data?.stage === 'live'
   const open = players.data?.stage === 'open'
   const expanded = !open || me?.isAdmin
   return <>
@@ -48,7 +50,8 @@ export function Players() {
       Could not load players: {players.error.message} <Button onClick={() => void players.refetch()}>Try again</Button>
     </Alert>}
     {players.isSuccess && !players.data && <p className="muted">No current season yet.</p>}
-    {players.data && (players.data.players.length === 0
+    {players.data && live && <Standings rows={players.data.standings} personId={me?.personId ?? null} />}
+    {players.data && !live && (players.data.players.length === 0
       ? <p className="muted">No players have joined yet.</p>
       : <div className={expanded ? 'players-grid' : 'players-open card'}>
         {players.data.players.map((player) => <Card as="section" key={player.person_id} className="players-entry" pad={16}>
@@ -75,4 +78,19 @@ export function Players() {
         </Card>)}
       </div>)}
   </>
+}
+
+/** Player on the left, record as wins and losses. Everyone plays the same number of games, so games left can be read from the record. */
+function Standings({ rows, personId }: { rows: Awaited<ReturnType<typeof fetchStandings>>; personId: string | null }) {
+  if (!rows.length) return <p className="muted">No standings yet.</p>
+  return <Card className="players-standings">
+    <table>
+      <caption className="sr">Season standings</caption>
+      <thead><tr><th scope="col">Player</th><th scope="col" className="players-record">Record</th></tr></thead>
+      <tbody>{rows.map(row => <tr key={row.person_id}>
+        <th scope="row">{row.display_name}{row.person_id === personId ? ' (you)' : ''}</th>
+        <td className="num players-record">{row.wins ?? 0}-{(row.games_played ?? 0) - (row.wins ?? 0)}</td>
+      </tr>)}</tbody>
+    </table>
+  </Card>
 }

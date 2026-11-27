@@ -5,7 +5,7 @@ import { expectAccessible } from './support/axe'
 
 // Four tables: upcoming, shared-win recorded, disputed, void. Void contributes
 // nothing; the dispute remains left. Every player starts at 1 win, 1 played, 2 left.
-test('S17: Home counts outcomes and refreshes after entry, edit and settlement', async ({ page }) => {
+test('S17: Players counts outcomes and refreshes after entry, edit and settlement', async ({ page }) => {
   const fixture = await withDatabase(async db => {
     await db.query("update public.seasons set started_at=now(), maps=array['Autumn'] where id=$1", [SEASON_ID])
     const ids: string[] = []
@@ -24,15 +24,17 @@ test('S17: Home counts outcomes and refreshes after entry, edit and settlement',
     return { ids, games }
   })
   await signInAs(page, 'player')
-  const standings = page.getByRole('table', { name: 'Season standings' })
-  const own = standings.getByRole('row').filter({ hasText: 'Delaney' })
-  const assertOwn = async (wins: number, played: number, left: number) => {
-    await expect(own.getByRole('cell')).toHaveText([/\d+/, String(wins), String(played), String(left)])
+  // Standings are on Players, as a record (wins-losses).
+  const assertOwn = async (wins: number, played: number) => {
+    await page.goto('/players')
+    const own = page.getByRole('table', { name: 'Season standings' }).getByRole('row').filter({ hasText: 'Delaney' })
+    await expect(own.getByRole('cell')).toHaveText(`${wins}-${played - wins}`)
+    await page.goto('/')
   }
-  await assertOwn(1, 1, 2)
-  const mine = page.getByRole('region', { name: 'Your games' })
+  await assertOwn(1, 1)
+  const mine = page.getByRole('region', { name: 'My games' })
   await expect(mine.getByRole('article')).toHaveCount(4)
-  await expect(mine.getByRole('link', { name: 'Enter result' })).toHaveAttribute('href', '/game/1')
+  await expect(mine.getByRole('link', { name: 'Report result' })).toHaveAttribute('href', '/game/1')
   await expect(mine).toContainText('Disputed')
   await expect(mine).toContainText('Void')
   await expectNoHorizontalScroll(page)
@@ -40,15 +42,13 @@ test('S17: Home counts outcomes and refreshes after entry, edit and settlement',
   for (const winners of [[fixture.ids[0]], [fixture.ids[1]]]) {
     const result = await restAsPage(page, 'rpc/submit_result', { p_game_id: fixture.games[0], p_winners: winners })
     expect(result.status, result.text).toBeLessThan(300)
-    await page.reload()
-    await assertOwn(winners[0] === fixture.ids[0] ? 2 : 1, 2, 1)
+    await assertOwn(winners[0] === fixture.ids[0] ? 2 : 1, 2)
   }
   await page.evaluate(() => localStorage.clear())
   await signInAs(page, 'admin')
   const settled = await restAsPage(page, 'rpc/settle_game', { p_game_id: fixture.games[2], p_winners: [fixture.ids[0]] })
   expect(settled.status, settled.text).toBeLessThan(300)
-  await page.reload()
-  await assertOwn(2, 3, 0)
-  await expect(page.getByRole('region', { name: 'Your games' })).toHaveCount(0)
+  await assertOwn(2, 3)
+  await expect(page.getByRole('region', { name: 'My games' })).toHaveCount(0)
   // D5/U14 will add leaderboard parity here when its public contract lands.
 })

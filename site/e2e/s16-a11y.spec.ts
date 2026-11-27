@@ -178,7 +178,7 @@ test('S16: a live season, every game state', async ({ page }) => {
 
   // A league player seated at the recorded, settled and open games.
   await signInFast(page, cast('Delaney'))
-  await audit(page, 'Your games')
+  await audit(page, 'My games')
   await visit(page, '/pairings', 'Table 1')
   for (const filter of ['Mine', 'Completed', 'Upcoming']) {
     await page.getByRole('button', { name: new RegExp(`^${filter} `) }).click()

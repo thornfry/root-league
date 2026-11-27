@@ -182,7 +182,7 @@ test('S14: the full journey from the empty season to a played one', async ({ pag
 
     await test.step('a league player sees Pairings, with Mine', async () => {
       await signInFast(page, identity('Delaney'))
-      await expect(page.getByRole('region', { name: 'Your games' })).toBeVisible()
+      await expect(page.getByRole('region', { name: 'My games' })).toBeVisible()
       await navigate(page, 'Pairings')
       await expect(page.getByRole('group', { name: 'Filter games' }).getByRole('button', { name: /^Mine 2$/ })).toBeVisible()
       await expect(page.getByRole('group', { name: 'Filter games' }).getByRole('button', { name: /^All 4$/ })).toBeVisible()

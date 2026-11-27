@@ -2,12 +2,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from 'react-router'
 import { useSession } from '../../auth/session'
 import { joinLeague, MEMBERSHIP_KEY, useMembership } from '../../db/membership'
-import { Alert, Button, ButtonLink, Card } from '../../ui'
+import { Alert, Button, ButtonLink, Card, Stat } from '../../ui'
 import { getSupabase } from '../../db/client'
 import { pairingsQuery, filterGames } from '../../db/games'
-import { standingsQuery } from '../../db/standings'
+import { fetchLeaderboard } from '../../db/picks'
 import { GameStatus, GameWinners, SeatFaction } from './Pairings'
-import { Leaderboard } from './Pickems'
 import { ProspectHome } from './ProspectHome'
 
 export function Home() {
@@ -40,7 +39,6 @@ export function Home() {
           </> : <>
             <h2 className="disp h2b">{data.stage === 'live' ? 'Season in progress' : 'Joining is closed'}</h2>
             <p>{data.stage === 'live' ? 'Joining is closed. Follow the games and make your picks.' : 'Lists are locked. The season has not started yet.'}</p>
-            {data.stage === 'live' ? <ButtonLink to="/pickems" variant="pri">Pick&apos;ems</ButtonLink> : null}
           </>}
         </Card>
       ) : null}
@@ -52,43 +50,40 @@ export function Home() {
 
 function LiveHome({ seasonId, personId }: { seasonId: string; personId: string | null }) {
   const db = getSupabase()
-  const standings = useQuery(standingsQuery(db, seasonId))
   const games = useQuery(pairingsQuery(db))
   const mine = filterGames(games.data?.games ?? [], 'Mine', personId)
   return <>
     {games.isPending ? <p role="status">Loading your games</p> : null}
     {games.isError ? <Alert tone="bad">Could not load your games: {games.error.message} <Button onClick={() => void games.refetch()}>Try again</Button></Alert> : null}
-    {mine.length ? <section className="stack" aria-labelledby="your-games-title">
-      <h2 id="your-games-title" className="disp h2b">Your games</h2>
+    {mine.length ? <section className="stack" aria-labelledby="my-games-title">
+      <h2 id="my-games-title" className="disp h2b">My games</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 16 }}>{mine.map(game => {
         const seat = game.seats.find(s => s.person_id === personId)!
+        const reportable = game.state !== 'void' && game.state !== 'settled'
         return <Card key={game.id} as="article" pad={16} className="stack">
           <div className="rowb"><b><Link to={`/game/${game.game_no}`}>Table {game.game_no}, {game.mapName}</Link></b>
-            {game.state === 'upcoming' ? <ButtonLink to={`/game/${game.game_no}`} variant="pri">Enter result</ButtonLink> : <GameStatus game={game} />}</div>
+            <GameStatus game={game} /></div>
           <div className="row"><span className="muted">Seat {seat.seat}</span><SeatFaction seat={seat} /></div>
           <p className="muted">{game.state === 'disputed' ? 'The admin will decide.' : game.state === 'void' ? 'This game is not counted.' : game.state === 'upcoming' ? 'No result yet.' : <GameWinners game={game} />}</p>
+          {reportable ? <ButtonLink to={`/game/${game.game_no}`} variant={game.state === 'upcoming' ? 'pri' : 'default'}>{game.state === 'upcoming' ? 'Report result' : 'Edit result'}</ButtonLink> : null}
         </Card>
       })}</div>
     </section> : null}
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: 24 }}>
-      <section className="stack" aria-labelledby="standings-title">
-        <h2 id="standings-title" className="disp h2b">Standings</h2>
-        {standings.isPending ? <p role="status">Loading standings</p> : null}
-        {standings.isError ? <Alert tone="bad">Could not load standings: {standings.error.message} <Button onClick={() => void standings.refetch()}>Try again</Button></Alert> : null}
-        {standings.data ? <Card><table style={{ width: '100%', tableLayout: 'fixed' }}>
-          <caption className="sr">Season standings</caption>
-          <thead><tr><th style={{ width: 30 }} scope="col">#</th><th scope="col">Player</th><th style={{ width: 42 }} scope="col">Wins</th><th style={{ width: 54 }} scope="col">Played</th><th style={{ width: 36 }} scope="col">Left</th></tr></thead>
-          <tbody>{standings.data.map(row => <tr key={row.person_id}>
-            <td className="num">{row.rank}</td><th scope="row" style={{ overflowWrap: 'anywhere' }}>{row.display_name}{row.person_id === personId ? ' (you)' : ''}</th>
-            <td className="num">{row.wins}</td><td>{row.games_played}</td><td>{row.games_left}</td>
-          </tr>)}</tbody>
-        </table>{!standings.data.length ? <p>No standings yet.</p> : null}</Card> : null}
-      </section>
-      <section className="stack" aria-labelledby="home-pickem-title" data-pickem-leaderboard-slot>
-        <h2 id="home-pickem-title" className="disp h2b">Pick'em leaderboard</h2>
-        <Leaderboard seasonId={seasonId} personId={personId} limit={5} />
-        <Link to="/pickems">Full leaderboard and my picks</Link>
-      </section>
-    </div>
+    {personId ? <PickemQuickView seasonId={seasonId} personId={personId} /> : null}
   </>
+}
+
+/** Score and rank only. The Pick'ems page is in the menu, so there is no link here. */
+function PickemQuickView({ seasonId, personId }: { seasonId: string; personId: string }) {
+  const board = useQuery({ queryKey: ['leaderboard', seasonId], queryFn: () => fetchLeaderboard(getSupabase(), seasonId), staleTime: 0 })
+  const mine = board.data?.find(row => row.person_id === personId)
+  return <section className="stack" aria-labelledby="home-pickem-title">
+    <h2 id="home-pickem-title" className="disp h2b">Pick&apos;ems</h2>
+    {board.isPending ? <p role="status">Loading your pick&apos;ems</p> : null}
+    {board.isError ? <Alert tone="bad">Could not load your pick&apos;ems: {board.error.message} <Button onClick={() => void board.refetch()}>Try again</Button></Alert> : null}
+    {board.data ? <Card pad={16}><div className="row">
+      <Stat value={mine?.points ?? 0} label="Score" sub="points" />
+      <Stat value={mine ? mine.rank : 'None'} label="Rank" sub={mine ? `of ${board.data.length}` : 'no picks scored yet'} />
+    </div></Card> : null}
+  </section>
 }

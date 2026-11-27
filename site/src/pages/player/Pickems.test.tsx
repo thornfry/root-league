@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { configure, screen, within, cleanup } from '@testing-library/react'
+import { configure, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import { makeFakeDb, viewerJson, adminJson } from '../../test-support/fakeDb'
@@ -71,19 +71,16 @@ it('shows my picks, eligible open games and database tie ranks', async () => {
   expect(screen.getByRole('link', { name: 'Table 1, Autumn' })).toBeInTheDocument()
 })
 
-it('Home leaderboard agrees with the full Leaderboard page', async () => {
+it('Home quick view shows the same score and rank as the leaderboard', async () => {
   const f = setup('upcoming', viewerJson({ person_id: 'other' }))
   f.rows.standings = []
   f.rows.leaderboard = [{ person_id: 'other', rank: 1, display_name: 'Alex', points: 4 }, { person_id: 'second', rank: 1, display_name: 'Blair', points: 4 }]
   renderApp('/')
-  const home = await screen.findByRole('region', { name: "Pick'em leaderboard" })
-  await within(home).findByText('Blair')
-  const rows = within(home).getAllByText('Rank 1').map(el => el.parentElement!.textContent)
-  cleanup()
-  renderApp('/pickems')
-  const full = await screen.findByRole('region', { name: 'Leaderboard' })
-  await within(full).findByText('Blair')
-  expect(within(full).getAllByText('Rank 1').map(el => el.parentElement!.textContent)).toEqual(rows)
+  const home = await screen.findByRole('region', { name: "Pick'ems" })
+  await within(home).findByText('4')
+  expect(home).toHaveTextContent('Score4points')
+  expect(home).toHaveTextContent('Rank1of 2')
+  expect(home).not.toHaveTextContent('Blair')
 })
 
 it('keeps picks available for correction after a failed save', async () => {

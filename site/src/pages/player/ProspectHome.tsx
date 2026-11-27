@@ -1,12 +1,17 @@
 import type { ReactNode } from 'react'
-import { useLocation } from 'react-router'
+import { Navigate, useLocation } from 'react-router'
+import { useSession } from '../../auth/session'
 import { findFaction } from '../../data/factions'
-import type { Membership } from '../../db/membership'
+import { useMembership, type Membership } from '../../db/membership'
 import { Alert, ButtonLink, Card, Tag } from '../../ui'
 
-/** Keep around U5's MyList element: Join opens the picker with this acknowledgement. */
+/** Keep around U5's MyList element: Join opens the picker with this acknowledgement, and a live season sends people Home. */
 export function MembershipListEntry({ children }: { children: ReactNode }) {
   const { state } = useLocation()
+  const session = useSession()
+  const membership = useMembership(session.status === 'in' ? session.whoami.personId : null)
+  // My factions is for setting lists up. Once the season is live there is nothing left to set.
+  if (membership.data?.stage === 'live') return <Navigate to="/" replace />
   return <>{state?.joined === true ? <div className="stack8"><h1 className="disp h1s">You&apos;re on the list!</h1><p>Pick your factions before lists lock.</p></div> : null}{children}</>
 }
 
