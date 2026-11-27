@@ -136,7 +136,7 @@ test('S14: the full journey from the empty season to a played one', async ({ pag
       await expect(page.getByText('P1', { exact: true }).first()).toBeVisible()
       await expect(page.getByRole('main')).not.toContainText(/Delaney|Alex|Matt|Marquise|Eyrie/)
       await expectNoHorizontalScroll(page)
-      await navigate(page, 'Players')
+      await navigate(page, 'Standings')
       await expect(page.getByRole('main')).toContainText('Delaney')
       // Before the lock the viewer reads their own ranked list and nobody else's.
       await expect(page.getByRole('list', { name: "Spectator's ranked factions" })).toBeVisible()
@@ -182,26 +182,26 @@ test('S14: the full journey from the empty season to a played one', async ({ pag
 
     await test.step('a league player sees Pairings, with Mine', async () => {
       await signInFast(page, identity('Delaney'))
-      await expect(page.getByRole('region', { name: 'Your games' })).toBeVisible()
+      await expect(page.getByRole('region', { name: 'My games' })).toBeVisible()
       await navigate(page, 'Pairings')
       await expect(page.getByRole('group', { name: 'Filter games' }).getByRole('button', { name: /^Mine 2$/ })).toBeVisible()
       await expect(page.getByRole('group', { name: 'Filter games' }).getByRole('button', { name: /^All 4$/ })).toBeVisible()
       await page.getByRole('button', { name: /^Mine / }).click()
       await expect(page.getByRole('button', { name: /^Mine / })).toHaveAttribute('aria-pressed', 'true')
-      await expect(page.getByRole('link', { name: /^Table \d+$/ }).first()).toBeVisible()
+      await expect(page.getByRole('heading', { name: /^Table \d+$/ }).first()).toBeVisible()
       await expectNoHorizontalScroll(page)
     })
 
     await test.step('she enters a result; another seated player disagrees; the admin settles it', async () => {
-      await page.goto(`/game/${mine.game_no}`)
+      await page.goto(`/game/${mine.game_no}/result`)
       await page.getByRole('checkbox', { name: 'Delaney' }).check()
       await page.getByRole('button', { name: 'Submit', exact: true }).click()
       await expect(page.getByText('Won by Delaney', { exact: true })).toBeVisible()
 
-      await signInFast(page, identity(rival), `/game/${mine.game_no}`)
+      await signInFast(page, identity(rival), `/game/${mine.game_no}/result`)
       await page.getByRole('checkbox', { name: rival }).check()
       await page.getByRole('button', { name: 'Submit', exact: true }).click()
-      await expect(page.getByRole('region', { name: 'Result' })).toContainText('The admin will decide.')
+      await expect(page.getByRole('region', { name: 'My games' })).toContainText('Disputed')
       await expect(page.getByText(/Won by/)).toHaveCount(0)
       await expectNoHorizontalScroll(page)
 
@@ -214,38 +214,41 @@ test('S14: the full journey from the empty season to a played one', async ({ pag
       await admin.goto('/admin')
       await expect(admin.getByText('No games are disputed.')).toBeVisible()
 
-      await signInFast(page, identity('Delaney'), `/game/${mine.game_no}`)
+      await signInFast(page, identity('Delaney'))
       await expect(page.getByText('Settled by admin', { exact: true }).first()).toBeVisible()
       await expect(page.getByText('Won by Delaney', { exact: true })).toBeVisible()
-      await expect(page.getByRole('button', { name: 'Edit result' })).toHaveCount(0)
+      await expect(page.getByRole('article').filter({ hasText: `Table ${mine.game_no},` }).getByRole('link', { name: 'Edit result' })).toHaveCount(0)
     })
 
     await test.step('picks and the leaderboard', async () => {
-      await signInFast(page, person, `/game/${pickGame.game_no}`)
-      await expect(page.getByLabel('First pick', { exact: true })).toBeVisible()
-      await page.getByLabel('First pick', { exact: true }).selectOption({ label: pickWinner })
-      await page.getByRole('button', { name: 'Save picks' }).click()
-      await expect(page.getByText('Picks saved. You can change them until the first result.')).toBeVisible()
+      await signInFast(page, person, '/pickems')
+      const pickCard = page.getByRole('article', { name: `Table ${pickGame.game_no}` })
+      await pickCard.getByRole('button', { name: new RegExp(pickWinner) }).click()
+      await expect(pickCard.getByText('1st pick')).toBeVisible()
+      await expect(pickCard.getByRole('button', { name: new RegExp(pickWinner) })).toBeEnabled()
       // The admin is not seated at this table, so the entry settles it and the pick scores.
-      await admin.goto(`/game/${pickGame.game_no}`)
+      await admin.goto(`/game/${pickGame.game_no}/result`)
       await admin.getByRole('checkbox', { name: pickWinner }).check()
       await admin.getByRole('button', { name: 'Submit', exact: true }).click()
-      await expect(admin.getByText('Settled by admin', { exact: true }).first()).toBeVisible()
+      await expect(admin).toHaveURL(/\/$/)
+      await admin.goto('/pairings')
+      await expect(admin.getByRole('article', { name: `Table ${pickGame.game_no}` })).toContainText('Settled by admin')
       await page.goto('/pickems')
-      await expect(page.getByText('Your score: 3 points')).toBeVisible()
-      await expect(page.getByRole('region', { name: 'Leaderboard' })).toContainText('Spectator (you)')
-      await expect(page.getByRole('region', { name: 'Leaderboard' })).toContainText('Rank 1')
+      await expect(page.locator('.scorecard')).toContainText('3 points')
+      await page.getByRole('link', { name: /Leaderboard/ }).click()
+      await expect(page.getByRole('table', { name: 'Pick’em leaderboard' })).toContainText('Spectator')
+      await expect(page.getByRole('table', { name: 'Pick’em leaderboard' }).getByRole('cell', { name: '1', exact: true })).toHaveCount(1)
       await expectNoHorizontalScroll(page)
     })
 
-    await test.step('standings on Home agree with the two results', async () => {
+    await test.step('standings agree with the two results', async () => {
       await signInFast(page, identity('Delaney'))
       const inPick = pickGame.names.includes('Delaney')
       const wins = 1 + (inPick && pickWinner === 'Delaney' ? 1 : 0)
       const played = inPick ? 2 : 1
+      await page.goto('/players')
       const row = page.getByRole('table', { name: 'Season standings' }).getByRole('row').filter({ hasText: 'Delaney' })
-      await expect(row.getByRole('cell')).toHaveText([/\d+/, String(wins), String(played), String(2 - played)])
-      await expect(page.getByRole('region', { name: "Pick'em leaderboard" })).toContainText('Spectator')
+      await expect(row.getByRole('cell')).toHaveText(`${wins}-${played - wins}`)
       await expectNoHorizontalScroll(page)
     })
 

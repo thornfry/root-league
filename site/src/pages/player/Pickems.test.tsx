@@ -1,97 +1,189 @@
 import '@testing-library/jest-dom/vitest'
-import { configure, screen, within, cleanup } from '@testing-library/react'
+import { configure, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
-import { makeFakeDb, viewerJson, adminJson } from '../../test-support/fakeDb'
+import { makeFakeDb, viewerJson } from '../../test-support/fakeDb'
 import { renderApp } from '../../test-support/renderApp'
+import { nextPicks, pickableGames } from './Pickems'
 
 configure({ asyncUtilTimeout: 10_000 })
 vi.setConfig({ testTimeout: 30_000 })
 
 const h = vi.hoisted(() => ({ db: null as unknown }))
 vi.mock('../../db/client', () => ({ getSupabase: () => h.db, isConfigured: () => true }))
-function setup(state = 'upcoming', persona = viewerJson({ roles: ['viewer', 'league_player'] }), own: string[] | null = null) {
-  const auth = makeFakeDb({ whoami: persona })
-  const outcome = { game_id: 'g', state, winners: state === 'disputed' ? null : own }
-  const rows: Record<string, unknown> = {
+
+const NAMES = ['Alex', 'Blair', 'Casey', 'Devon']
+const FACTIONS = ['cats', 'birds', 'otters', 'WA']
+// g1: your own game. g2 and g3: open. g4: recorded and picked. g5: recorded, no pick. g6: disputed. g7: void.
+const STATES: Record<string, string> = { g1: 'upcoming', g2: 'upcoming', g3: 'upcoming', g4: 'recorded', g5: 'recorded', g6: 'disputed', g7: 'void' }
+
+function setup() {
+  const auth = makeFakeDb({ whoami: viewerJson({ roles: ['viewer', 'league_player'] }) })
+  const ids = Object.keys(STATES)
+  const rows: Record<string, unknown[] | unknown> = {
     seasons: { id: 's', maps: ['Autumn'], name: 'Season' }, season_stage: { stage: 'live' },
-    games: [{ id: 'g', game_no: 1, season_id: 's', map_index: 0, void: state === 'void', game_seats: ['cats', 'birds', 'otters', 'WA'].map((faction, i) => ({ seat: i + 1, faction, person_id: i ? `p${i}` : 'p-alex', people: { display_name: ['Alex', 'Blair', 'Casey', 'Devon'][i] } })) }],
-    picks: [], pickem_scores: [], leaderboard: [], game_outcome: [outcome], submissions: own ? { winners: own } : null, edit_log: [], roster_public: [],
+    games: ids.map((id, i) => ({ id, game_no: i + 1, season_id: 's', map_index: 0, void: id === 'g7',
+      game_seats: FACTIONS.map((faction, j) => ({ seat: j + 1, faction, person_id: id === 'g1' && j === 0 ? 'p-alex' : `${id}-p${j}`, people: { display_name: id === 'g1' && j === 0 ? 'Alex' : NAMES[j] } })) })),
+    game_outcome: ids.map(id => ({ game_id: id, state: STATES[id], winners: id === 'g4' || id === 'g5' ? [`${id}-p1`] : null })),
+    picks: [{ game_id: 'g4', person_id: 'p-alex', first_pick: 'g4-p1', second_pick: 'g4-p2', people: { display_name: 'Alex' } }],
+    pickem_scores: [{ game_id: 'g4', person_id: 'p-alex', points: 3, first_points: 3, second_points: 0 }],
+    leaderboard: [{ person_id: 'other', rank: 1, display_name: 'Blair', points: 7 }, { person_id: 'p-alex', rank: 2, display_name: 'Alex', points: 3 }, { person_id: 'third', rank: 2, display_name: 'Casey', points: 3 }],
+    edit_log: [], roster_public: [],
   }
-  const filters: unknown[][] = []
   const from = vi.fn((table: string) => {
     const chain: Record<string, unknown> = { then: (resolve: (r: unknown) => void) => Promise.resolve({ data: rows[table], error: null }).then(resolve) }
-    for (const method of ['select', 'eq', 'order', 'maybeSingle', 'single', 'or', 'in']) chain[method] = vi.fn((...args: unknown[]) => { if (table === 'picks') filters.push([method, ...args]); return chain })
+    for (const method of ['select', 'eq', 'order', 'maybeSingle', 'single', 'or', 'in']) chain[method] = vi.fn(() => chain)
     return chain
   })
-  auth.rpc.mockImplementation(async (name: string, ...args: unknown[]) => {
-    if (name === 'whoami') return { data: persona, error: null }
-    if (name === 'submit_result') {
-      const w = (args[0] as { p_winners: string[] }).p_winners
-      rows.submissions = { winners: w }; outcome.state = 'recorded'; outcome.winners = w
-      return { data: {}, error: null }
+  auth.rpc.mockImplementation(async (name: string, args?: { p_game_id: string; p_first: string; p_second: string | null }) => {
+    if (name === 'save_pick' && args) {
+      const picks = (rows.picks as { game_id: string }[]).filter(p => p.game_id !== args.p_game_id)
+      rows.picks = [...picks, { game_id: args.p_game_id, person_id: 'p-alex', first_pick: args.p_first, second_pick: args.p_second, people: { display_name: 'Alex' } }]
     }
-    return { data: {}, error: null }
+    if (name === 'clear_pick' && args) {
+      rows.picks = (rows.picks as { game_id: string }[]).filter(p => p.game_id !== args.p_game_id)
+    }
+    return { data: name === 'whoami' ? auth.state.whoami : {}, error: null }
   })
   h.db = { ...auth.db, from }
-  return { ...auth, from, filters, rows }
+  return { ...auth, from, rows }
 }
 
-it('omits the pick control on own games', async () => {
+describe('nextPicks', () => {
+  it.each([
+    ['no picks yet: the tap is the first pick', null, null, 'a', { first: 'a', second: null }],
+    ['a first pick exists: the tap is the second', 'a', null, 'b', { first: 'a', second: 'b' }],
+    ['both exist: the tap replaces the second', 'a', 'b', 'c', { first: 'a', second: 'c' }],
+    ['the second pick is tapped: it is removed', 'a', 'b', 'b', { first: 'a', second: null }],
+    ['the first pick is tapped with a second: the second moves up', 'a', 'b', 'a', { first: 'b', second: null }],
+    ['the lone first pick is tapped: it is removed', 'a', null, 'a', { first: null, second: null }],
+  ] as const)('%s', (_name, first, second, tapped, expected) => {
+    expect(nextPicks(first, second, tapped)).toEqual(expected)
+  })
+  it('leaves your own games out, with open games first', () => {
+    const game = (id: string, state: string, own = false) => ({ id, state, seats: [{ person_id: own ? 'me' : 'x' }] }) as never
+    expect(pickableGames([game('a', 'recorded'), game('b', 'upcoming', true), game('c', 'upcoming')], 'me').map(g => (g as unknown as { id: string }).id)).toEqual(['c', 'a'])
+  })
+})
+
+it('lists open games first with All first in the filter, and never offers your own game', async () => {
+  setup()
+  renderApp('/pickems', 375)
+  const group = await screen.findByRole('group', { name: 'Filter pick’ems' })
+  expect(within(group).getAllByRole('button').map(b => b.textContent)).toEqual(['All 6', 'Open 2', 'Done 4'])
+  expect(screen.getByRole('button', { name: 'Open 2' })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getAllByRole('article').map(a => a.getAttribute('aria-label'))).toEqual(['Table 2', 'Table 3'])
+  await userEvent.click(screen.getByRole('button', { name: 'All 6' }))
+  expect(screen.getAllByRole('article').map(a => a.getAttribute('aria-label'))).toEqual(['Table 2', 'Table 3', 'Table 4', 'Table 5', 'Table 6', 'Table 7'])
+  expect(screen.queryByRole('article', { name: 'Table 1' })).not.toBeInTheDocument()
+})
+
+it('shows your score and rank at the top and links to the leaderboard page', async () => {
+  setup()
+  const { router } = renderApp('/pickems')
+  const card = (await screen.findByText('Score')).closest('.scorecard') as HTMLElement
+  await waitFor(() => expect(card).toHaveTextContent('Rank2 of 3'))
+  expect(card).toHaveTextContent('Score3 points')
+  expect(within(card).getByRole('link', { name: 'Pick’em rules' })).toHaveAttribute('href', '/info/pickems')
+  await userEvent.click(within(card).getByRole('link', { name: /Leaderboard/ }))
+  expect(router.state.location.pathname).toBe('/pickems/leaderboard')
+  const table = await screen.findByRole('table', { name: 'Pick’em leaderboard' })
+  expect(within(table).getAllByRole('row').slice(1).map(r => r.textContent)).toEqual(['1Blair7', '2Alex You3', '2Casey3'])
+  expect(screen.queryByRole('article')).not.toBeInTheDocument()
+})
+
+it('saves each tap with no Save button: first pick, second pick, then drops the second', async () => {
   const f = setup()
-  renderApp('/game/1')
-  await screen.findByRole('checkbox', { name: 'Alex' })
-  expect(screen.queryByLabelText('First pick')).not.toBeInTheDocument()
-  expect(f.from.mock.calls.filter(([t]) => t === 'picks')).toHaveLength(0)
-})
-it('saves distinct picks and reads only own picks even for an admin', async () => {
-  const f = setup('upcoming', adminJson())
-  renderApp('/game/1')
-  await userEvent.selectOptions(await screen.findByLabelText('First pick'), 'p1')
-  expect(within(screen.getByLabelText('Second pick (optional)')).queryByRole('option', { name: 'Blair' })).not.toBeInTheDocument()
-  await userEvent.selectOptions(screen.getByLabelText('Second pick (optional)'), 'p2')
-  await userEvent.click(screen.getByRole('button', { name: 'Save picks' }))
-  expect(f.filters).toContainEqual(['eq', 'person_id', 'p-admin'])
-  expect(f.rpc).toHaveBeenCalledWith('save_pick', { p_game_id: 'g', p_first: 'p1', p_second: 'p2' })
-})
-it('reveals picks and pauses disputed scoring', async () => {
-  const f = setup('disputed', viewerJson({ person_id: 'other' }))
-  f.rows.picks = [{ game_id: 'g', person_id: 'spectator', first_pick: 'p1', second_pick: 'p2', people: { display_name: 'Spectator' } }]
-  renderApp('/game/1')
-  expect(await screen.findByText('Scoring paused until the admin settles the game.')).toBeInTheDocument()
-  expect(screen.getByText('Spectator')).toBeInTheDocument()
-  expect(screen.queryByLabelText('First pick')).not.toBeInTheDocument()
-})
-it('shows my picks, eligible open games and database tie ranks', async () => {
-  const f = setup('upcoming', viewerJson({ person_id: 'other' }))
-  f.rows.leaderboard = [{ person_id: 'other', rank: 1, display_name: 'Alex', points: 4 }, { person_id: 'second', rank: 1, display_name: 'Blair', points: 4 }]
-  renderApp('/pickems')
-  expect(await screen.findByText('Your score: 4 points')).toBeInTheDocument()
-  expect(screen.getAllByText('Rank 1')).toHaveLength(2)
-  expect(screen.getByRole('link', { name: 'Table 1, Autumn' })).toBeInTheDocument()
+  renderApp('/pickems', 375)
+  const table = await screen.findByRole('article', { name: 'Table 2' })
+  expect(screen.queryByRole('button', { name: /Save/ })).not.toBeInTheDocument()
+  await userEvent.click(within(table).getByRole('button', { name: /Blair/ }))
+  await waitFor(() => expect(f.rpc).toHaveBeenCalledWith('save_pick', { p_game_id: 'g2', p_first: 'g2-p1', p_second: null }))
+  await waitFor(() => expect(within(table).getByRole('button', { name: /Blair/ })).toHaveAttribute('aria-pressed', 'true'))
+  expect(within(table).getByText('1st pick')).toBeInTheDocument()
+  await waitFor(() => expect(within(table).getByRole('button', { name: /Devon/ })).toBeEnabled())
+  await userEvent.click(within(table).getByRole('button', { name: /Devon/ }))
+  await waitFor(() => expect(f.rpc).toHaveBeenCalledWith('save_pick', { p_game_id: 'g2', p_first: 'g2-p1', p_second: 'g2-p3' }))
+  await within(table).findByText('2nd pick')
+  await waitFor(() => expect(within(table).getByRole('button', { name: /Devon/ })).toBeEnabled())
+  await userEvent.click(within(table).getByRole('button', { name: /Devon/ }))
+  await waitFor(() => expect(f.rpc).toHaveBeenLastCalledWith('save_pick', { p_game_id: 'g2', p_first: 'g2-p1', p_second: null }))
 })
 
-it('Home leaderboard agrees with the full Leaderboard page', async () => {
-  const f = setup('upcoming', viewerJson({ person_id: 'other' }))
-  f.rows.standings = []
-  f.rows.leaderboard = [{ person_id: 'other', rank: 1, display_name: 'Alex', points: 4 }, { person_id: 'second', rank: 1, display_name: 'Blair', points: 4 }]
-  renderApp('/')
-  const home = await screen.findByRole('region', { name: "Pick'em leaderboard" })
-  await within(home).findByText('Blair')
-  const rows = within(home).getAllByText('Rank 1').map(el => el.parentElement!.textContent)
-  cleanup()
-  renderApp('/pickems')
-  const full = await screen.findByRole('region', { name: 'Leaderboard' })
-  await within(full).findByText('Blair')
-  expect(within(full).getAllByText('Rank 1').map(el => el.parentElement!.textContent)).toEqual(rows)
+it('clears a lone first pick and lets another player become the first pick', async () => {
+  const f = setup()
+  renderApp('/pickems', 375)
+  const table = await screen.findByRole('article', { name: 'Table 2' })
+  const blair = within(table).getByRole('button', { name: /Blair/ })
+  const devon = within(table).getByRole('button', { name: /Devon/ })
+  await waitFor(() => expect(blair).toBeEnabled())
+  await userEvent.click(blair)
+  await waitFor(() => {
+    expect(blair).toHaveAttribute('aria-pressed', 'true')
+    expect(blair).toBeEnabled()
+  })
+  await userEvent.click(blair)
+  await waitFor(() => expect(f.rpc).toHaveBeenCalledWith('clear_pick', { p_game_id: 'g2' }))
+  await waitFor(() => {
+    expect(blair).toHaveAttribute('aria-pressed', 'false')
+    expect(devon).toBeEnabled()
+  })
+  await userEvent.click(devon)
+  await waitFor(() => expect(f.rpc).toHaveBeenLastCalledWith('save_pick', { p_game_id: 'g2', p_first: 'g2-p3', p_second: null }))
 })
 
-it('keeps picks available for correction after a failed save', async () => {
-  const f = setup('upcoming', viewerJson({ person_id: 'other' }))
-  renderApp('/game/1')
-  await userEvent.selectOptions(await screen.findByLabelText('First pick'), 'p1')
+it('puts the old picks back and says so when a save is refused', async () => {
+  const f = setup()
+  renderApp('/pickems', 375)
+  const table = await screen.findByRole('article', { name: 'Table 2' })
   f.rpc.mockResolvedValueOnce({ data: null, error: { message: 'Picks are closed for this game.' } })
-  await userEvent.click(screen.getByRole('button', { name: 'Save picks' }))
-  expect(await screen.findByText('Could not save picks: Picks are closed for this game.')).toBeInTheDocument()
-  expect(screen.getByLabelText('First pick')).toHaveValue('p1')
+  await userEvent.click(within(table).getByRole('button', { name: /Blair/ }))
+  expect(await screen.findByText('Could not save that pick: Picks are closed for this game.')).toBeInTheDocument()
+  await waitFor(() => expect(within(table).getByRole('button', { name: /Blair/ })).toHaveAttribute('aria-pressed', 'false'))
+})
+
+it('shows a done game with your picks beside the crowned winner and your points, and the result alone where you did not pick', async () => {
+  setup()
+  renderApp('/pickems', 375)
+  await userEvent.click(await screen.findByRole('button', { name: 'Done 4' }))
+  const picked = screen.getByRole('article', { name: 'Table 4' })
+  expect(within(picked).queryByRole('button')).not.toBeInTheDocument()
+  expect(within(picked).getByText('1st pick')).toBeInTheDocument()
+  expect(within(picked).getByText('2nd pick')).toBeInTheDocument()
+  expect(within(picked).getByText('Winner')).toBeInTheDocument()
+  expect(within(picked).getByText('+3')).toBeInTheDocument()
+  expect(picked).toHaveTextContent('You scored 3 points: Blair won.')
+  const plain = screen.getByRole('article', { name: 'Table 5' })
+  expect(within(plain).getByText('Winner')).toBeInTheDocument()
+  expect(within(plain).queryByText(/pick$/)).not.toBeInTheDocument()
+  expect(plain).toHaveTextContent('You made no pick on this game.')
+  expect(screen.getByRole('article', { name: 'Table 6' })).toHaveTextContent('Scoring paused until the admin settles the game.')
+  expect(screen.getByRole('article', { name: 'Table 7' })).toHaveTextContent('Void games score nothing.')
+})
+
+it('shows the faction on the badge and never writes the faction name', async () => {
+  setup()
+  renderApp('/pickems', 375)
+  const table = await screen.findByRole('article', { name: 'Table 2' })
+  expect(within(table).getAllByRole('img').map(i => i.getAttribute('aria-label'))).toEqual(['Marquise de Cat', 'Eyrie Dynasties', 'Riverfolk Company', 'Woodland Alliance'])
+  expect(table).not.toHaveTextContent('Marquise de Cat')
+})
+
+describe('Home quick view', () => {
+  it('links to Pick’ems while there are open games left to pick, and says how many', async () => {
+    setup()
+    renderApp('/', 375)
+    const link = await screen.findByRole('link', { name: /2 open games to pick/ })
+    expect(link).toHaveAttribute('href', '/pickems')
+    expect(link).toHaveTextContent('Score3 points')
+    expect(link).toHaveTextContent('Rank2 of 3')
+  })
+  it('links to the leaderboard once every open game is picked', async () => {
+    const f = setup()
+    const pick = (id: string) => ({ game_id: id, person_id: 'p-alex', first_pick: `${id}-p1`, second_pick: null, people: { display_name: 'Alex' } })
+    f.rows.picks = [...(f.rows.picks as unknown[]), pick('g2'), pick('g3')]
+    renderApp('/', 375)
+    const link = await screen.findByRole('link', { name: /All open games picked/ })
+    expect(link).toHaveAttribute('href', '/pickems/leaderboard')
+  })
 })

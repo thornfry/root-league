@@ -7,12 +7,12 @@ import { renderApp } from '../../test-support/renderApp'
 const h = vi.hoisted(() => ({ db: null as unknown }))
 vi.mock('../../db/client', () => ({ getSupabase: () => h.db, isConfigured: () => true }))
 
-it.each([375, 1280])('navigates all three read-only pages at %i px', async (width) => {
+it.each([375, 1280])('navigates the read-only info pages at %i px', async (width) => {
   h.db = makeFakeDb().db
   const { container, router } = renderApp('/info', width)
   await screen.findByRole('heading', { name: 'League Format' })
   const nav = screen.getByRole('navigation', { name: 'League info pages' })
-  expect(within(nav).getAllByRole('link')).toHaveLength(3)
+  expect(within(nav).getAllByRole('link')).toHaveLength(4)
   expect(within(nav).getByRole('link', { name: 'League format' })).toHaveAttribute('aria-current', 'page')
   await userEvent.click(within(nav).getByRole('link', { name: 'Pairing rules' }))
   expect(await screen.findByRole('heading', { name: 'Pairing Rules' })).toBeInTheDocument()
@@ -21,6 +21,9 @@ it.each([375, 1280])('navigates all three read-only pages at %i px', async (widt
   expect(screen.getByRole('article')).toHaveTextContent('never Vagabond and Knaves together')
   await userEvent.click(within(nav).getByRole('link', { name: 'How pairing works' }))
   expect(await screen.findByRole('heading', { name: 'How Pairing Works' })).toBeInTheDocument()
+  await userEvent.click(within(nav).getByRole('link', { name: 'Pick’em rules' }))
+  expect(await screen.findByRole('heading', { name: 'Pick’em Rules' })).toBeInTheDocument()
+  expect(router.state.location.pathname).toBe('/info/pickems')
   expect(container.querySelectorAll('main')).toHaveLength(1)
   expect(screen.getByRole('article').querySelector('input,textarea,button,[contenteditable]')).toBeNull()
   expect(screen.queryByText(/badge guide/i)).not.toBeInTheDocument()

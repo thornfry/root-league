@@ -1,7 +1,7 @@
-import type { RouteObject } from 'react-router'
+import { Navigate, type RouteObject } from 'react-router'
 import { AppRoot, CONSENT_PATH, LeaveGate, RequireAdmin } from './auth/AppGate'
 import { Pairings } from './pages/player/Pairings'
-import { Game } from './pages/player/Game'
+import { ReportResult } from './pages/player/ReportResult'
 import { Placeholder } from './pages/Placeholder'
 import { Home } from './pages/player/Home'
 import { MembershipListEntry } from './pages/player/ProspectHome'
@@ -9,6 +9,7 @@ import { Roster } from './pages/admin/Roster'
 import { MyList } from './pages/player/MyList'
 import { LeagueInfo } from './pages/player/LeagueInfo'
 import { Players } from './pages/player/Players'
+import { PickemLeaderboard, Pickems } from './pages/player/Pickems'
 
 // One line per route, to keep merges small. A later commit replaces a line's element with its page.
 export const routes: RouteObject[] = [
@@ -19,8 +20,10 @@ export const routes: RouteObject[] = [
       { path: '/', element: <Home /> },
       { path: '/players', element: <Players /> },
       { path: '/pairings', element: <Pairings /> },
-      { path: '/game/:gameNo', element: <Game /> },
-      { path: '/pickems', HydrateFallback: () => <h1>Pick&apos;ems</h1>, lazy: async () => ({ Component: (await import('./pages/player/Pickems')).Pickems }) },
+      { path: '/game/:gameNo', element: <Navigate to="/pairings" replace /> },
+      { path: '/game/:gameNo/result', element: <ReportResult /> },
+      { path: '/pickems', element: <Pickems /> },
+      { path: '/pickems/leaderboard', element: <PickemLeaderboard /> },
       { path: '/my-list', element: <MembershipListEntry><MyList /></MembershipListEntry> },
       { path: '/info', element: <LeagueInfo /> },
       { path: '/info/:page', element: <LeagueInfo /> },

@@ -24,3 +24,8 @@ export async function savePick(db: Db, gameId: string, first: string, second: st
   const { error } = await db.rpc('save_pick', { p_game_id: gameId, p_first: first, p_second: second as string /* Supabase generated optional args omit SQL null; null clears an existing second pick. */ })
   if (error) throw new Error(error.message)
 }
+
+export async function clearPick(db: Db, gameId: string) {
+  const { error } = await db.rpc('clear_pick', { p_game_id: gameId })
+  if (error) throw new Error(error.message)
+}

@@ -4,13 +4,13 @@ export interface NavItem {
   label: string
   /** Match only this exact path, not the paths under it. */
   end?: boolean
-  /** Also lit on these path prefixes (a game page lights Pairings). */
+  /** Also lit on these path prefixes. */
   also?: string[]
 }
 
 export const PLAYER_NAV: NavItem[] = [
   { to: '/', label: 'Home', end: true },
-  { to: '/players', label: 'Players' },
+  { to: '/players', label: 'Standings' },
   { to: '/pairings', label: 'Pairings', also: ['/game'] },
   { to: '/pickems', label: "Pick'ems" },
 ]

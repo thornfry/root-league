@@ -87,7 +87,8 @@ export function AppGate() {
       const shell: ShellSession = {
         name: me.displayName ?? me.discordName ?? 'Signed in',
         isAdmin: me.isAdmin,
-        onRoster: !!membership.data?.member,
+        // My factions is for setting lists up. Once the season is live it goes away.
+        onRoster: !!membership.data?.member && membership.data.stage !== 'live',
       }
       return <Shell session={shell} onSignOut={session.signOut} />
     }

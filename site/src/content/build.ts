@@ -10,6 +10,7 @@ export const INFO_PAGES = [
   { key: 'format', file: 'format.md', label: 'League format' },
   { key: 'rules', file: 'pairing-rules.md', label: 'Pairing rules' },
   { key: 'how', file: 'how-pairing-works.md', label: 'How pairing works' },
+  { key: 'pickems', file: 'pickem-rules.md', label: 'Pick’em rules' },
 ] as const
 
 const escape = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;')

@@ -15,6 +15,24 @@ Entries 40 to 51 come from writing the [build sequence](build.md). They are numb
 
 Entries from 52 on come from Will's click-through of the running site on 2026-11-27.
 
+## 59. Pairings carries the game list and results return Home
+
+- **Date:** 2026-11-27
+- **Decision:** Pairings gives each game its own card and puts equal-width filters on a separate row on phones. Table names are plain headings. Report result and Edit result open a result form that returns to Home after saving. The old table route redirects to Pairings. Admins can still review settled game history in Disputes.
+- **Decision:** The Players tab is called Standings, with a shaded table header. Tapping a lone first pick again clears it. The Pick’em rules page under League info explains scoring, lock timing, and how picks change.
+
+## 58. Once the season is live, Home is My games and a pick'em score, and Players is the standings
+
+- **Date:** 2026-11-27
+- **Context:** Will's first look at the site with the league started. Faction lists, the Home standings table and My factions were all setup-time screens, and the live pages carried too much.
+- **Decision:** Home shows My games (renamed from Your games) and a pick'em quick view of the player's score and rank. It no longer shows standings, the pick'em leaderboard, or any link to Pick'ems, which is in the menu. A game the player is seated at has a Report result button (Edit result once it has a result) unless it is void or settled by the admin. Players shows standings instead of faction lists: player name on the left and a W-L record, with no rank, played or left columns, since everyone plays the same number of games and the record gives games left. Losses are games played minus wins. My factions leaves the menu and its page sends the player Home once the season is live; the admin still edits any list through Roster and Fix it. This supersedes the standings and Pick'em leaderboard slots on Home in decision 26's design, and story 3's lists on the live Players page.
+- **Consequence:** The standings view still carries wins, played and left; only the page shows less. The pick'em quick view counts only people with at least one scored pick, so "rank 2 of 5" means five people have scored.
+- **Added after Will's review of the canvas page "Live season (review)" (https://claude.ai/artifact/LPSGY8KzUZDpCWFzHNxNBz):**
+  - The pick'em score card on Home is one link with an arrow. It opens Pick'ems while the player has open games left to pick, and the leaderboard once every open game is picked. The earlier "no link" line applies to the old Pick'ems button and leaderboard link, which stay gone.
+  - The filter row is a section control (`Segmented`): one track, the chosen option white with an amber underline, All always first.
+  - Each seat is a seat cell (`SeatCell`): the faction badge, the player's name, and a crown for a winner. The faction name is on the badge for screen readers and on hover, not written out. There is no "Won by" line. Pairings shows one row per game on desktop and a 2 by 2 grid on a phone, with Report result or Edit result beside the status pill.
+  - Pick'ems is one page. Tapping a player picks them: the first tap is the 3-point pick, a second player is the 1-point pick, the second pick is removed by tapping it again, and tapping the first pick moves the second up. A lone first pick cannot be removed, because a pick always has a first (`save_pick` requires one). Each tap saves. Your own games are not offered, and the pick panel is gone from the game page. Score and rank are at the top, and the leaderboard is its own page at `/pickems/leaderboard`.
+
 ## 57. The e2e suite runs locally on request, not in CI
 
 - **Date:** 2026-11-27

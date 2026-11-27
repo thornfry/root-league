@@ -28,7 +28,7 @@ export function useIsDesktop(): boolean {
 export interface ShellSession {
   name: string
   isAdmin: boolean
-  /** Whether the person is on the roster, which adds My list to the menu. */
+  /** Whether the menu shows My factions: the person is on the roster and the season has not started. */
   onRoster: boolean
   /** Shown in the desktop bar, such as "Season 1, live". */
   seasonLabel?: string

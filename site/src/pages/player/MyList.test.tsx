@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { configure, screen, within } from '@testing-library/react'
+import { configure, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { adminJson, makeFakeDb, viewerJson } from '../../test-support/fakeDb'
 import { renderApp } from '../../test-support/renderApp'
@@ -76,12 +76,19 @@ it('flags invalid stored lists and explains duplicate and pool validation', asyn
   expect(listProblems(['cats'], ['cats'])).toEqual([])
 })
 
-it.each(['locked', 'live'])('renders %s lists read-only', async stage => {
+it('renders locked lists read-only', async () => {
+  const stage = 'locked'
   fixture({ stage, codes: ['cats', 'birds'] })
   renderApp('/my-list')
   await screen.findByText('Locked', { exact: true })
   expect(screen.queryByRole('button', { name: 'Save factions' })).toBeNull()
   expect(screen.queryByRole('button', { name: /Move|Remove|Add / })).toBeNull()
+})
+
+it('sends a player Home from My factions once the season is live', async () => {
+  fixture({ stage: 'live', codes: ['cats', 'birds'] })
+  const { router } = renderApp('/my-list')
+  await waitFor(() => expect(router.state.location.pathname).toBe('/'))
 })
 
 it('lets an admin edit another list after lock', async () => {

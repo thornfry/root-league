@@ -19,14 +19,16 @@ export function Disputes() {
   if (query.isError) return <div className="stack"><h1 className="disp h1s">Disputes</h1><Alert tone="bad">Could not load disputes: {query.error.message}</Alert></div>
   const open = query.data.games.filter(g => g.state === 'disputed')
   const settled = query.data.games.filter(g => g.state === 'settled')
-  const selected = params.has('g') ? open.find(g => String(g.game_no) === params.get('g')) : open[0]
+  const selected = params.has('g') ? [...open, ...settled].find(g => String(g.game_no) === params.get('g')) : open[0]
   return <div className="stack18"><h1 className="disp h1s">Disputes</h1><Link to="/admin">Dashboard</Link>
     <div className="game-columns"><div className="stack18"><h2 className="disp h2">Open, {open.length}</h2>
       {open.length ? open.map(g => <Card pad={16} key={g.id}><Link to={`?g=${g.game_no}`}>Table {g.game_no}, {g.mapName}</Link> — Disputed</Card>) : <Card pad={20}>Nothing is disputed.</Card>}
       <h2 className="disp h2">Settled, {settled.length}</h2>
-      {settled.length ? settled.map(g => <Card pad={16} key={g.id}><div className="stack"><b>Table {g.game_no}</b><p>{g.winners.map(id => g.seats.find(s => s.person_id === id)?.name ?? 'Unknown player').join(', ')} won</p><Link to={`/game/${g.game_no}`}>Game and history</Link><Button disabled={mutation.isPending} onClick={() => mutation.mutate(g.id)}>Reopen</Button></div></Card>) : <p>Nothing settled yet.</p>}
+      {settled.length ? settled.map(g => <Card pad={16} key={g.id}><div className="stack"><b>Table {g.game_no}</b><p>{g.winners.map(id => g.seats.find(s => s.person_id === id)?.name ?? 'Unknown player').join(', ')} won</p><Link to={`?g=${g.game_no}`}>View history</Link><Button disabled={mutation.isPending} onClick={() => mutation.mutate(g.id)}>Reopen</Button></div></Card>) : <p>Nothing settled yet.</p>}
       {mutation.isError && <Alert tone="bad">Could not reopen game: {mutation.error.message}</Alert>}
-    </div>{selected ? <Settlement key={selected.id} game={selected} /> : <Card pad={20}>Pick a disputed game to settle it.</Card>}</div>
+    </div>{selected?.state === 'settled'
+      ? <section className="stack18"><h2 className="disp h2">Table {selected.game_no}, {selected.mapName}</h2><GameHistory gameId={selected.id} /></section>
+      : selected ? <Settlement key={selected.id} game={selected} /> : <Card pad={20}>Pick a disputed game to settle it.</Card>}</div>
   </div>
 }
 
@@ -38,7 +40,6 @@ function Settlement({ game }: { game: LeagueGame }) {
     if (error) throw new Error(error.message)
     return data
   } })
-  const history = useQuery({ queryKey: ['game-history', game.id], queryFn: () => fetchGameHistory(db, game.id) })
   const [choice, setChoice] = useState('')
   const [other, setOther] = useState<string[]>([])
   const chosen = choice === 'other' ? other : answers.data?.find(a => a.person_id === choice)?.winners ?? []
@@ -59,6 +60,15 @@ function Settlement({ game }: { game: LeagueGame }) {
       <Button onClick={() => { setChoice(''); setOther([]); mutation.reset() }} disabled={mutation.isPending}>Cancel</Button>
       {mutation.isError && <Alert tone="bad">Could not settle game: {mutation.error.message}</Alert>}
     </form></Card>
-    <Card pad={20}><h3 className="disp h2">History of this game</h3>{history.isError ? <Alert tone="bad">Could not load history: {history.error.message}</Alert> : history.isPending ? <p role="status">Loading history…</p> : <ol>{history.data.map(h => <li key={h.id}><b>{h.actor}</b> {h.text} <time dateTime={h.at}>{localDate(h.at)}</time></li>)}</ol>}</Card>
+    <GameHistory gameId={game.id} />
   </section>
+}
+
+function GameHistory({ gameId }: { gameId: string }) {
+  const history = useQuery({ queryKey: ['game-history', gameId], queryFn: () => fetchGameHistory(getSupabase(), gameId) })
+  return <Card pad={20}><h3 className="disp h2">History of this game</h3>{history.isError
+    ? <Alert tone="bad">Could not load history: {history.error.message}</Alert>
+    : history.isPending ? <p role="status">Loading history…</p>
+      : history.data.length ? <ol>{history.data.map(h => <li key={h.id}><b>{h.actor}</b> {h.text} <time dateTime={h.at}>{localDate(h.at)}</time></li>)}</ol>
+        : <p>No history available.</p>}</Card>
 }
