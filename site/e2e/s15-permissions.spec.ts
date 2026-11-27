@@ -251,7 +251,7 @@ test('S15: before the season starts, every function and table by signed-out, not
         anon: (me) => expect([me.signed_in, me.whitelisted]).toEqual([false, false]),
         outsider: (me) => expect([me.signed_in, me.whitelisted, me.person_id ?? null]).toEqual([true, false, null]),
         viewer: (me) => expect([me.whitelisted, me.is_admin]).toEqual([true, false]),
-        prospect: (me) => expect(me.roles).toEqual(['viewer']),
+        prospect: (me) => expect(me.roles).toEqual(['viewer', 'prospect']),
         admin: (me) => expect([me.is_admin, me.roles]).toEqual([true, ['viewer', 'admin']]),
       }) },
     { label: 'ensure_person', expect: { anon: 'denied', outsider: 'denied', viewer: 'ok', prospect: 'ok', admin: 'ok' }, run: (db) => db.rpc('ensure_person') },
