@@ -199,6 +199,8 @@ test('S15: before the season starts, every function and table by signed-out, not
     prospect: await apiAs(identity('Delaney')),
     admin: await apiAs(identity('Dev admin')),
   }
+  // A prospect has signed in before they read anything, and sign-in is what links their person row to the session.
+  expect((await clients.prospect!.rpc('ensure_person')).error).toBeNull()
   const ctx = makeCtx(lockAt)
   const mine = (rows: Row[], ctx2: Ctx, name: CastName) => rows.find((r) => r.person_id === ctx2.person(name))
 
