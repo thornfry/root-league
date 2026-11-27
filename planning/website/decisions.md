@@ -11,6 +11,29 @@ Entries 13 to 25 come from the user stories review on 2026-11-26, and entry 26 f
 - **Decision:** The canvas is the source of truth for screens. It drops the Join page and the queue place (Join league goes straight to faction picking), the per-player answer list and confirmation counts on a game, the badge reading guide, role tags for players, and the large lock countdown card. It adds a Submit list button, a Your games block on Home, and a phone menu. The Players page shows only who has a list in until lists lock. The rules in the stories are unchanged: disputes, submissions and their log, pool-change flags and the lock date all stay. The full list is on [design.md](design.md#changed-from-the-stories). This supersedes the story text it names, for the screens only.
 - **Consequence:** The stories are not edited. A builder reads the design for what to show and the stories for what must be true. Three points wait for Will: whether disputes stay, whether ranked lists stay hidden until lock, and the countdown line.
 
+Entries 26 to 28 come from the review of the first clickable prototype. They are added above the older entries, which are left as they were.
+
+## 28. A result is ticked winners and Submit, with no confirmation counts
+
+- **Date:** 2026-11-26
+- **Context:** Story 9 and [18](#18-every-seated-player-submits-a-result-and-conflicts-go-to-the-admin) had each seated player's answer listed on the game page and a count of how many players had confirmed. Will does not want that on the page.
+- **Decision:** The game page shows the winners to tick and a Submit button. After submitting, the same place shows the recorded winners and an Edit result button, until the admin settles the game. The page has no list of what each player answered and no confirmation count. A dispute still exists, and only when another seated player submits different winners. The page then says the game is disputed and the admin will decide. The admin sees both answers and resolves it on the Disputes page, and the admin dashboard shows a banner while any dispute is open. This supersedes the parts of story 9 and decision 18 that show per-player answers and confirmation counts. The rest of 18 stands: the first submission records the result, a matching submission changes nothing, a different one disputes, and the admin can settle at any time.
+- **Consequence:** A player cannot see who has answered or how, so there is nothing to compare or argue about at the table. The history of submissions stays in the append-only log and on the admin's Disputes page.
+
+## 27. The badge guide is removed from the league info pages
+
+- **Date:** 2026-11-26
+- **Context:** Story 4 listed a badge reading guide for type and reach beside the league info pages, as in the first prototype. The badges are already labelled in words, such as Militant, Insurgent and Reach 8.
+- **Decision:** No badge guide appears on any league info page. The pages show only the rendered repo text ([22](#22-faction-info-and-league-info-come-from-the-repo)). This supersedes the badge-guide line in story 4.
+- **Consequence:** One less block to keep in step with the badge styles. If players turn out to need it, it returns as its own ticket.
+
+## 26. Joining lands on the faction-list screen with no queue place
+
+- **Date:** 2026-11-26
+- **Context:** Story 2 and [16](#16-the-roster-is-a-league-list-and-a-waitlist-with-a-capacity) have a joiner learn their place on the waitlist. A prospect is not supposed to see a difference between the league list and the waitlist ([15](#15-joining-is-a-button-that-lands-on-the-waitlist)), and a place number says otherwise.
+- **Decision:** Join league goes straight to the faction-list screen, titled "You're on the list!". No queue place, waitlist position or league-list/waitlist label appears anywhere a prospect or league player can see, including Home, My list and Players. Only the admin sees which list a person is on, on the Roster page. This supersedes the queue-place part of story 2 and the place shown after joining. Decisions 15 and 16 otherwise stand: joining adds the person to the end of the waitlist, and only the admin moves people.
+- **Consequence:** A prospect cannot tell whether they are in or waiting until the admin starts the season. Anyone asking is told to ask the admin.
+
 ## 25. Access is a whitelist of Discord user IDs
 
 - **Date:** 2026-11-26
