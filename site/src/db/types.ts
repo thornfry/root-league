@@ -49,6 +49,12 @@ export type Database = {
       foreignKeyName: "game_seats_game_id_fkey"
       columns: ["game_id"]
 isOneToOne: false
+      referencedRelation: "game_outcome"
+      referencedColumns: ["game_id"]
+    },{
+      foreignKeyName: "game_seats_game_id_fkey"
+      columns: ["game_id"]
+isOneToOne: false
       referencedRelation: "games"
       referencedColumns: ["id"]
     },{
@@ -145,6 +151,70 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"settlements": {
+                  Row: {
+                    "at": string,"game_id": string,"settled_by": string | null,"winners": (string)[]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "at"?: string,"game_id": string,"settled_by"?: string | null,"winners": (string)[]
+                  }
+                  Update: {
+                    "at"?: string,"game_id"?: string,"settled_by"?: string | null,"winners"?: (string)[]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "settlements_game_id_fkey"
+      columns: ["game_id"]
+isOneToOne: true
+      referencedRelation: "game_outcome"
+      referencedColumns: ["game_id"]
+    },{
+      foreignKeyName: "settlements_game_id_fkey"
+      columns: ["game_id"]
+isOneToOne: true
+      referencedRelation: "games"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "settlements_settled_by_fkey"
+      columns: ["settled_by"]
+isOneToOne: false
+      referencedRelation: "people"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"submissions": {
+                  Row: {
+                    "game_id": string,"person_id": string,"updated_at": string,"winners": (string)[]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "game_id": string,"person_id": string,"updated_at"?: string,"winners": (string)[]
+                  }
+                  Update: {
+                    "game_id"?: string,"person_id"?: string,"updated_at"?: string,"winners"?: (string)[]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "submissions_game_id_fkey"
+      columns: ["game_id"]
+isOneToOne: false
+      referencedRelation: "game_outcome"
+      referencedColumns: ["game_id"]
+    },{
+      foreignKeyName: "submissions_game_id_fkey"
+      columns: ["game_id"]
+isOneToOne: false
+      referencedRelation: "games"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "submissions_person_id_fkey"
+      columns: ["person_id"]
+isOneToOne: false
+      referencedRelation: "people"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"whitelist": {
                   Row: {
                     "added_at": string,"added_by": string | null,"discord_id": string,"is_admin": boolean,"label": string | null
@@ -168,7 +238,27 @@ isOneToOne: false
                 }
           }
           Views: {
-            "roster_public": {
+            "game_outcome": {
+                  Row: {
+                    "game_id": string,"season_id": string,"state": string | null,"winners": (string)[] | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "games_season_id_fkey"
+      columns: ["season_id"]
+isOneToOne: false
+      referencedRelation: "season_stage"
+      referencedColumns: ["season_id"]
+    },{
+      foreignKeyName: "games_season_id_fkey"
+      columns: ["season_id"]
+isOneToOne: false
+      referencedRelation: "seasons"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"roster_public": {
                   Row: {
                     "display_name": string,"is_me": boolean | null,"joined_at": string | null,"list": string | null,"list_flagged": boolean | null,"list_in": boolean,"person_id": string,"position": number | null,"ranked_factions": (string)[] | null,"season_id": string
                   }
@@ -208,6 +298,32 @@ isOneToOne: false
                         Relationships: [
                     
                   ]
+                },"standings": {
+                  Row: {
+                    "display_name": string,"games_left": number | null,"games_played": number | null,"person_id": string,"rank": number | null,"season_id": string,"wins": number | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "roster_person_id_fkey"
+      columns: ["person_id"]
+isOneToOne: false
+      referencedRelation: "people"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "roster_season_id_fkey"
+      columns: ["season_id"]
+isOneToOne: false
+      referencedRelation: "season_stage"
+      referencedColumns: ["season_id"]
+    },{
+      foreignKeyName: "roster_season_id_fkey"
+      columns: ["season_id"]
+isOneToOne: false
+      referencedRelation: "seasons"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Functions: {
@@ -233,6 +349,9 @@ isOneToOne: false
                            },
 "publish_pairings":
 { Args: { "p_games": Json,"p_order": (string)[],"p_season_id": string,"p_seed": string }; Returns: undefined
+                           },
+"reopen_game":
+{ Args: { "p_game_id": string }; Returns: undefined
                            },
 "roster_add":
 { Args: { "p_display_name": string,"p_list"?: string,"p_season_id": string }; Returns: string
@@ -296,6 +415,15 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"settle_game":
+{ Args: { "p_game_id": string,"p_winners": (string)[] }; Returns: undefined
+                           },
+"submit_result":
+{ Args: { "p_game_id": string,"p_winners": (string)[] }; Returns: undefined
+                           },
+"void_game":
+{ Args: { "p_game_id": string,"p_void": boolean }; Returns: undefined
+                           },
 "whitelist_add":
 { Args: { "p_discord_id": string,"p_label"?: string }; Returns: {
               "added_at": string,

@@ -1,0 +1,167 @@
+-- D4: story 9 result transitions, story 11 permissions, ADR 7/18/26/44.
+-- Each winner gets a full win; disagreement counts for nothing. Only the
+-- admin can read the competing claims. No fixture depends on the local seed.
+begin;
+select plan(110);
+grant all on all tables in schema pg_temp to anon, authenticated, service_role;
+grant all on all sequences in schema pg_temp to anon, authenticated, service_role;
+create function pg_temp.id(n integer) returns uuid language sql immutable as $$
+  select ('d4000000-0000-0000-0000-' || lpad(n::text,12,'0'))::uuid
+$$;
+create function pg_temp.act_as(n integer) returns void language plpgsql as $$
+begin
+  perform set_config('request.jwt.claims',json_build_object('sub',pg_temp.id(n),'role','authenticated')::text,true);
+  perform set_config('request.jwt.claim.sub',pg_temp.id(n)::text,true);
+  perform set_config('role','authenticated',true);
+end $$;
+insert into public.app_config(key,value) values ('dev_signin','on') on conflict(key) do update set value='on';
+-- 1 admin (unseated at game 100); 2..5 seats; 6 other league player;
+-- 7 waitlisted prospect; 8 viewer; 9 signed in but not invited.
+insert into auth.users(id,email) select pg_temp.id(n), ('940000000000000000'::bigint+n)::text || '@dev.invalid' from generate_series(1,9) n;
+insert into public.whitelist(discord_id,label,is_admin)
+  select ('940000000000000000'::bigint+n)::text,'D4 '||n,n=1 from generate_series(1,8) n;
+insert into public.people(id,auth_user_id,display_name,discord_id)
+  select pg_temp.id(n),pg_temp.id(n),'D4 '||n,('940000000000000000'::bigint+n)::text from generate_series(1,9) n;
+insert into public.seasons(id,slug,name,started_at) values(pg_temp.id(90),'d4-test','D4',now());
+insert into public.roster(season_id,person_id,list,position)
+  select pg_temp.id(90),pg_temp.id(n),case when n=7 then 'waitlist' else 'league' end,n from generate_series(1,7) n;
+insert into public.games(id,season_id,game_no,map_index)
+  select pg_temp.id(n),pg_temp.id(90),n-99,0 from generate_series(100,102) n;
+insert into public.game_seats(game_id,seat,person_id,faction)
+  select pg_temp.id(g),n-1,pg_temp.id(n),'cats' from generate_series(100,101) g cross join generate_series(2,5) n;
+-- Seated admin at a separate game.
+insert into public.game_seats(game_id,seat,person_id,faction)
+  select pg_temp.id(102),n,pg_temp.id(n),'cats' from generate_series(1,4) n;
+create temp table baseline as select max(id) as last_id from public.edit_log;
+reset role; select pg_temp.act_as(2);
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'upcoming', 'outcome is upcoming');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), null::uuid[], 'no counted winners');
+select is((select array[wins,games_played,games_left] from public.standings where season_id=pg_temp.id(90) and person_id=pg_temp.id(2)), array[0,0,3]::bigint[], 'player 2 wins played left = 0 0 3');
+select lives_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(2)]::uuid[])$q$, 'first submission records immediately');
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'recorded', 'outcome is recorded');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), array[pg_temp.id(2)]::uuid[], 'outcome exposes only the agreed winners');
+select is((select array[wins,games_played,games_left] from public.standings where season_id=pg_temp.id(90) and person_id=pg_temp.id(2)), array[1,1,2]::bigint[], 'player 2 wins played left = 1 1 2');
+select is((select array[wins,games_played,games_left] from public.standings where season_id=pg_temp.id(90) and person_id=pg_temp.id(3)), array[0,1,2]::bigint[], 'player 3 wins played left = 0 1 2');
+select lives_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(3)]::uuid[])$q$, 'editing the only submission changes the winner');
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'recorded', 'outcome is recorded');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), array[pg_temp.id(3)]::uuid[], 'outcome exposes only the agreed winners');
+select is((select array[wins,games_played,games_left] from public.standings where season_id=pg_temp.id(90) and person_id=pg_temp.id(2)), array[0,1,2]::bigint[], 'player 2 wins played left = 0 1 2');
+select is((select array[wins,games_played,games_left] from public.standings where season_id=pg_temp.id(90) and person_id=pg_temp.id(3)), array[1,1,2]::bigint[], 'player 3 wins played left = 1 1 2');
+reset role; select pg_temp.act_as(3);
+select lives_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(3)]::uuid[])$q$, 'matching submission confirms');
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'recorded', 'outcome is recorded');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), array[pg_temp.id(3)]::uuid[], 'outcome exposes only the agreed winners');
+select is((select count(*) from public.submissions), 1::bigint, 'player sees only own submission');
+select lives_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(4)]::uuid[])$q$, 'a different answer disputes');
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'disputed', 'outcome is disputed');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), null::uuid[], 'no counted winners');
+select is((select array[wins,games_played,games_left] from public.standings where season_id=pg_temp.id(90) and person_id=pg_temp.id(3)), array[0,0,3]::bigint[], 'player 3 wins played left = 0 0 3');
+reset role; select pg_temp.act_as(8);
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'disputed', 'outcome is disputed');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), null::uuid[], 'no counted winners');
+select is((select count(*) from public.submissions), 0::bigint, 'viewer cannot read either claim');
+reset role; select pg_temp.act_as(1);
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'disputed', 'outcome is disputed');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), null::uuid[], 'no counted winners');
+select is((select count(*) from public.submissions), 2::bigint, 'admin can read both claims');
+reset role; select pg_temp.act_as(3);
+select lives_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(3)]::uuid[])$q$, 'disputer changes to match');
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'recorded', 'outcome is recorded');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), array[pg_temp.id(3)]::uuid[], 'outcome exposes only the agreed winners');
+select is((select array[wins,games_played,games_left] from public.standings where season_id=pg_temp.id(90) and person_id=pg_temp.id(3)), array[1,1,2]::bigint[], 'player 3 wins played left = 1 1 2');
+reset role; select pg_temp.act_as(2);
+select lives_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(2),pg_temp.id(3)]::uuid[])$q$, 'two winners are allowed');
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'disputed', 'outcome is disputed');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), null::uuid[], 'no counted winners');
+reset role; select pg_temp.act_as(3);
+select lives_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(3),pg_temp.id(2)]::uuid[])$q$, 'same winners in reverse order agree');
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'recorded', 'outcome is recorded');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), array[pg_temp.id(2),pg_temp.id(3)]::uuid[], 'outcome exposes only the agreed winners');
+select is((select array[wins,games_played,games_left] from public.standings where season_id=pg_temp.id(90) and person_id=pg_temp.id(2)), array[1,1,2]::bigint[], 'player 2 wins played left = 1 1 2');
+select is((select array[wins,games_played,games_left] from public.standings where season_id=pg_temp.id(90) and person_id=pg_temp.id(3)), array[1,1,2]::bigint[], 'player 3 wins played left = 1 1 2');
+reset role; select pg_temp.act_as(2);
+select is((select rank from public.standings where season_id=pg_temp.id(90) and person_id=pg_temp.id(2)), 1::bigint, 'joint winners share first rank');
+select is((select rank from public.standings where season_id=pg_temp.id(90) and person_id=pg_temp.id(4)), 3::bigint, 'rank skips tied positions');
+select lives_ok($q$select public.submit_result(pg_temp.id(101),array[pg_temp.id(2),pg_temp.id(3),pg_temp.id(4),pg_temp.id(5)]::uuid[])$q$, 'all four seated winners are valid');
+select throws_ok($q$select public.submit_result(pg_temp.id(100),array[]::uuid[])$q$, '22023', null, 'empty winners refused');
+select throws_ok($q$select public.submit_result(pg_temp.id(100),null)$q$, '22023', null, 'null winners refused');
+select throws_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(2),null])$q$, '22023', null, 'null winner refused');
+select throws_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(8)]::uuid[])$q$, '22023', null, 'winner not seated refused');
+select throws_ok($q$select public.submit_result(pg_temp.id(999),array[pg_temp.id(2)])$q$, 'P0002', null, 'unknown game refused');
+reset role; select pg_temp.act_as(6);
+select throws_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(2)]::uuid[])$q$, '42501', null, 'non-seated league player cannot submit');
+select throws_ok($q$select public.settle_game(pg_temp.id(100),array[pg_temp.id(2)])$q$, '42501', null, 'non-seated league player cannot administer results');
+select throws_ok($q$select public.reopen_game(pg_temp.id(100))$q$, '42501', null, 'non-seated league player cannot administer results');
+select throws_ok($q$select public.void_game(pg_temp.id(100),true)$q$, '42501', null, 'non-seated league player cannot administer results');
+reset role; select pg_temp.act_as(7);
+select throws_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(2)]::uuid[])$q$, '42501', null, 'prospect cannot submit');
+select throws_ok($q$select public.settle_game(pg_temp.id(100),array[pg_temp.id(2)])$q$, '42501', null, 'prospect cannot administer results');
+select throws_ok($q$select public.reopen_game(pg_temp.id(100))$q$, '42501', null, 'prospect cannot administer results');
+select throws_ok($q$select public.void_game(pg_temp.id(100),true)$q$, '42501', null, 'prospect cannot administer results');
+reset role; select pg_temp.act_as(8);
+select throws_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(2)]::uuid[])$q$, '42501', null, 'viewer cannot submit');
+select throws_ok($q$select public.settle_game(pg_temp.id(100),array[pg_temp.id(2)])$q$, '42501', null, 'viewer cannot administer results');
+select throws_ok($q$select public.reopen_game(pg_temp.id(100))$q$, '42501', null, 'viewer cannot administer results');
+select throws_ok($q$select public.void_game(pg_temp.id(100),true)$q$, '42501', null, 'viewer cannot administer results');
+reset role; select pg_temp.act_as(9);
+select throws_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(2)]::uuid[])$q$, '42501', null, 'non-whitelisted caller cannot submit');
+select throws_ok($q$select public.settle_game(pg_temp.id(100),array[pg_temp.id(2)])$q$, '42501', null, 'non-whitelisted caller cannot administer results');
+select throws_ok($q$select public.reopen_game(pg_temp.id(100))$q$, '42501', null, 'non-whitelisted caller cannot administer results');
+select throws_ok($q$select public.void_game(pg_temp.id(100),true)$q$, '42501', null, 'non-whitelisted caller cannot administer results');
+reset role; select pg_temp.act_as(9);
+select is((select count(*) from public.game_outcome), 0::bigint, 'non-whitelisted caller reads no outcomes');
+select is((select count(*) from public.standings), 0::bigint, 'non-whitelisted caller reads no standings');
+reset role; set local role anon;
+select throws_ok($q$select * from public.game_outcome$q$, '42501', null, 'signed-out access refused');
+select throws_ok($q$select * from public.standings$q$, '42501', null, 'signed-out access refused');
+select throws_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(2)]::uuid[])$q$, '42501', null, 'signed-out access refused');
+reset role; select pg_temp.act_as(1);
+select throws_ok($q$select public.settle_game(pg_temp.id(100),array[pg_temp.id(8)])$q$, '22023', null, 'settlement also validates seated winners');
+select lives_ok($q$select public.settle_game(pg_temp.id(100),array[pg_temp.id(4)])$q$, 'admin chooses a different final answer');
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'settled', 'outcome is settled');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), array[pg_temp.id(4)]::uuid[], 'outcome exposes only the agreed winners');
+select is((select array[wins,games_played,games_left] from public.standings where season_id=pg_temp.id(90) and person_id=pg_temp.id(4)), array[2,2,1]::bigint[], 'player 4 wins played left = 2 2 1');
+select is((select array[wins,games_played,games_left] from public.standings where season_id=pg_temp.id(90) and person_id=pg_temp.id(3)), array[1,2,1]::bigint[], 'player 3 wins played left = 1 2 1');
+reset role; select pg_temp.act_as(2);
+select throws_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(2)]::uuid[])$q$, '55000', null, 'settled game refuses player edits');
+reset role; select pg_temp.act_as(1);
+select lives_ok($q$select public.reopen_game(pg_temp.id(100))$q$, 'admin reopens');
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'recorded', 'outcome is recorded');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), array[pg_temp.id(2),pg_temp.id(3)]::uuid[], 'outcome exposes only the agreed winners');
+reset role; select pg_temp.act_as(2);
+select lives_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(4)]::uuid[])$q$, 'reopening restores player edits');
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'disputed', 'outcome is disputed');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), null::uuid[], 'no counted winners');
+reset role; select pg_temp.act_as(1);
+select lives_ok($q$select public.submit_result(pg_temp.id(100),array[pg_temp.id(5)]::uuid[])$q$, 'unseated admin entry is settlement');
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'settled', 'outcome is settled');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), array[pg_temp.id(5)]::uuid[], 'outcome exposes only the agreed winners');
+select is((select count(*) from public.submissions where person_id=pg_temp.id(1)), 0::bigint, 'unseated admin creates no player submission');
+select lives_ok($q$select public.submit_result(pg_temp.id(102),array[pg_temp.id(1)]::uuid[])$q$, 'seated admin submits normally');
+select is((select state from public.game_outcome where game_id=pg_temp.id(102)), 'recorded', 'seated admin does not settle');
+select lives_ok($q$select public.void_game(pg_temp.id(100),true)$q$, 'admin voids');
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'void', 'outcome is void');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), null::uuid[], 'no counted winners');
+select is((select array[wins,games_played,games_left] from public.standings where season_id=pg_temp.id(90) and person_id=pg_temp.id(5)), array[1,1,0]::bigint[], 'player 5 wins played left = 1 1 0');
+select lives_ok($q$select public.void_game(pg_temp.id(100),false)$q$, 'admin unvoids');
+select is((select state from public.game_outcome where game_id=pg_temp.id(100)), 'settled', 'outcome is settled');
+select is((select winners from public.game_outcome where game_id=pg_temp.id(100)), array[pg_temp.id(5)]::uuid[], 'outcome exposes only the agreed winners');
+select is((select array[wins,games_played,games_left] from public.standings where season_id=pg_temp.id(90) and person_id=pg_temp.id(5)), array[2,2,0]::bigint[], 'player 5 wins played left = 2 2 0');
+select throws_ok($q$select public.void_game(pg_temp.id(100),null)$q$, '22023', null, 'null void flag refused');
+select throws_ok($q$select public.settle_game(pg_temp.id(999),array[pg_temp.id(2)])$q$, 'P0002', null, 'admin unknown game refused');
+select throws_ok($q$select public.reopen_game(pg_temp.id(999))$q$, 'P0002', null, 'admin unknown game refused');
+select throws_ok($q$select public.void_game(pg_temp.id(999),true)$q$, 'P0002', null, 'admin unknown game refused');
+select lives_ok($q$select public.settle_game(pg_temp.id(102),array[pg_temp.id(2)])$q$, 'admin settles own game explicitly');
+select throws_ok($q$select public.submit_result(pg_temp.id(102),array[pg_temp.id(1)]::uuid[])$q$, '55000', null, 'seated admin also obeys settlement lock');
+select throws_ok($q$delete from public.submissions$q$, '42501', null, 'admin direct table writes refused');
+select throws_ok($q$delete from public.settlements$q$, '42501', null, 'admin direct table writes refused');
+reset role;
+select is((select count(*) from public.edit_log l,baseline b where l.id>b.last_id and l.table_name='submissions' and l.action='insert'), 4::bigint, 'each first submission has an audit row');
+select is((select count(*) from public.edit_log l,baseline b where l.id>b.last_id and l.table_name='submissions' and l.action='update'), 6::bigint, 'every submission edit has an audit row');
+select is((select count(*) from public.edit_log l,baseline b where l.id>b.last_id and l.table_name='settlements' and l.action='insert'), 3::bigint, 'settlements logged');
+select is((select count(*) from public.edit_log l,baseline b where l.id>b.last_id and l.table_name='settlements' and l.action='delete'), 1::bigint, 'reopening logs deleted settlement');
+select is((select count(*) from public.edit_log l,baseline b where l.id>b.last_id and l.table_name='games' and l.action='update'), 2::bigint, 'void and unvoid both logged');
+select is((select count(*) from public.edit_log l,baseline b where l.id>b.last_id and (l.actor_person_id is null or (l.table_name = 'submissions' and l.actor_person_id::text <> coalesce(l.new,l.old)->>'person_id') or (l.table_name in ('settlements','games') and l.actor_person_id<>pg_temp.id(1)))), 0::bigint, 'every result action records the correct actor');
+select ok(exists(select 1 from public.edit_log l,baseline b where l.id>b.last_id and l.table_name='submissions' and l.action='update' and l.actor_person_id=pg_temp.id(2) and l.old->'winners'<>l.new->'winners'), 'player edit retains actor and old and new winners');
+select * from finish();
+rollback;
