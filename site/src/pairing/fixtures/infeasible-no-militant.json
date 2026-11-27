@@ -1,0 +1,94 @@
+{
+ "note": "Invented. Every list is insurgents only, so no table can have a militant faction: rule 7 blocks every table.",
+ "gamesEach": 2,
+ "players": [
+  {
+   "id": "Ann",
+   "name": "Ann",
+   "list": [
+    "otters",
+    "vagabond",
+    "bats",
+    "crows",
+    "WA"
+   ]
+  },
+  {
+   "id": "Bo",
+   "name": "Bo",
+   "list": [
+    "vagabond",
+    "bats",
+    "crows",
+    "WA",
+    "lizards"
+   ]
+  },
+  {
+   "id": "Cy",
+   "name": "Cy",
+   "list": [
+    "bats",
+    "crows",
+    "WA",
+    "lizards",
+    "otters"
+   ]
+  },
+  {
+   "id": "Di",
+   "name": "Di",
+   "list": [
+    "crows",
+    "WA",
+    "lizards",
+    "otters",
+    "vagabond"
+   ]
+  },
+  {
+   "id": "Ed",
+   "name": "Ed",
+   "list": [
+    "WA",
+    "lizards",
+    "otters",
+    "vagabond",
+    "bats"
+   ]
+  },
+  {
+   "id": "Flo",
+   "name": "Flo",
+   "list": [
+    "lizards",
+    "otters",
+    "vagabond",
+    "bats",
+    "crows"
+   ]
+  },
+  {
+   "id": "Gus",
+   "name": "Gus",
+   "list": [
+    "otters",
+    "vagabond",
+    "bats",
+    "crows",
+    "WA"
+   ]
+  },
+  {
+   "id": "Hal",
+   "name": "Hal",
+   "list": [
+    "vagabond",
+    "bats",
+    "crows",
+    "WA",
+    "lizards"
+   ]
+  }
+ ]
+}
