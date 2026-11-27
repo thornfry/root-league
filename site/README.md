@@ -5,6 +5,8 @@ unless specified otherwise. League info is rendered from `../league/` at build
 time; relative links are checked against the repository. Keep the repository
 layout intact.
 
+For the local trial and account setup, follow [Will’s setup runbook](docs/setup-runbook.md).
+
 ## Local development
 
 Install Node 26, Docker, the Supabase CLI and `psql`, then:
