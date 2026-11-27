@@ -230,14 +230,14 @@ test('S16: keyboard order on the roster board', async ({ page }, testInfo) => {
   })
   await signInFast(page, cast('Dev admin'), '/admin/roster')
   await expect(page.getByText('3 of 8', { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Drag Delaney', exact: true }).focus()
-  // Row by row: the drag handle, the waitlist arrows that apply, the move button, then Remove. Disabled controls are skipped.
+  await page.getByRole('button', { name: 'Move Delaney to waitlist', exact: true }).focus()
+  // Row by row: the move button, the waitlist arrows that apply, then Remove. Disabled controls are skipped.
   const expected = [
-    'Move Delaney to waitlist', 'Remove Delaney',
-    'Drag Alex', 'Move Alex to waitlist', 'Remove Alex',
-    'Drag Matt', 'Move Matt to waitlist', 'Remove Matt',
-    'Drag Nick', 'Move Nick down the waitlist', 'Move Nick to league list', 'Remove Nick',
-    'Drag Adam', 'Move Adam up the waitlist', 'Move Adam to league list', 'Remove Adam',
+    'Remove Delaney',
+    'Move Alex to waitlist', 'Remove Alex',
+    'Move Matt to waitlist', 'Remove Matt',
+    'Move Nick to league list', 'Move Nick down the waitlist', 'Remove Nick',
+    'Move Adam to league list', 'Move Adam up the waitlist', 'Remove Adam',
     'Name',
   ]
   const seen: string[] = []

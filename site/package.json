@@ -27,7 +27,6 @@
     "e2e:typecheck": "tsc --project e2e/support/tsconfig.json"
   },
   "dependencies": {
-    "@dnd-kit/core": "^6.3.1",
     "@fontsource/barlow-condensed": "^5.3.0",
     "@fontsource/inter": "^5.3.0",
     "@supabase/supabase-js": "^2.119.2",

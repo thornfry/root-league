@@ -15,6 +15,13 @@ Entries 40 to 51 come from writing the [build sequence](build.md). They are numb
 
 Entries from 52 on come from Will's click-through of the running site on 2026-11-27.
 
+## 54. The roster board moves people with buttons, not drag and drop
+
+- **Date:** 2026-11-27
+- **Context:** Decision 51 chose `@dnd-kit` for roster drag, with a move button on every row. Will found the Drag handle odd and drag and drop awkward, and the Submitted, Provisional and No list tags unclear.
+- **Decision:** Each roster row has one move button, To waitlist or To league, plus Up and Down on the waitlist and Remove. There is no drag and drop, and `@dnd-kit` is removed. A row's list tag is Ready or Not ready, as on Players. This supersedes the drag line of decision 51.
+- **Consequence:** One click per move, and the keyboard order is shorter. Reordering a long waitlist takes several Up or Down clicks.
+
 ## 53. A list is Ready at three to five factions, and holds at most five
 
 - **Date:** 2026-11-27

@@ -5,8 +5,7 @@
 .roster-row .rowb { align-items: start; }
 .roster-person { min-width: 0; overflow-wrap: anywhere; }
 .roster-person .row { margin-top: var(--space-2); gap: 6px; }
-.roster-handle { touch-action: none; cursor: grab; flex-shrink: 0; }
-.roster-over { outline: 2px solid var(--focus); outline-offset: -2px; }
+.roster-move { flex-shrink: 0; }
 .roster-add { max-width: 520px; }
 .roster-page select { display: block; width: 100%; max-width: 100%; }
 @media (max-width: 700px) { .roster-columns { grid-template-columns: minmax(0, 1fr); } }

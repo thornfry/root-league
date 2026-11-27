@@ -88,7 +88,7 @@ describe('Roster', () => {
   it('disables every roster action when live', async () => {
     stage = 'live'; setup(); renderApp('/admin/roster')
     await screen.findByText(/The season has started/)
-    for (const button of screen.getAllByRole('button').filter((b) => /^(Drag|Move |Remove |To |Up$|Down$|Add$)/.test(b.textContent ?? '') || b.getAttribute('aria-label')?.startsWith('Move '))) expect(button).toBeDisabled()
+    for (const button of screen.getAllByRole('button').filter((b) => /^(Move |Remove |To |Up$|Down$|Add$)/.test(b.textContent ?? '') || b.getAttribute('aria-label')?.startsWith('Move '))) expect(button).toBeDisabled()
     expect(screen.getByLabelText('Name')).toBeDisabled()
   }, 15_000)
   it('keeps Locked editable and reports a rejected write without moving a row', async () => {

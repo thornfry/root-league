@@ -2,25 +2,8 @@ import { test, expect } from './support/fixtures'
 import { expectNoHorizontalScroll, restAsPage, signInAs } from './support/browser'
 import { SEASON_ID, withDatabase } from './support/database'
 import { expectAccessible } from './support/axe'
-import type { Page } from '@playwright/test'
 
-async function dragToList(page: Page, name: string, list: string) {
-  const handle = page.getByRole('button', { name: `Drag ${name}`, exact: true })
-  const target = page.getByRole('list', { name: list, exact: true })
-  await handle.scrollIntoViewIfNeeded()
-  const source = await handle.boundingBox()
-  if (!source) throw new Error('Roster drag target missing')
-  await page.mouse.move(source.x + source.width / 2, source.y + source.height / 2)
-  await page.mouse.down()
-  await page.mouse.move(source.x + source.width / 2 + 10, source.y + source.height / 2, { steps: 3 })
-  await target.scrollIntoViewIfNeeded()
-  const destination = await target.boundingBox()
-  if (!destination) throw new Error('Roster drag destination missing')
-  await page.mouse.move(destination.x + destination.width / 2, destination.y + 15, { steps: 20 })
-  await page.mouse.up()
-}
-
-test('S07: drag, keyboard move, reorder, swap, add, remove, privacy and Live', async ({ page, context }) => {
+test('S07: move buttons, keyboard move, reorder, swap, add, remove, privacy and Live', async ({ page, context }) => {
   test.setTimeout(90_000)
   await withDatabase(async (db) => {
     await db.query('update public.seasons set capacity = 8 where id = $1', [SEASON_ID])
@@ -34,10 +17,10 @@ test('S07: drag, keyboard move, reorder, swap, add, remove, privacy and Live', a
   await signInAs(page, 'admin')
   await page.goto('/admin/roster')
   await expect(page.getByText('8 of 8', { exact: true })).toBeVisible()
-  await dragToList(page, 'Roster 9', 'League list')
+  await page.getByRole('button', { name: 'Move Roster 9 to league list', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('Move someone off first')
   await page.getByRole('button', { name: 'Cancel swap' }).click()
-  await dragToList(page, 'Roster 1', 'Waitlist')
+  await page.getByRole('button', { name: 'Move Roster 1 to waitlist', exact: true }).click()
   await expect(page.getByRole('status', { name: 'Roster update' })).toContainText('Roster 1 moved to the waitlist.')
   await expect(page.getByText(/1 place is open/)).toBeVisible()
   const move = page.getByRole('button', { name: 'Move Roster 9 to league list', exact: true })
@@ -89,7 +72,7 @@ test('S07: drag, keyboard move, reorder, swap, add, remove, privacy and Live', a
   })
   await page.reload()
   await expect(page.getByText(/The season has started/)).toBeVisible()
-  for (const button of await page.getByRole('button', { name: /^(Drag |Move |Remove Roster)/ }).all()) await expect(button).toBeDisabled()
+  for (const button of await page.getByRole('button', { name: /^(Move |Remove Roster)/ }).all()) await expect(button).toBeDisabled()
   await expect(page.getByRole('button', { name: 'Add', exact: true })).toBeDisabled()
   const forbidden = await restAsPage(page, 'rpc/roster_move', { p_season_id: SEASON_ID, p_person_id: (await withDatabase(async (db) => (await db.query("select id from public.people where seed_key = 's07-9'")).rows[0] as { id: string })).id, p_to_list: 'league' })
   expect(forbidden.status).toBeGreaterThanOrEqual(400)
