@@ -21,6 +21,8 @@ function scenario(joined = false, stage = 'open', submitted = false, flagged = f
       eq: () => query,
       single: async () => ({ data: { stage: state.stage }, error: null }),
       maybeSingle: async () => ({ data: table === 'seasons' ? { id: 's-1', name: 'Season 1', lists_lock_at: null } : state.member, error: null }),
+      // A list read (My factions loads the roster without single()) resolves to the member's row.
+      then: (resolve: (value: unknown) => unknown) => Promise.resolve({ data: state.member ? [{ ...state.member, display_name: 'Alex', season_id: 's-1' }] : [], error: null }).then(resolve),
     }
     return query
   })
