@@ -97,7 +97,7 @@ function PeoplePanel({ data, d }: { data: FixData; d: Doer }) {
             : <div className="row">
               <Button size="sm" aria-label={`Rename ${p.display_name}`} onClick={() => setRename({ id: p.id, name: p.display_name })}>Rename</Button>
               <Button size="sm" variant="ghost-danger" aria-label={`Delete ${p.display_name}`} disabled={d.busy}
-                onClick={() => void fixitDeletePreview(db, 'people', { id: p.id }).then((preview) => setDel({ person: p, preview }), d.fail)}>Delete person</Button></div>}
+                onClick={() => void fixitDeletePreview(db, 'people', { id: p.id }).then((preview) => setDel({ person: p, preview }), d.fail)}>Delete</Button></div>}
         </li>)}
       </ul></div></Card>
     <Card pad={20}><div className="stack"><h3 className="disp h2">Link a sign-in to a seeded name</h3>
