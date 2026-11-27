@@ -25,36 +25,18 @@ Run shell commands from `site/` unless a step says otherwise. Replace quoted pla
 
 ✓ Success: Season 1 is visible and the available E2E scenarios pass on desktop and phone.
 
-## Supabase
+## Supabase and Discord
 
-See the [hosted Supabase walkthrough](supabase-walkthrough.md) for dashboard steps, migration commands, and verification.
+- **Follow** the [Supabase and Discord walkthrough](supabase-walkthrough.md). Create the hosted project, connect the Discord OAuth app, then apply and verify the database migrations.
+- **Continue** to Railway once the provider is enabled and the schema is in place. Railway supplies the return URL for the first hosted sign-in test.
 
-- **Create** a hosted Supabase project; save its project reference, API URL, anon/publishable key and database-owner connection string privately.
-- **Disable** the Email provider and email sign-up in hosted Auth; keep Discord sign-up available for first-time users.
-- **Leave** the local Discord provider disabled in [config.toml](../supabase/config.toml); hosted settings belong in the dashboard.
-- **Reserve** `SUPABASE_AUTH_EXTERNAL_DISCORD_CLIENT_ID` and `SUPABASE_AUTH_EXTERNAL_DISCORD_SECRET` for optional local OAuth testing only; hosted Discord uses the dashboard fields below.
-- **Log in** with `supabase login`.
-- **Link** with `supabase link --project-ref 'PROJECT_REF'`; enter the hosted database password when prompted.
-- **Apply** migrations with `supabase db push`; never use `--include-seed`, apply [seed.sql](../supabase/seed.sql), or reset the hosted database.
-- **Continue** through Discord and Railway below to finish provider credentials and redirect URLs.
-
-✓ Success: hosted tables exist; local dev seed data and the dev-sign-in flag are absent.
-
-## Discord
-
-- **Create** an application in the Discord Developer Portal; copy its OAuth2 client ID and client secret privately.
-- **Add** the redirect URL shown by Supabase's Discord provider, normally `https://PROJECT_REF.supabase.co/auth/v1/callback`, to the application's OAuth2 redirects.
-- **Enable** Discord in hosted Supabase Auth using that client ID and secret.
-- **Keep** the app-requested scope `identify`; no bot, bot token, server invite or guild membership scope is needed.
-- **Continue** to Railway to configure the site's return URL before testing login.
-
-✓ Success: Supabase shows Discord enabled and its callback matches the Discord redirect exactly.
+✓ Success: Discord is enabled in Supabase, the callback matches the redirect in Discord, and the hosted schema is present with dev sign-in disabled.
 
 ## Railway
 
 - **Create** a service connected to this repository and the branch you intend to deploy.
 - **Set** service root `/` and config file path `/site/railway.toml`; [railway.toml](../railway.toml) selects [site/Dockerfile](../Dockerfile) with the repository root as build context.
-- **Set** service build variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to the hosted project's public API URL and anon/publishable key.
+- **Open** the Variables panel in Railway and Supabase's **Connect** dialog side by side. Paste the hosted Project URL into `VITE_SUPABASE_URL` and the publishable key into `VITE_SUPABASE_ANON_KEY`. The legacy `anon` key from **Project Settings → API Keys** also works.
 - **Set** `VITE_REPO_URL` to the HTTPS GitHub repository or `blob/ref` base for League info links; omit it to use the README's default.
 - **Leave** `VITE_AUTH_MODE` unset or set it to `discord`; never deploy `dev`.
 - **Keep** secrets out of all `VITE_*` variables; these values are public browser code and require a rebuild after changes.
@@ -72,7 +54,7 @@ See the [hosted Supabase walkthrough](supabase-walkthrough.md) for dashboard ste
 - **Run** `select user_id, provider, provider_id, identity_data from auth.identities where provider = 'discord' order by created_at desc;` in the hosted Supabase SQL editor.
 - **Confirm** your Discord ID matches the row's `provider_id`; the database reads this column, not a key assumed inside `identity_data`; stop if it differs.
 - **Create** a private JSON file outside the repo and Docker context, mapping exact names from [roster.md](../../season-1/roster.md) to quoted real Discord IDs; include your roster entry if you play.
-- **Set** `export DATABASE_URL='HOSTED_DATABASE_OWNER_CONNECTION_STRING'`, using the project's connection details reachable from your machine.
+- **Open** Supabase's **Connect** dialog when ready to seed. Choose a database-owner connection string reachable from your machine. Use **Session pooler** for an IPv4-only connection. Enter the string with your database password via `read -rsp 'Database URL: ' DATABASE_URL` in Bash, then run `export DATABASE_URL`. [Supabase connection options](https://supabase.com/docs/guides/database/connecting-to-postgres)
 - **Set** `export ADMIN_DISCORD_ID='YOUR_REAL_DISCORD_ID'` and `export DISCORD_IDS='/absolute/private/discord-ids.json'`.
 - **Seed** with `npm run seed`; it imports [preferences.json](../../season-1/preferences.json), maps Confirmed to league and Possible to waitlist, and whitelists mapped IDs plus the admin.
 - **Keep** the mapping complete before players sign in; reruns preserve existing season settings, roster edits and lists rather than overwriting live data.
@@ -87,7 +69,7 @@ See the [hosted Supabase walkthrough](supabase-walkthrough.md) for dashboard ste
 ## Keep-alive and checks
 
 - **Refresh** GitHub CLI workflow scope with `gh auth refresh -h github.com -s workflow`; complete its interactive authorization before pushing workflow changes.
-- **Add** repository Actions secrets `SUPABASE_URL` and `SUPABASE_ANON_KEY` using the hosted API URL and anon/publishable key; never use a service-role key.
+- **Open** the repository's Actions secrets next to Supabase's **Connect** dialog. Paste the Project URL into `SUPABASE_URL` and the publishable key (or legacy `anon` key) into `SUPABASE_ANON_KEY`.
 - **Ensure** [keepalive.yml](../../.github/workflows/keepalive.yml) is on the default branch and scheduled Actions are enabled; it runs Wednesdays at 09:23 UTC.
 - **Run** GitHub Actions → Supabase keep-alive → Run workflow; inspect the successful run with both secrets configured.
 - **Check** the run did make its configured request; missing secrets intentionally pass without a request, and keep-alive cannot resume an already paused project.
