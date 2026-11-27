@@ -14,10 +14,19 @@ export function Dashboard() {
       if (error) throw new Error(error.message)
       return data
     } })
+  // Picks to review: every pick on a game that is disputed or void, since scoring is paused or off for them.
+  const picks = useQuery({ queryKey: ['dashboard-picks', query.data?.season?.id, query.data?.stage], enabled: query.data?.stage === 'live',
+    queryFn: async () => {
+      const { data, error } = await db.from('picks').select('game_id').in('game_id', query.data!.games.map(g => g.id))
+      if (error) throw new Error(error.message)
+      return data ?? []
+    } })
   if (query.isPending) return <div className="stack"><h1 className="disp h1s">Dashboard</h1><p role="status">Loading dashboard…</p></div>
   if (query.isError) return <div className="stack"><h1 className="disp h1s">Dashboard</h1><Alert tone="bad">Could not load dashboard: {query.error.message}</Alert></div>
   const { season, stage, games } = query.data
   const disputed = games.filter(g => g.state === 'disputed')
+  const reviewGames = new Set(games.filter(g => g.state === 'disputed' || g.state === 'void').map(g => g.id))
+  const review = (picks.data ?? []).filter(p => reviewGames.has(p.game_id)).length
   return <div className="stack18"><h1 className="disp h1s">Dashboard</h1>
     {!season ? <Card pad={20}>No current season. <Link to="/admin/season">Set up a season</Link></Card> : <Card pad={20}><div className="stack">
       <h2 className="disp h2">{stage === 'live' ? 'Season live' : stage === 'locked' ? 'Lists locked, season not started' : 'Lists open'}</h2>
@@ -25,6 +34,7 @@ export function Dashboard() {
         {disputed.length ? <Alert tone="warn"><b>{disputed.length} {disputed.length === 1 ? 'game is' : 'games are'} disputed.</b> {disputed.map(g => `Table ${g.game_no} on ${g.mapName}`).join(', ')}. <Link to="/admin/disputes">Open Disputes</Link></Alert> : <Alert tone="ok">No games are disputed.</Alert>}
         <p>{games.filter(g => ['recorded', 'settled'].includes(g.state)).length} of {games.filter(g => g.state !== 'void').length} games recorded</p>
         <p>{disputed.length} disputed</p>
+        {picks.isError ? <Alert tone="bad">Could not load picks: {picks.error.message}</Alert> : <p>{review} {review === 1 ? 'pick' : 'picks'} to review{review > 0 && <> on disputed or void games. <Link to="/admin/fixit?a=picks">Open Fix it</Link></>}</p>}
       </> : <>
         {roster.isSuccess && <p>{roster.data.filter(r => r.list === 'league').length} of {season.capacity ?? 'unset capacity'} on the league list, {roster.data.filter(r => r.list === 'waitlist').length} on the waitlist. {roster.data.filter(r => r.list_in).length} lists submitted.</p>}
         {roster.isError && <Alert tone="bad">Could not load roster: {roster.error.message}</Alert>}
