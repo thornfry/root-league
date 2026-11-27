@@ -4,6 +4,7 @@ import { Placeholder } from './pages/Placeholder'
 import { Home } from './pages/player/Home'
 import { MembershipListEntry } from './pages/player/ProspectHome'
 import { LeagueInfo } from './pages/player/LeagueInfo'
+import { Players } from './pages/player/Players'
 
 // One line per route, to keep merges small. A later commit replaces a line's element with its page.
 export const routes: RouteObject[] = [
@@ -12,7 +13,7 @@ export const routes: RouteObject[] = [
     children: [
       { path: CONSENT_PATH, element: <LeaveGate /> },
       { path: '/', element: <Home /> },
-      { path: '/players', element: <Placeholder title="Players" /> },
+      { path: '/players', element: <Players /> },
       { path: '/pairings', element: <Placeholder title="Pairings" /> },
       { path: '/game/:gameNo', element: <Placeholder title="Game" /> },
       { path: '/pickems', element: <Placeholder title="Pick'ems" /> },
