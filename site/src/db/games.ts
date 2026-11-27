@@ -57,6 +57,6 @@ export async function fetchGameHistory(db: Db, gameId: string): Promise<GameHist
   // Describe events without exposing any player's submitted answer, including to admins on this page.
   return data.map(r => ({ id: r.id, at: r.at,
     actor: people.data?.find(p => p.id === r.actor_person_id)?.display_name ?? 'System',
-    text: `${r.table_name === 'submissions' ? 'Result submission' : r.table_name === 'settlements' ? 'Admin settlement' : r.table_name === 'game_seats' ? 'Seat' : 'Game'} ${r.action === 'INSERT' ? 'added' : r.action === 'DELETE' ? 'removed' : 'updated'}.`,
+    text: `${r.table_name === 'submissions' ? 'Result submission' : r.table_name === 'settlements' ? 'Admin settlement' : r.table_name === 'game_seats' ? 'Seat' : 'Game'} ${r.action === 'insert' ? 'added' : r.action === 'delete' ? 'removed' : 'updated'}.`,
   }))
 }

@@ -37,6 +37,6 @@ test('S10 admin settles a dispute and reopens with an actor history', async ({ p
   await expect(page.getByText('Admin settlement removed.')).toBeVisible()
   await expectNoHorizontalScroll(page)
   const log = await withDatabase(db => db.query("select e.action, p.display_name from public.edit_log e join public.people p on p.id=e.actor_person_id where e.table_name='settlements' and (e.new->>'game_id'=$1 or e.old->>'game_id'=$1)", [game]))
-  expect(log.rows.map(r => r.action).sort()).toEqual(['DELETE', 'INSERT'])
+  expect(log.rows.map(r => r.action).sort()).toEqual(['delete', 'insert'])
   expect(log.rows.every(r => !!r.display_name)).toBe(true)
 })
