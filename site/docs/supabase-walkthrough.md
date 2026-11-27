@@ -19,6 +19,10 @@ If your hosted Supabase project already exists, start at [Connect Discord sign-i
 
 The provider is configured at this point. You'll test the full sign-in after Railway has a public URL. Supabase also supports updating these fields through its Management API. For this setup, pasting the Discord credentials directly into Supabase keeps them between the two dashboards. [Discord provider setup](https://supabase.com/docs/guides/auth/social-sign-in/auth-discord) · [Supabase Auth settings](https://supabase.com/docs/guides/auth/general-configuration)
 
+**Set** the Discord app's icon and description under **General Information** in the Discord Developer Portal. Upload the [Root League Discord icon](assets/root-league-discord-icon.png), paste the description below, and save.
+
+> Sign in to Root League, a community league for the board game Root. Rank your factions, find your matchups, and follow the season standings.
+
 ## 3. Link the CLI and apply the schema
 
 The Supabase CLI can link the project, preview and apply migrations, and compare migration history. If we're doing this together, I can run those commands once the CLI has project access. If you're running them yourself, use an existing CLI or choose a setup method. [Supabase CLI setup](https://supabase.com/docs/guides/local-development/cli/getting-started)
@@ -69,7 +73,4 @@ select
 
 ## 5. Deploy on Railway and test sign-in
 
-1. **Open** the [Railway setup steps](setup-runbook.md#railway) and create the service. Once its Variables panel is open, go to Supabase's **Connect** dialog for the **Project URL** and **Publishable key** (or use the legacy `anon` key from **Project Settings → API Keys**). Paste them into Railway as `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. [Supabase API keys](https://supabase.com/docs/guides/api/api-keys)
-2. **Generate** the public Railway domain. In Supabase **Authentication → URL Configuration**, set **Site URL** and add an allowed **Redirect URL** for the Railway home page. Use its full HTTPS URL. Discord returns the browser to the Supabase callback first, then Supabase returns it to Railway. [Supabase redirect URLs](https://supabase.com/docs/guides/auth/redirect-urls)
-3. **Test** the Discord button from the deployed Railway home page. After consent, expect to return to the site and see “not invited” until your ID is whitelisted.
-4. **Continue** with [Real IDs and data](setup-runbook.md#real-ids-and-data). Open Supabase's database connection details when you're ready to seed the real season.
+**Follow** the [Railway walkthrough](railway-walkthrough.md) to deploy the site, set the Supabase return URL, and test Discord sign-in.
