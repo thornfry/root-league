@@ -586,6 +586,28 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"season_unlock_lists":
+{ Args: { "p_season_id": string }; Returns: {
+              "capacity": number | null,
+"created_at": string,
+"faction_pool": (string)[] | null,
+"games_each": number | null,
+"id": string,
+"is_current": boolean,
+"lists_lock_at": string | null,
+"maps": (string)[] | null,
+"min_list_length": number | null,
+"name": string,
+"seed": string | null,
+"slug": string,
+"started_at": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "seasons"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "settle_game":
 { Args: { "p_game_id": string,"p_winners": (string)[] }; Returns: undefined
                            },

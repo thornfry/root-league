@@ -14,6 +14,7 @@ function setup(over = {}) {
   const fake = makeFakeDb({ whoami: adminJson() })
   const rpc = vi.fn(async (name: string, args?: Record<string, unknown>): Promise<{ data: unknown; error: { message: string } | null }> => {
     if (name === 'season_save') return { data: season, error: null }
+    if (name === 'season_unlock_lists') { season = { ...season, lists_lock_at: null } as unknown as typeof season; return { data: season, error: null } }
     if (name === 'season_lock_lists') { season = { ...season, lists_lock_at: '2020-01-01T00:00:00.000Z' }; return { data: season, error: null } }
     if (name === 'season_create') { season = { ...season, id: 'new', name: String(args?.p_name), capacity: null, games_each: null, maps: null, faction_pool: null, min_list_length: null, lists_lock_at: null } as unknown as typeof season; return { data: season, error: null } }
     return fake.rpc(name)
@@ -96,7 +97,7 @@ it('refuses too few maps and creates a new current season with no defaults', asy
   expect(screen.getByLabelText('12 players')).not.toBeChecked()
 })
 
-it('locks lists now after a confirmation, then shows them locked', async () => {
+it('locks lists now after a confirmation, then offers to unlock them', async () => {
   const { rpc, user } = setup({ lists_lock_at: '2099-01-01T00:00:00.000Z' })
   await ready()
   await user.click(screen.getByRole('button', { name: 'Lock lists now' }))
@@ -105,13 +106,17 @@ it('locks lists now after a confirmation, then shows them locked', async () => {
   expect(rpc).not.toHaveBeenCalledWith('season_lock_lists', expect.anything())
   await user.click(screen.getByRole('button', { name: 'Lock lists now' }))
   await user.click(screen.getByRole('button', { name: 'Lock lists' }))
-  await screen.findByText(/Lists are locked\. To reopen them/)
+  await screen.findByRole('button', { name: 'Unlock lists' })
   expect(rpc).toHaveBeenCalledWith('season_lock_lists', { p_season_id: 'season-1' })
   expect(screen.queryByRole('button', { name: 'Lock lists now' })).toBeNull()
 })
 
-it('offers no lock button once lists are locked or the season has started', async () => {
-  setup({ lists_lock_at: '2020-01-01T00:00:00.000Z' })
+it('unlocks locked lists after a confirmation and clears the lock date', async () => {
+  const { rpc, user } = setup({ lists_lock_at: '2020-01-01T00:00:00.000Z' })
   await ready()
-  expect(screen.queryByRole('button', { name: 'Lock lists now' })).toBeNull()
+  await user.click(screen.getByRole('button', { name: 'Unlock lists' }))
+  await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Unlock lists' }))
+  await screen.findByRole('button', { name: 'Lock lists now' })
+  expect(rpc).toHaveBeenCalledWith('season_unlock_lists', { p_season_id: 'season-1' })
+  expect(screen.getByLabelText('Lists lock date and time')).toHaveValue('')
 })

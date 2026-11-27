@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { makeFakeDb, adminJson } from '../../test-support/fakeDb'
 import { renderApp } from '../../test-support/renderApp'
@@ -25,7 +25,14 @@ function setup(d = data()) {
   return { user: userEvent.setup(), rpc }
 }
 beforeEach(() => { h.pending = false; h.cancel.mockClear() })
-it('offers Lock lists now only while lists are open', async () => {
+it('offers Unlock lists while lists are locked', async () => {
+  const { user, rpc } = setup()
+  await user.click(await screen.findByRole('button', { name: 'Unlock lists' }))
+  await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Unlock lists' }))
+  await vi.waitFor(() => expect(rpc).toHaveBeenCalledWith('season_unlock_lists', { p_season_id: 's' }))
+})
+
+it('offers Lock lists now while lists are open', async () => {
   const d = data(); d.stage = 'open'
   const { user, rpc } = setup(d)
   await user.click(await screen.findByRole('button', { name: 'Lock lists now' }))

@@ -6,7 +6,7 @@ import type { Database } from '../../db/types'
 import { FACTIONS } from '../../data/factions'
 import { CAPACITIES, getLayout, isCapacity, MAX_MAPS, TEN_WITH_THREE_REASON, VALID_GAMES_EACH } from '../../data/valid-pairs'
 import { Alert, Button, ButtonLink, Card, Field, FactionSeal, Tag, type FactionCode } from '../../ui'
-import { LockListsNow } from './LockListsNow'
+import { LockListsToggle } from './LockListsToggle'
 
 import './Season.css'
 
@@ -54,8 +54,9 @@ function SeasonForm({ season, asOf, refresh }: { season: SeasonRow; asOf: number
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
   const live = season.started_at !== null
-  const [justLocked, setJustLocked] = useState(false)
-  const listsLocked = justLocked || (season.lists_lock_at !== null && new Date(season.lists_lock_at).getTime() <= asOf)
+  // What the last lock or unlock button press set, until the next save or refetch settles it.
+  const [forced, setForced] = useState<boolean | null>(null)
+  const listsLocked = forced ?? (season.lists_lock_at !== null && new Date(season.lists_lock_at).getTime() <= asOf)
   const cap = Number(capacity)
   const each = Number(games)
   const layout = getLayout(cap, each, maps.length)
@@ -81,7 +82,7 @@ function SeasonForm({ season, asOf, refresh }: { season: SeasonRow; asOf: number
         p_lists_lock_at: lock ? new Date(lock).toISOString() : undefined,
       })
       if (failure) throw failure
-      setJustLocked(false)
+      setForced(null)
       await refresh()
       setSaved(true)
     } catch (failure) {
@@ -118,9 +119,7 @@ function SeasonForm({ season, asOf, refresh }: { season: SeasonRow; asOf: number
       </div><p className="muted">{pool.length} of {FACTIONS.length} in the pool. Removing a ranked faction flags affected lists for attention.</p></fieldset>
       <Field label="Minimum list length" type="number" min={1} max={pool.length || undefined} value={minimum} onChange={(e) => setMinimum(e.target.value)} />
       <Field label="Lists lock date and time" type="datetime-local" step={1} value={lock} onChange={(e) => setLock(e.target.value)} hint={`Your time zone is ${zone}. Everyone sees their local time; the date is stored in UTC.`} />
-      {!live && (listsLocked
-        ? <p className="muted">Lists are locked. To reopen them, set a later lock date and save.</p>
-        : <div className="row"><LockListsNow seasonId={season.id} onLocked={(locked) => { setLock(localDateTime(locked.lists_lock_at)); setJustLocked(true) }} /><span className="muted">Locks lists immediately, without waiting for the date.</span></div>)}
+      {!live && <div className="row"><LockListsToggle seasonId={season.id} locked={listsLocked} onChanged={(changed, nowLocked) => { setLock(localDateTime(changed.lists_lock_at)); setForced(nowLocked) }} /><span className="muted">{listsLocked ? 'Lists are locked. Unlock to let players edit again.' : 'Locks lists immediately, without waiting for the date.'}</span></div>}
       <div className="row"><Button type="submit" variant="pri" disabled={busy || (uneven && !ack)}>{busy ? 'Saving' : 'Save season'}</Button><ButtonLink to="/admin/start">Start season</ButtonLink></div>
       {error && <Alert tone="bad">{error}</Alert>}
       {saved && <p role="status">Season saved.</p>}

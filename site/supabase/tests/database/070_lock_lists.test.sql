@@ -1,11 +1,10 @@
--- Lock lists now (decision 56): public.season_lock_lists sets lists_lock_at to
--- now. Admin only, refused once the season has started, and a no-op when lists
--- are already locked. There is no unlock function: season_save reopens lists by
--- moving the date. Every fixture ID is fake and in the 9000... range. The file
+-- Lock and unlock lists (decision 56): public.season_lock_lists sets lists_lock_at
+-- to now and public.season_unlock_lists clears it. Both are admin only, refused
+-- once the season has started, and a no-op when lists are already in that state. Every fixture ID is fake and in the 9000... range. The file
 -- runs in one transaction that is rolled back.
 begin;
 
-select plan(14);
+select plan(23);
 
 grant all on all tables in schema pg_temp to anon, authenticated, service_role;
 grant all on all sequences in schema pg_temp to anon, authenticated, service_role;
@@ -65,10 +64,13 @@ select (select id from public.seasons where slug = 'open'),
 -- Refused callers ---------------------------------------------------------------
 select pg_temp.as_anon();
 select throws_ok($$select public.season_lock_lists((select open_id from ctx))$$, '42501', null, 'signed out: season_lock_lists is refused');
+select throws_ok($$select public.season_unlock_lists((select locked_id from ctx))$$, '42501', null, 'signed out: season_unlock_lists is refused');
 
 select pg_temp.as_user(2);
 select throws_ok($$select public.season_lock_lists((select open_id from ctx))$$, '42501', 'Only an admin can do this.', 'player: season_lock_lists is refused');
 select is((select stage from public.season_stage where season_id = (select open_id from ctx)), 'open', 'player: the refused call left lists open');
+select throws_ok($$select public.season_unlock_lists((select locked_id from ctx))$$, '42501', 'Only an admin can do this.', 'player: season_unlock_lists is refused');
+select is((select stage from public.season_stage where season_id = (select locked_id from ctx)), 'locked', 'player: the refused unlock left lists locked');
 
 -- Admin ---------------------------------------------------------------------------
 select pg_temp.as_user(1);
@@ -87,7 +89,20 @@ select pg_temp.as_user(1);
 select lives_ok($$select public.season_lock_lists((select locked_id from ctx))$$, 'admin: locking locked lists is not an error');
 select is((select lists_lock_at from public.seasons where id = (select locked_id from ctx)), '2021-06-01T00:00:00Z'::timestamptz, 'admin: locked lists keep their lock date');
 
--- Reopening is a date change through season_save, not a new function.
+-- Unlocking clears the lock date.
+select throws_ok($$select public.season_unlock_lists((select live_id from ctx))$$, '55000', 'The season has started, so lists cannot be reopened.', 'admin: unlocking a started season is refused');
+select lives_ok($$select public.season_unlock_lists((select locked_id from ctx))$$, 'admin: unlocks locked lists');
+select is((select stage from public.season_stage where season_id = (select locked_id from ctx)), 'open', 'admin: lists are open straight away');
+select is((select lists_lock_at from public.seasons where id = (select locked_id from ctx)), null, 'admin: unlocking clears the lock date');
+
+-- Unlocking open lists keeps a planned lock date.
+select pg_temp.as_owner();
+update public.seasons set lists_lock_at = '2099-01-01T00:00:00Z' where id = (select locked_id from ctx);
+select pg_temp.as_user(1);
+select lives_ok($$select public.season_unlock_lists((select locked_id from ctx))$$, 'admin: unlocking open lists is not an error');
+select is((select lists_lock_at from public.seasons where id = (select locked_id from ctx)), '2099-01-01T00:00:00Z'::timestamptz, 'admin: open lists keep their planned lock date');
+
+-- season_save still moves the date too.
 select lives_ok($$select public.season_save((select open_id from ctx), 'Open', null, null, null, null, null, now() + interval '7 days')$$, 'admin: season_save moves the lock date');
 select is((select stage from public.season_stage where season_id = (select open_id from ctx)), 'open', 'admin: a later lock date reopens lists');
 
@@ -96,7 +111,7 @@ select pg_temp.as_owner();
 select is((select count(*) from public.edit_log where table_name = 'seasons' and action = 'update'
             and row_key = (select open_id from ctx)::text
             and old ->> 'lists_lock_at' is distinct from new ->> 'lists_lock_at'), 2::bigint,
-  'log: locking and reopening are each logged');
+  'log: locking and a later date are each logged');
 
 select * from finish();
 

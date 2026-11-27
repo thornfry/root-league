@@ -6,7 +6,7 @@ import { startDraft, type DraftRun } from '../../pairing/client'
 import type { AssignResult } from '../../pairing/assign'
 import { findFaction } from '../../data/factions'
 import { Alert, Button, Card, Field, Tag } from '../../ui'
-import { LockListsNow } from './LockListsNow'
+import { LockListsToggle } from './LockListsToggle'
 
 export function StartSeason() {
   const query = useQuery({ queryKey: ['admin-start'], queryFn: loadStart, staleTime: 0 })
@@ -52,7 +52,7 @@ function StartFlow({ data }: { data: StartData }) {
     {checks.map(c => <Alert key={c.link + c.text} tone={c.ok ? 'ok' : 'bad'}>{c.text} {!c.ok && !c.problems?.length && <Link to={c.link}>Fix this</Link>}
       {c.problems?.length ? <ul style={{ margin: '6px 0 0', paddingLeft: 20 }}>{c.problems.map(p => <li key={p.personId}><b>{p.name}:</b> {p.reason} <Link to={p.link}>Edit {p.name}’s factions</Link></li>)}</ul> : null}
     </Alert>)}
-    {data.stage === 'open' && <div className="row"><LockListsNow seasonId={data.season.id} /><span className="muted">Locks lists now, without waiting for the lock date.</span></div>}
+    <div className="row"><LockListsToggle seasonId={data.season.id} locked={data.stage === 'locked'} /><span className="muted">{data.stage === 'locked' ? 'Reopens lists so players can edit again.' : 'Locks lists now, without waiting for the lock date.'}</span></div>
     <Card pad={20}><div className="stack18"><h2 className="disp h2b">1. Player numbers</h2><p>Numbers are dealt at random from the seed. Same seed and lists, same draft. Reloading discards the unpublished draft.</p>
       <Field label="Seed" value={seed} disabled={busy} onChange={e => changeSeed(e.target.value)} />
       <Button disabled={busy} onClick={() => changeSeed(crypto.randomUUID())}>Re-roll with a new seed</Button>
