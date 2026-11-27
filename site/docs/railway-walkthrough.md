@@ -15,7 +15,7 @@ Start here once the Supabase migrations are applied and the Discord provider is 
 4. **Keep** **Root Directory** at `/` so Docker can read the league Markdown and site files. Leave **Start Command** blank so the image starts Caddy. Set **Settings → Deploy → Healthcheck Path** to `/`. [Railway build settings](https://docs.railway.com/builds/build-configuration) · [Railway healthchecks](https://docs.railway.com/deployments/healthchecks)
 5. **Deploy** from the staged-changes banner on the project canvas. Check that the new **Build Logs** show `site/Dockerfile` and wait for the deployment to become **Active**. [Railway staged changes](https://docs.railway.com/deployments/staged-changes)
 
-**If the build shows Railpack or `start.sh not found)**, check that `RAILWAY_DOCKERFILE_PATH=/site/Dockerfile` is staged on the service, then apply the staged changes.
+**If the build shows Railpack or `start.sh not found`**,, check that `RAILWAY_DOCKERFILE_PATH=/site/Dockerfile` is staged on the service, then apply the staged changes.
 
 **If the live site says “This site has no Supabase address”**, check that both `VITE_SUPABASE_*` names are spelled exactly as above and have values in the production service. Click **Deploy** on the staged changes and wait for the new build. Vite embeds these values during the Docker build, so restarting the current deployment can't supply them. [Railway Docker build arguments](https://docs.railway.com/builds/dockerfiles#using-variables-at-build-time)
 

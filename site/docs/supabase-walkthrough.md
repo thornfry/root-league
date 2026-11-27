@@ -19,6 +19,10 @@ If your hosted Supabase project already exists, start at [Connect Discord sign-i
 
 The provider is configured at this point. You'll test the full sign-in after Railway has a public URL. Supabase also supports updating these fields through its Management API. For this setup, pasting the Discord credentials directly into Supabase keeps them between the two dashboards. [Discord provider setup](https://supabase.com/docs/guides/auth/social-sign-in/auth-discord) · [Supabase Auth settings](https://supabase.com/docs/guides/auth/general-configuration)
 
+**Set** the Discord app's icon and description under **General Information** in the Discord Developer Portal. Upload the [Root League Discord icon](assets/root-league-discord-icon.png), paste the description below, and save.
+
+> Sign in to Root League, a community league for the board game Root. Rank your factions, find your matchups, and follow the season standings.
+
 ## 3. Link the CLI and apply the schema
 
 The Supabase CLI can link the project, preview and apply migrations, and compare migration history. If we're doing this together, I can run those commands once the CLI has project access. If you're running them yourself, use an existing CLI or choose a setup method. [Supabase CLI setup](https://supabase.com/docs/guides/local-development/cli/getting-started)
