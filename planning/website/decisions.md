@@ -11,6 +11,92 @@ Entries 13 to 25 come from the user stories review on 2026-11-26, and entries 26
 - **Decision:** A ranked faction list is visible only to its owner and the admin until the lists lock date. Before lock, the Players page shows each person's name and whether their list is in, and nothing else; after lock, it shows every ranked list to everyone who can read the site. The rule is enforced in the database read policy, not only on the screen, so another person's list cannot be fetched before lock. The admin still sees and edits every list at any time (Players, Roster and Fix it). This supersedes the list-visibility lines of story 3, the "public, including ranked lists" decision in 5, and the "ranked lists readable from the moment they are saved" consequence in 25. Everything else in 5 and 25 stands: the site is readable only by whitelisted people, and writes need a sign-in.
 - **Consequence:** Players cannot copy or counter each other's lists while ranking. The repo's `preferences.json` is already public, so this hides lists only on the site, and only the seed's lists were ever in the open. The read policy needs a lock-date check, and the admin's CSV export includes lists regardless.
 
+Entries 40 to 51 come from writing the [build sequence](build.md). They are numbered from 40 on purpose: other work on the website branches is adding entries from 27, and starting at 40 keeps the numbers from colliding. The gap from 27 to 39 is not missing entries.
+
+## 51. Test and library choices
+
+- **Date:** 2026-11-26
+- **Context:** The build needs a fetching layer, drag and drop, fonts and test tools, and each choice could be a long argument.
+- **Decision:** One npm package in `site/`. TanStack Query for fetching and caching, React Router with browser history (Caddy serves the single-page fallback), `@dnd-kit` for roster drag with a move button on every row, `fflate` for the CSV zip, fonts self-hosted through `@fontsource` so no page loads from another site, Vitest and Testing Library, pgTAP through `supabase test db`, Playwright with a desktop and a 375 pixel project, and axe for accessibility. Each screen commit adds its own end to end spec; commit E2 adds the full journey. There is no live subscription; pages refetch on navigation and window focus.
+- **Consequence:** Fewer moving parts and a build that works offline. Two people at one table see each other's result on the next refresh, not at once.
+
+## 50. The written mix rule is edited in the faction step commit
+
+- **Date:** 2026-11-26
+- **Context:** Plan commit A4 edits rule 7 of `league/pairing-rules.md` and removes the mix entry from `planning/open-questions.md`. [Decision 12](#12-the-app-lives-in-site-beside-the-existing-tooling) says nothing outside `site/` changes before the cutover steps. [Decision 10](#10-the-port-enforces-the-written-pairing-rules) records that Will adopted the mix as a written rule.
+- **Decision:** Commit P3 makes the two edits, as A4 says, because the site's faction step enforces the rule and the League info pages must say what the site does. They are the only edits outside `site/` and `.github/` besides the README link. The rest of the cutover stays Will's.
+- **Consequence:** The rule text and the code change in one diff, so they cannot drift. The Python tool still does not enforce the mix and is not touched.
+
+## 49. Railway builds from the repo root and the league pages are read at build time
+
+- **Date:** 2026-11-26
+- **Context:** [Decision 22](#22-faction-info-and-league-info-come-from-the-repo) renders `league/*.md` into the site at build time. The plan had the Railway service use `site/` as its root, where `league/` is out of reach.
+- **Decision:** The Railway service builds from the repo root with `site/Dockerfile`, which builds the static site and serves it with Caddy and a single-page fallback. Links between the three league pages stay inside the site and every other relative link goes to the repo on GitHub from `VITE_REPO_URL`.
+- **Consequence:** A change under `league/` triggers a build and a deploy, which is the intended way a rule change reaches the site. The setup steps say to set the build context to the repo root.
+
+## 48. The seed links people by Discord ID, then by label
+
+- **Date:** 2026-11-26
+- **Context:** [Decision 25](#25-access-is-a-whitelist-of-discord-user-ids) says a whitelist entry matching a seeded name links at first sign-in, but the repo files hold names and no Discord IDs, and Will gathers the IDs later.
+- **Decision:** The seed creates people with a `seed_key` and no Discord ID. An optional `DISCORD_IDS` JSON file of name to ID, kept out of the repo, fills IDs and the whitelist at seed time. At first sign-in `ensure_person` links by Discord ID, then by a whitelist label equal to an unlinked seeded name, and otherwise creates a person. If two names match, nothing links and the admin uses Fix it. The seed's `ADMIN_DISCORD_ID` is the first admin. Provisional lists carry across as lists that are not submitted.
+- **Consequence:** Will can whitelist by typing a name as the label and have the person land on their seeded list with no manual link. A wrong label is a Fix it job.
+
+## 47. Layouts are generated once for each map count
+
+- **Date:** 2026-11-26
+- **Context:** [Decision 21](#21-seat-layouts-are-hardcoded-and-factions-are-assigned-in-the-app) hardcodes layouts for each valid player count and games each. The map index in a layout depends on how many maps the season has, and the stories let the admin enter any number of maps at least as many as games each.
+- **Decision:** The generator makes a layout for each valid pair and each map count from games each up to 6, 8 pairs in all, using the Python tool's table and map search and its seat colouring, unchanged. The Season page offers between games each and 6 maps and says the layout uses them in order. Stored statistics (meeting spread, map repeats) are rechecked by tests and shown on the setup page. This supersedes the "at least as many as games each" wording in story 1 with a cap of 6.
+- **Consequence:** No layout search runs on the site, and each setup is reproducible. A better layout is a regenerated file. More than 6 maps is a code change.
+
+## 46. Pairing drafts are not stored
+
+- **Date:** 2026-11-26
+- **Context:** The plan stored a draft run in the database. Story 7 and decision 20 have the draft visible only to the admin and then published, with the same seed and lists giving the same draft.
+- **Decision:** A draft lives only in the browser. Publish sends the computed assignment to `publish_pairings`, which checks its structure (counts, seats, factions present, stage, lists valid) and writes the games. It does not rerun the pairing rules; the browser's checker did that, and Fix it can still change anything afterwards with a warning.
+- **Consequence:** No draft table and no stale guard. A reload loses the draft and the stored seed rebuilds it. A modified client could publish a rule-breaking draft, but only the admin can publish.
+
+## 45. One audit trigger writes the append-only log
+
+- **Date:** 2026-11-26
+- **Context:** Stories 9 and 10 want every submission and every edit logged with who, when, old and new, and decision 23 wants the log append only.
+- **Decision:** One trigger function, attached to every league table, writes the old and new row and the acting person to `edit_log`. No role can update or delete log rows. Functions do not write the log themselves.
+- **Consequence:** A new table is logged by attaching the trigger, and no function can forget to log. The log records row changes, not intent; a moved person is two rows' worth of change, shown as one line by the screens.
+
+## 44. A game's result is derived from its submissions
+
+- **Date:** 2026-11-26
+- **Context:** [Decision 18](#18-every-seated-player-submits-a-result-and-conflicts-go-to-the-admin) describes recorded, disputed and settled states, and decision 28 on the prototype branch removes per-player answers from the page. A stored state would have to be kept in step with the submissions.
+- **Decision:** The state comes from a view over submissions and the admin's settlement. No submission is upcoming; all submissions with the same winners are recorded; different winners are disputed with no winners shown; a settlement overrides and stops player edits until the admin reopens; a void game is void. Standings and pick'em scores read the view, so a change anywhere recalculates them. A seated admin submits like a player. An admin who is not seated enters a result as a settlement.
+- **Consequence:** A dispute clears itself when the answers agree, and there is nothing to repair if a row is edited on Fix it. Players read only their own submission.
+
+## 43. Roles are derived and only Admin is stored
+
+- **Date:** 2026-11-26
+- **Context:** [Decision 17](#17-permissions-come-from-four-app-roles) says roles are held in a roles table. Three of the four follow from facts the database already holds.
+- **Decision:** Viewer is a whitelisted sign-in, prospect is a person on the roster before the season starts, league player is a person on the league list once it has started, and Admin is a flag on the whitelist row, so an admin can be named before they have ever signed in. A `whoami` function returns the derived roles. This changes only where roles are held, not what each can do.
+- **Consequence:** No second table to keep in step with the roster. Starting the season turns league-list prospects into league players with no extra write. Roles stay fixed in code, as 17 says.
+
+## 42. Every write is a SQL function and there are no Edge Functions
+
+- **Date:** 2026-11-26
+- **Context:** The plan listed Edge Functions for join, Discord and notify, and gave the admin direct write policies. Decisions 11, 14 and 24 removed the Discord functions, and access is now a whitelist checked in the database.
+- **Decision:** The site has no Edge Functions. Tables are readable under row-level policies and no client can write one directly, admin included. Every change goes through a `security definer` function that checks the caller, including Fix it (an allowlisted generic update, insert and delete) and the CSV import, which is one function taking validated rows and writing all or nothing. Row-level policies and function checks are tested together in pgTAP.
+- **Consequence:** One way to write, one place to check permissions, and nothing to deploy beside the migrations. A new admin need is a new function or an allowlist entry.
+
+## 41. Dev sign-in goes through the same database whitelist check
+
+- **Date:** 2026-11-26
+- **Context:** Will's accounts are not available while the site is built, and the build must run end to end without them. A stand-in that skipped the whitelist would test nothing real.
+- **Decision:** The stand-in is a page that signs in with the Supabase email provider as `<discord id>@dev.invalid`. The database resolves a Discord ID from `auth.identities` for the real Discord provider, and from that email only while the `app_config` table holds `dev_signin = on`, a row only the local seed inserts. Everything after, including the whitelist and admin checks, is the same code. The page is built only with `VITE_AUTH_MODE=dev`; a production build with it fails, a script checks the production bundle for the stand-in, and CI runs both. Real sign-in uses `signInWithOAuth` with the `identify` scope and is on by default, switched by configuration in the Supabase dashboard. The first real sign-in checks that the Discord ID is in `provider_id`, a step in the runbook.
+- **Consequence:** The whitelist, roles and every function are tested through the real path. Production would need three separate mistakes before the stand-in worked, and the last guard is in the database.
+
+## 40. The site is built local-first and every account-bound part is stubbed
+
+- **Date:** 2026-11-26
+- **Context:** Will is away and wants to return to a finished site. The Supabase project and keys, the Discord OAuth application, the Railway service and the real Discord IDs all need his accounts. This is entry 40, not 27, to avoid collisions with entries other agents are adding from 27.
+- **Decision:** The site is built and tested entirely against the Supabase CLI's local stack. Each account-bound part is written, tested with a stand-in and switched on by configuration: Discord OAuth by `VITE_AUTH_MODE` and the dashboard settings, Supabase by the two public `VITE_` variables, Railway by a Dockerfile and `railway.toml`, and real IDs by the Whitelist page and the seed's optional ID file. The last build commits are a full click-through end to end run and a runbook for Will, one line per step, which turn each stub into the real thing. The sequence is in [build.md](build.md); it replaces the plan's stale commit list.
+- **Consequence:** Nothing blocks on Will until the runbook. The first real sign-in and real IDs are unproven until he does it, and the runbook says what to check.
+
 ## 26. The approved design amends the story screens
 
 - **Date:** 2026-11-26
