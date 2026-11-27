@@ -26,7 +26,7 @@ export const routes: RouteObject[] = [
         element: <RequireAdmin />,
         children: [
           { path: '/admin', element: <Placeholder title="Dashboard" /> },
-          { path: '/admin/whitelist', element: <Placeholder title="Whitelist" /> },
+          { path: '/admin/whitelist', lazy: async () => ({ Component: (await import('./pages/admin/Whitelist')).Whitelist }) },
           { path: '/admin/roster', element: <Roster /> },
           { path: '/admin/season', HydrateFallback: () => <p role="status">Loading season</p>, lazy: async () => ({ Component: (await import('./pages/admin/Season')).Season }) },
           { path: '/admin/start', element: <Placeholder title="Start season" /> },
