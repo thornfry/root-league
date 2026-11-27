@@ -73,7 +73,6 @@ function ResultBlock({ game }: { game: LeagueGame }) {
       : game.state === 'void' ? <Alert tone="warn"><b>Void.</b> This game is not counted in standings or pick’ems.</Alert>
       : game.winners.length ? <Card pad={16}><div className="kicker">Result</div><b><GameWinners game={game} /></b></Card>
       : !showForm && <Card pad={16}>No result yet. Seated players enter it after the game.</Card>}
-    {game.state === 'settled' && <Tag tone="ok">Settled by admin</Tag>}
     {editable && seated && own.isPending && <p role="status">Loading your result…</p>}
     {editable && own.isError && <Alert tone="bad">Could not load your result: {own.error.message}</Alert>}
     {editable && ready && !showForm && <Button onClick={() => { mutation.reset(); setDraft(own.data ?? []) }}>Edit result</Button>}
