@@ -15,6 +15,13 @@ Entries 40 to 51 come from writing the [build sequence](build.md). They are numb
 
 Entries from 52 on come from Will's click-through of the running site on 2026-11-27.
 
+## 57. The e2e suite runs locally on request, not in CI
+
+- **Date:** 2026-11-27
+- **Context:** Decision 51 added a Playwright suite, and CI ran it against a full Supabase stack on every push. It never passed there, each run took about 17 minutes, and it depended on the Supabase CLI and stack starting up. Will would rather CI stay off vendor services and test the core, and run the browser suite himself when a change is big.
+- **Decision:** CI no longer runs the e2e job. The specs stay in `site/e2e`, the web job still type-checks them (`npm run e2e:typecheck`), and the suite runs locally with `npm run e2e` when Will asks for it. The rest of decision 51 stands.
+- **Consequence:** A pull request can be green with a broken browser flow, so run the suite before large merges. A local run wipes the local database on port 54322. The `db` job still uses the Supabase CLI for pgTAP.
+
 ## 56. The admin can lock and unlock lists with one button
 
 - **Date:** 2026-11-27

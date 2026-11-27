@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router'
 import { useSession } from '../../auth/session'
@@ -8,6 +8,7 @@ import { fetchLeaderboard, fetchPicks, savePick } from '../../db/picks'
 import { Alert, Button, Card, Tag } from '../../ui'
 
 export function PickPanel({ game }: { game: LeagueGame }) {
+  const uid = useId()
   const session = useSession()
   const personId = session.status === 'in' ? session.whoami.personId : null
   const db = getSupabase()
@@ -30,8 +31,8 @@ export function PickPanel({ game }: { game: LeagueGame }) {
       <p>First pick scores 3 points; optional second pick scores 1. Picks stay hidden until the first result is recorded.</p>
       <fieldset className="stack" disabled={mutation.isPending}>
         <legend className="kicker">Pick winners</legend>
-        <label className="stack">First pick<select value={first} onChange={e => { setDraft({ first: e.target.value, second: e.target.value === second ? '' : second }); mutation.reset() }}><option value="">Choose a player</option>{game.seats.map(s => <option key={s.person_id} value={s.person_id}>{s.name}</option>)}</select></label>
-        <label className="stack">Second pick (optional)<select value={second} onChange={e => { setDraft({ first, second: e.target.value }); mutation.reset() }}><option value="">None</option>{game.seats.filter(s => s.person_id !== first).map(s => <option key={s.person_id} value={s.person_id}>{s.name}</option>)}</select></label>
+        <div className="stack"><label htmlFor={`${uid}-first`}>First pick</label><select id={`${uid}-first`} value={first} onChange={e => { setDraft({ first: e.target.value, second: e.target.value === second ? '' : second }); mutation.reset() }}><option value="">Choose a player</option>{game.seats.map(s => <option key={s.person_id} value={s.person_id}>{s.name}</option>)}</select></div>
+        <div className="stack"><label htmlFor={`${uid}-second`}>Second pick (optional)</label><select id={`${uid}-second`} value={second} onChange={e => { setDraft({ first, second: e.target.value }); mutation.reset() }}><option value="">None</option>{game.seats.filter(s => s.person_id !== first).map(s => <option key={s.person_id} value={s.person_id}>{s.name}</option>)}</select></div>
       </fieldset>
       <Button type="submit" variant="pri" disabled={!first || first === second || mutation.isPending}>{mutation.isPending ? 'Saving…' : 'Save picks'}</Button>
       {own && !draft && <p role="status">Picks saved. You can change them until the first result.</p>}

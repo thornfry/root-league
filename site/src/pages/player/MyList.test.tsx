@@ -60,7 +60,7 @@ it.each([375, 1280])('adds, reorders, removes, submits and reloads at %i px', as
   await screen.findByText('Ready', { exact: true })
   const ranks = screen.getByLabelText('Ranked factions')
   expect(within(ranks).getAllByRole('strong')[0]).toHaveTextContent('Eyrie Dynasties')
-  expect(screen.getByRole('link', { name: /About Eyrie/ })).toHaveAttribute('href', 'https://www.therootdatabase.com/faction/eyrie-dynasties/')
+  expect(screen.getByRole('link', { name: /Faction info: Eyrie/ })).toHaveAttribute('href', 'https://www.therootdatabase.com/faction/eyrie-dynasties/')
   expect(document.querySelectorAll('.my-list-lock')).toHaveLength(1)
   expect(document.querySelector('.my-list-lock')).toHaveTextContent(Intl.DateTimeFormat().resolvedOptions().timeZone)
   expect(document.querySelectorAll('main')).toHaveLength(1)
