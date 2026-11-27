@@ -17,12 +17,13 @@ function setup(player = true, failure = false) {
     const result = () => ({ data: table === 'seasons' ? { id: 's1', name: 'Season', maps: ['Autumn'] }
       : table === 'season_stage' ? { stage: 'live' }
       : table === 'roster_public' ? null
+      : table === 'picks' || table === 'pickem_scores' ? []
       : table === 'leaderboard' ? [{ person_id: 'p-alex', display_name: 'Alex', points: 7, rank: 2 }, { person_id: 'p-sam', display_name: 'Sam', points: 9, rank: 1 }]
       : table === 'standings' ? [{ person_id: person, display_name: 'Alex', rank: 1, wins: 2, games_played: 3, games_left: 1 }]
       : table === 'game_outcome' ? [{ game_id: 'g1', state: 'upcoming', winners: null }, { game_id: 'g2', state: 'disputed', winners: ['other'] }]
       : [1, 2, 3].map(n => ({ id: `g${n}`, game_no: n, map_index: 0, game_seats: [{ person_id: n === 3 ? 'unrelated' : person, seat: 1, faction: 'cats', people: { display_name: 'Alex' } }] })),
       error: failure && table === 'leaderboard' ? { message: 'Offline' } : null })
-    const q = { select: () => q, eq: () => q, order: () => q, single: async () => result(), maybeSingle: async () => result(), then: (resolve: (value: unknown) => unknown) => Promise.resolve(result()).then(resolve) }
+    const q = { select: () => q, eq: () => q, in: () => q, order: () => q, single: async () => result(), maybeSingle: async () => result(), then: (resolve: (value: unknown) => unknown) => Promise.resolve(result()).then(resolve) }
     return q
   })
   h.db = Object.assign(fake.db, { from })
@@ -39,19 +40,24 @@ it.each([375, 1280])('shows My games, with a report button on each, and the pick
   expect(games).toHaveTextContent('Disputed')
   expect(games).not.toHaveTextContent('Won by')
   const pickems = await screen.findByRole('region', { name: "Pick'ems" })
-  expect(pickems).toHaveTextContent('Score7points')
-  expect(pickems).toHaveTextContent('Rank2of 2')
-  expect(calls.filter(t => ['submissions', 'settlements', 'picks'].includes(t))).toEqual([])
+  // One open game (table 3) has no pick, so the arrow goes to Pick'ems.
+  const card = await within(pickems).findByRole('link')
+  expect(card).toHaveTextContent('Score7 points')
+  expect(card).toHaveTextContent('Rank2 of 2')
+  expect(card).toHaveTextContent('1 open game to pick')
+  expect(card).toHaveAttribute('href', '/pickems')
+  expect(calls.filter(t => ['submissions', 'settlements'].includes(t))).toEqual([])
 })
 
-it('keeps standings, faction lists and Pick\'ems links off Home', async () => {
+it('keeps standings and faction lists off Home, with one pick\'em link on the score card', async () => {
   setup()
   renderApp('/')
   await screen.findByRole('region', { name: 'My games' })
+  await screen.findByRole('link', { name: /open game to pick/ })
   expect(screen.queryByRole('table', { name: 'Season standings' })).not.toBeInTheDocument()
   expect(screen.queryByRole('heading', { name: 'Standings' })).not.toBeInTheDocument()
   const main = screen.getByRole('main')
-  expect(within(main).queryByRole('link', { name: /pick.?em/i })).not.toBeInTheDocument()
+  expect(within(main).getAllByRole('link').filter(a => /pickems/.test(a.getAttribute('href') ?? ''))).toHaveLength(1)
   expect(screen.queryByRole('region', { name: 'Your games' })).not.toBeInTheDocument()
 })
 

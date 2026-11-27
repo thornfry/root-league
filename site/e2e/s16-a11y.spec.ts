@@ -184,21 +184,19 @@ test('S16: a live season, every game state', async ({ page }) => {
     await page.getByRole('button', { name: new RegExp(`^${filter} `) }).click()
     await audit(page, 'Table')
   }
-  await visit(page, '/game/1', 'Everyone’s picks')
-  await visit(page, '/game/2', 'Scoring paused')
+  await visit(page, '/game/1', 'Result')
   await visit(page, '/game/3', 'Settled by admin')
-  await visit(page, '/game/4', 'Void games score nothing.')
   await visit(page, '/game/5', 'Who won?')
   await page.getByRole('checkbox', { name: 'Delaney' }).check()
   await audit(page, 'Who won?')
-  await visit(page, '/pickems', 'Leaderboard')
+  await visit(page, '/pickems', 'Score')
+  await visit(page, '/pickems/leaderboard', 'Pick’em leaderboard')
   await visit(page, '/players', 'Delaney')
 
   // A viewer who is not in the league: the live Home, the pick panel and the unrevealed pick.
   await signInFast(page, cast('Spectator'))
   await audit(page, 'Season in progress')
-  await visit(page, '/game/5', 'Your picks')
-  await visit(page, '/pickems', 'Open games')
+  await visit(page, '/pickems', 'Picks open')
 
   // The admin pages with games in play.
   await signInFast(page, cast('Dev admin'), '/admin')
@@ -252,28 +250,21 @@ test('S16: keyboard order on the roster board', async ({ page }, testInfo) => {
   await expect(page.getByRole('status', { name: 'Roster update' })).toContainText('Nick moved to the league list.')
 })
 
-test('S16: keyboard order on the pick panel', async ({ page }, testInfo) => {
+test('S16: keyboard order on the pick cells', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop', 'Keyboard order is checked on desktop only.')
   test.setTimeout(90_000)
   await seedLiveSeason(['upcoming'])
-  await signInFast(page, cast('Spectator'), '/game/1')
-  const first = page.getByLabel('First pick', { exact: true })
-  await expect(first).toBeVisible()
-  await first.focus()
-  // A select changes with the arrow keys. Save picks stays off until a first pick is chosen, so Tab skips it before.
+  await signInFast(page, cast('Spectator'), '/pickems')
+  const card = page.getByRole('article', { name: 'Table 1' })
+  const cells = card.getByRole('button')
+  await expect(cells).toHaveCount(4)
+  // Each cell is a button in seat order, reachable by Tab and chosen with Enter. There is no Save button.
+  await cells.first().focus()
   await page.keyboard.press('Tab')
-  expect(await focusedName(page)).toBe('Second pick (optional)')
-  await page.keyboard.press('Tab')
-  expect(await focusedName(page), 'Save picks is skipped while it is disabled').not.toBe('Save picks')
-  await first.focus()
-  await page.keyboard.press('ArrowDown')
-  await expect(first).not.toHaveValue('')
-  await page.keyboard.press('Tab')
-  expect(await focusedName(page)).toBe('Second pick (optional)')
-  await page.keyboard.press('Tab')
-  expect(await focusedName(page)).toBe('Save picks')
+  await expect(cells.nth(1)).toBeFocused()
   await page.keyboard.press('Enter')
-  await expect(page.getByText('Picks saved. You can change them until the first result.')).toBeVisible()
+  await expect(cells.nth(1)).toHaveAttribute('aria-pressed', 'true')
+  await expect(card.getByText('Saved.')).toBeVisible()
 })
 
 /** The accessible name of whatever has focus: its label, aria-label or text. */

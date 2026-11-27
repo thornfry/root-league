@@ -2,10 +2,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from 'react-router'
 import { useSession } from '../../auth/session'
 import { joinLeague, MEMBERSHIP_KEY, useMembership } from '../../db/membership'
-import { Alert, Button, ButtonLink, Card, Stat } from '../../ui'
+import { Alert, Button, ButtonLink, Card, Icon, Stat } from '../../ui'
+import { pickableGames, useMyPicks, usePickemBoard } from './Pickems'
 import { getSupabase } from '../../db/client'
 import { pairingsQuery, filterGames } from '../../db/games'
-import { fetchLeaderboard } from '../../db/picks'
+import type { LeagueGame } from '../../db/games'
 import { GameStatus, GameWinners, SeatFaction } from './Pairings'
 import { ProspectHome } from './ProspectHome'
 
@@ -69,21 +70,31 @@ function LiveHome({ seasonId, personId }: { seasonId: string; personId: string |
         </Card>
       })}</div>
     </section> : null}
-    {personId ? <PickemQuickView seasonId={seasonId} personId={personId} /> : null}
+    {personId && games.data ? <PickemQuickView seasonId={seasonId} personId={personId} games={games.data.games} /> : null}
   </>
 }
 
-/** Score and rank only. The Pick'ems page is in the menu, so there is no link here. */
-function PickemQuickView({ seasonId, personId }: { seasonId: string; personId: string }) {
-  const board = useQuery({ queryKey: ['leaderboard', seasonId], queryFn: () => fetchLeaderboard(getSupabase(), seasonId), staleTime: 0 })
+/** Score and rank, and one arrow: to the picks still to make, or to the leaderboard once they are all made. */
+function PickemQuickView({ seasonId, personId, games }: { seasonId: string; personId: string; games: LeagueGame[] }) {
+  const board = usePickemBoard(seasonId)
+  const picks = useMyPicks(seasonId, personId, games, true)
   const mine = board.data?.find(row => row.person_id === personId)
+  const open = pickableGames(games, personId).filter(g => g.state === 'upcoming')
+  const picked = new Set((picks.data ?? []).map(p => p.game_id))
+  const toPick = open.filter(g => !picked.has(g.id)).length
+  const pending = board.isPending || picks.isPending
+  const failure = board.error ?? picks.error
   return <section className="stack" aria-labelledby="home-pickem-title">
     <h2 id="home-pickem-title" className="disp h2b">Pick&apos;ems</h2>
-    {board.isPending ? <p role="status">Loading your pick&apos;ems</p> : null}
-    {board.isError ? <Alert tone="bad">Could not load your pick&apos;ems: {board.error.message} <Button onClick={() => void board.refetch()}>Try again</Button></Alert> : null}
-    {board.data ? <Card pad={16}><div className="row">
-      <Stat value={mine?.points ?? 0} label="Score" sub="points" />
-      <Stat value={mine ? mine.rank : 'None'} label="Rank" sub={mine ? `of ${board.data.length}` : 'no picks scored yet'} />
-    </div></Card> : null}
+    {pending && !failure ? <p role="status">Loading your pick&apos;ems</p> : null}
+    {failure ? <Alert tone="bad">Could not load your pick&apos;ems: {failure.message} <Button onClick={() => { void board.refetch(); void picks.refetch() }}>Try again</Button></Alert> : null}
+    {board.data && picks.data ? <Link to={toPick ? '/pickems' : '/pickems/leaderboard'} className="card scorecard linkcard">
+      <div className="score-numbers">
+        <Stat value={<>{mine?.points ?? 0}<span className="unit"> points</span></>} label="Score" />
+        <Stat value={<>{mine ? mine.rank : 'None'}{mine ? <span className="unit"> of {board.data.length}</span> : null}</>} label="Rank" />
+      </div>
+      <span className="lc"><span>{toPick ? `${toPick} open ${toPick === 1 ? 'game' : 'games'} to pick` : open.length ? 'All open games picked' : 'No open games'}</span>
+        <span className="go"><Icon name="arrow" size={16} /><span className="sr-only">{toPick ? 'Make your picks' : 'See the leaderboard'}</span></span></span>
+    </Link> : null}
   </section>
 }

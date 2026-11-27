@@ -222,30 +222,31 @@ test('S14: the full journey from the empty season to a played one', async ({ pag
 
     await test.step('picks and the leaderboard', async () => {
       await signInFast(page, person, `/game/${pickGame.game_no}`)
-      await expect(page.getByLabel('First pick', { exact: true })).toBeVisible()
-      await page.getByLabel('First pick', { exact: true }).selectOption({ label: pickWinner })
-      await page.getByRole('button', { name: 'Save picks' }).click()
-      await expect(page.getByText('Picks saved. You can change them until the first result.')).toBeVisible()
+      await page.goto('/pickems')
+      const pickCard = page.getByRole('article', { name: `Table ${pickGame.game_no}` })
+      await pickCard.getByRole('button', { name: new RegExp(pickWinner) }).click()
+      await expect(pickCard.getByText('Saved.')).toBeVisible()
       // The admin is not seated at this table, so the entry settles it and the pick scores.
       await admin.goto(`/game/${pickGame.game_no}`)
       await admin.getByRole('checkbox', { name: pickWinner }).check()
       await admin.getByRole('button', { name: 'Submit', exact: true }).click()
       await expect(admin.getByText('Settled by admin', { exact: true }).first()).toBeVisible()
       await page.goto('/pickems')
-      await expect(page.getByText('Your score: 3 points')).toBeVisible()
-      await expect(page.getByRole('region', { name: 'Leaderboard' })).toContainText('Spectator (you)')
-      await expect(page.getByRole('region', { name: 'Leaderboard' })).toContainText('Rank 1')
+      await expect(page.locator('.scorecard')).toContainText('3 points')
+      await page.getByRole('link', { name: /Leaderboard/ }).click()
+      await expect(page.getByRole('table', { name: 'Pick’em leaderboard' })).toContainText('Spectator')
+      await expect(page.getByRole('table', { name: 'Pick’em leaderboard' }).getByRole('cell', { name: '1', exact: true })).toHaveCount(1)
       await expectNoHorizontalScroll(page)
     })
 
-    await test.step('standings on Home agree with the two results', async () => {
+    await test.step('standings on Players agree with the two results', async () => {
       await signInFast(page, identity('Delaney'))
       const inPick = pickGame.names.includes('Delaney')
       const wins = 1 + (inPick && pickWinner === 'Delaney' ? 1 : 0)
       const played = inPick ? 2 : 1
+      await page.goto('/players')
       const row = page.getByRole('table', { name: 'Season standings' }).getByRole('row').filter({ hasText: 'Delaney' })
-      await expect(row.getByRole('cell')).toHaveText([/\d+/, String(wins), String(played), String(2 - played)])
-      await expect(page.getByRole('region', { name: "Pick'em leaderboard" })).toContainText('Spectator')
+      await expect(row.getByRole('cell')).toHaveText(`${wins}-${played - wins}`)
       await expectNoHorizontalScroll(page)
     })
 
