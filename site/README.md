@@ -83,17 +83,18 @@ files revalidate. The final image contains Caddy and `dist/`, with no Node,
 source files, database credentials or seed inputs.
 
 In Railway, connect this repository, leave the service root at `/`, and set the
-config file path to `/site/railway.toml`. It selects `site/Dockerfile`; the Docker
-build context must stay at the repository root. Add `VITE_SUPABASE_URL`,
+service variable `RAILWAY_DOCKERFILE_PATH` to `/site/Dockerfile`. The Docker
+build context must stay at the repository root. Set the healthcheck path to `/`.
+Add `VITE_SUPABASE_URL`,
 `VITE_SUPABASE_ANON_KEY` and optionally `VITE_REPO_URL` as service variables
 (Railway makes declared Docker build args available). Leave `VITE_AUTH_MODE`
 unset or set it to `discord`. Generate a public domain and configure the
 Supabase Auth site URL and allowed redirect URLs to use that domain. The
 container listens on Railway's `PORT`; no start-command override is needed.
-Changes under `league/` trigger a rebuild to refresh League info.
+Redeploy after changes under `league/` to refresh League info.
 
 See [Railway Docker builds](https://docs.railway.com/builds/dockerfiles),
-[Railway config as code](https://docs.railway.com/config-as-code/reference) and
+[Railway walkthrough](docs/railway-walkthrough.md) and
 [Caddy SPA serving](https://caddyserver.com/docs/caddyfile/patterns#single-page-apps-spas).
 
 ## Weekly keep-alive

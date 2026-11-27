@@ -34,8 +34,11 @@ Run shell commands from `site/` unless a step says otherwise. Replace quoted pla
 
 ## Railway
 
+Follow the [Railway walkthrough](railway-walkthrough.md) for the dashboard steps and first Discord sign-in test.
+
 - **Create** a service connected to this repository and the branch you intend to deploy.
-- **Set** service root `/` and config file path `/site/railway.toml`; [railway.toml](../railway.toml) selects [site/Dockerfile](../Dockerfile) with the repository root as build context.
+- **Set** service root `/` and add the service variable `RAILWAY_DOCKERFILE_PATH` with value `/site/Dockerfile`. This selects [site/Dockerfile](../Dockerfile) with the repository root as build context.
+- **Set** the service healthcheck path to `/` under **Settings → Deploy**.
 - **Open** the Variables panel in Railway and Supabase's **Connect** dialog side by side. Paste the hosted Project URL into `VITE_SUPABASE_URL` and the publishable key into `VITE_SUPABASE_ANON_KEY`. The legacy `anon` key from **Project Settings → API Keys** also works.
 - **Set** `VITE_REPO_URL` to the HTTPS GitHub repository or `blob/ref` base for League info links; omit it to use the README's default.
 - **Leave** `VITE_AUTH_MODE` unset or set it to `discord`; never deploy `dev`.
