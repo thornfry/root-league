@@ -28,12 +28,12 @@ export const routes: RouteObject[] = [
       {
         element: <RequireAdmin />,
         children: [
-          { path: '/admin', element: <Placeholder title="Dashboard" /> },
+          { path: '/admin', lazy: async () => ({ Component: (await import('./pages/admin/Dashboard')).Dashboard }) },
           { path: '/admin/whitelist', lazy: async () => ({ Component: (await import('./pages/admin/Whitelist')).Whitelist }) },
           { path: '/admin/roster', element: <Roster /> },
           { path: '/admin/season', HydrateFallback: () => <p role="status">Loading season</p>, lazy: async () => ({ Component: (await import('./pages/admin/Season')).Season }) },
           { path: '/admin/start', HydrateFallback: () => <p role="status">Loading season</p>, lazy: async () => ({ Component: (await import('./pages/admin/StartSeason')).StartSeason }) },
-          { path: '/admin/disputes', element: <Placeholder title="Disputes" /> },
+          { path: '/admin/disputes', lazy: async () => ({ Component: (await import('./pages/admin/Disputes')).Disputes }) },
           { path: '/admin/fixit', element: <Placeholder title="Fix it" /> },
           { path: '/admin/csv', element: <Placeholder title="CSV" /> },
         ],
