@@ -105,6 +105,50 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"picks": {
+                  Row: {
+                    "first_pick": string,"game_id": string,"person_id": string,"second_pick": string | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "first_pick": string,"game_id": string,"person_id": string,"second_pick"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "first_pick"?: string,"game_id"?: string,"person_id"?: string,"second_pick"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "picks_first_pick_fkey"
+      columns: ["first_pick"]
+isOneToOne: false
+      referencedRelation: "people"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "picks_game_id_fkey"
+      columns: ["game_id"]
+isOneToOne: false
+      referencedRelation: "game_outcome"
+      referencedColumns: ["game_id"]
+    },{
+      foreignKeyName: "picks_game_id_fkey"
+      columns: ["game_id"]
+isOneToOne: false
+      referencedRelation: "games"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "picks_person_id_fkey"
+      columns: ["person_id"]
+isOneToOne: false
+      referencedRelation: "people"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "picks_second_pick_fkey"
+      columns: ["second_pick"]
+isOneToOne: false
+      referencedRelation: "people"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"roster": {
                   Row: {
                     "joined_at": string,"list": string,"list_flagged": boolean,"list_submitted": boolean,"person_id": string,"player_number": number | null,"position": number,"ranked_factions": (string)[],"season_id": string
@@ -258,6 +302,70 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"leaderboard": {
+                  Row: {
+                    "display_name": string,"person_id": string,"points": number | null,"rank": number | null,"season_id": string
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "games_season_id_fkey"
+      columns: ["season_id"]
+isOneToOne: false
+      referencedRelation: "season_stage"
+      referencedColumns: ["season_id"]
+    },{
+      foreignKeyName: "games_season_id_fkey"
+      columns: ["season_id"]
+isOneToOne: false
+      referencedRelation: "seasons"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "picks_person_id_fkey"
+      columns: ["person_id"]
+isOneToOne: false
+      referencedRelation: "people"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"pickem_scores": {
+                  Row: {
+                    "first_points": number | null,"game_id": string,"person_id": string,"points": number | null,"season_id": string,"second_points": number | null,"state": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "games_season_id_fkey"
+      columns: ["season_id"]
+isOneToOne: false
+      referencedRelation: "season_stage"
+      referencedColumns: ["season_id"]
+    },{
+      foreignKeyName: "games_season_id_fkey"
+      columns: ["season_id"]
+isOneToOne: false
+      referencedRelation: "seasons"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "picks_game_id_fkey"
+      columns: ["game_id"]
+isOneToOne: false
+      referencedRelation: "game_outcome"
+      referencedColumns: ["game_id"]
+    },{
+      foreignKeyName: "picks_game_id_fkey"
+      columns: ["game_id"]
+isOneToOne: false
+      referencedRelation: "games"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "picks_person_id_fkey"
+      columns: ["person_id"]
+isOneToOne: false
+      referencedRelation: "people"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"roster_public": {
                   Row: {
                     "display_name": string,"is_me": boolean | null,"joined_at": string | null,"list": string | null,"list_flagged": boolean | null,"list_in": boolean,"person_id": string,"position": number | null,"ranked_factions": (string)[] | null,"season_id": string
@@ -367,6 +475,9 @@ isOneToOne: false
                            },
 "roster_swap":
 { Args: { "p_person_a": string,"p_person_b": string,"p_season_id": string }; Returns: undefined
+                           },
+"save_pick":
+{ Args: { "p_first": string,"p_game_id": string,"p_second"?: string }; Returns: undefined
                            },
 "save_ranked_list":
 { Args: { "p_factions": (string)[],"p_season_id": string }; Returns: undefined
