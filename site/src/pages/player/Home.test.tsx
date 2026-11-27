@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { act, configure, screen, within } from '@testing-library/react'
+import { act, configure, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { makeFakeDb } from '../../test-support/fakeDb'
 import { renderApp } from '../../test-support/renderApp'
@@ -31,7 +31,6 @@ function scenario(joined = false, stage = 'open', submitted = false, flagged = f
       state.member ??= { ...member, list_in: false, ranked_factions: [] }
       return { data: {}, error: null }
     }
-    if (name === 'leave_league') { state.member = null; return { data: {}, error: null } }
     return originalRpc(name)
   })
   h.db = Object.assign(fake.db, { from })
@@ -66,20 +65,11 @@ it('shows a submitted list', async () => {
   expect(screen.getByText('Marquise de Cat, Eyrie Dynasties')).toBeInTheDocument()
 })
 
-it('requires confirmation, supports cancelling, then clears membership on leave', async () => {
-  const fake = scenario(true, 'open', true)
+it('offers no Leave league button: the admin removes people', async () => {
+  scenario(true, 'open', true)
   renderApp('/')
-  await userEvent.click(await screen.findByRole('button', { name: 'Leave league' }))
-  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
-  expect(fake.rpc.mock.calls.flat()).not.toContain('leave_league')
-  await userEvent.click(screen.getByRole('button', { name: 'Leave league' }))
-  const dialog = screen.getByRole('dialog')
-  expect(dialog).toHaveTextContent('clears your ranked faction list')
-  await userEvent.click(within(dialog).getByRole('button', { name: 'Leave league' }))
-  await screen.findByRole('button', { name: 'Join league' })
-  expect(fake.state.member).toBeNull()
-  expect(screen.queryByRole('link', { name: /^My list$/ })).not.toBeInTheDocument()
-  expect(fake.rpc).toHaveBeenCalledWith('leave_league', { p_season_id: 's-1' })
+  await screen.findByText('Submitted')
+  expect(screen.queryByRole('button', { name: 'Leave league' })).not.toBeInTheDocument()
 })
 
 it.each(['locked', 'live'])('closes joining when the server stage is %s', async stage => {
@@ -108,11 +98,10 @@ it('shows a lock race as an error and preserves the viewer state', async () => {
   expect(fake.state.member).toBeNull()
 })
 
-it('allows leaving after lock and asks the admin about a flagged list', async () => {
+it('asks the admin about a flagged list after lock', async () => {
   scenario(true, 'locked', true, true)
   renderApp('/')
   await screen.findByText('Not submitted yet.')
   expect(screen.getByText(/faction pool changed/)).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Leave league' })).toBeInTheDocument()
   expect(screen.queryByRole('link', { name: 'Review and submit' })).not.toBeInTheDocument()
 })

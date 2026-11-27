@@ -81,13 +81,9 @@ test('S16: a viewer with the season open', async ({ page }, testInfo: TestInfo) 
 test('S16: a prospect with the season open', async ({ page }) => {
   test.setTimeout(120_000)
   await seedOpenSeason()
-  // Submitted list, then the leave dialog.
+  // Submitted list.
   await signInFast(page, cast('Delaney'))
   await audit(page, 'Submitted')
-  await page.getByRole('button', { name: 'Leave league', exact: true }).click()
-  await expect(page.getByRole('dialog')).toBeVisible()
-  await expectAccessible(page)
-  await page.getByRole('dialog').getByRole('button', { name: 'Cancel', exact: true }).click()
   await visit(page, '/my-list', 'Add a faction')
   await visit(page, '/players', 'List in')
   // A prospect who has ranked nothing: the warning state and the empty list.

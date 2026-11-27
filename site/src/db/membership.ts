@@ -35,7 +35,3 @@ export async function joinLeague(seasonId: string) {
   if (error) throw new Error(error.message)
 }
 
-export async function leaveLeague(seasonId: string) {
-  const { error } = await getSupabase().rpc('leave_league', { p_season_id: seasonId })
-  if (error) throw new Error(error.message)
-}

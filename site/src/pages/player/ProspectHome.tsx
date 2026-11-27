@@ -1,9 +1,8 @@
-import { useState, type ReactNode } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import type { ReactNode } from 'react'
 import { useLocation } from 'react-router'
 import { findFaction } from '../../data/factions'
-import { leaveLeague, MEMBERSHIP_KEY, type Membership } from '../../db/membership'
-import { Alert, Button, ButtonLink, Card, Modal, Tag } from '../../ui'
+import type { Membership } from '../../db/membership'
+import { Alert, ButtonLink, Card, Tag } from '../../ui'
 
 /** Keep around U5's MyList element: Join opens the picker with this acknowledgement. */
 export function MembershipListEntry({ children }: { children: ReactNode }) {
@@ -12,13 +11,6 @@ export function MembershipListEntry({ children }: { children: ReactNode }) {
 }
 
 export function ProspectHome({ membership: { season, stage, member } }: { membership: Membership }) {
-  const [confirm, setConfirm] = useState(false)
-  const client = useQueryClient()
-  const leave = useMutation({
-    mutationFn: leaveLeague,
-    onSuccess: async () => { await client.invalidateQueries(); setConfirm(false) },
-    onError: () => { void client.invalidateQueries({ queryKey: MEMBERSHIP_KEY }) },
-  })
   if (!member) return null
   const submitted = member.list_in && !member.list_flagged
   const factions = member.ranked_factions ?? []
@@ -35,10 +27,5 @@ export function ProspectHome({ membership: { season, stage, member } }: { member
       </Card>
       <Card pad={16} className="stack"><h2 className="disp h2">Pairings</h2><p className="muted">Not published yet.</p><ButtonLink to="/pairings">See the layout</ButtonLink></Card>
     </div>
-    <div><Button variant="ghost-danger" onClick={() => setConfirm(true)}>Leave league</Button></div>
-    <Modal open={confirm} title="Leave league?" onClose={() => { if (!leave.isPending) setConfirm(false) }} actions={<><Button variant="danger" disabled={leave.isPending} onClick={() => leave.mutate(season.id)}>{leave.isPending ? 'Leaving' : 'Leave league'}</Button><Button disabled={leave.isPending} onClick={() => setConfirm(false)}>Cancel</Button></>}>
-      <p>This removes you from the season and clears your ranked faction list.</p>
-      {leave.isError ? <Alert tone="bad">Could not leave: {leave.error.message}</Alert> : null}
-    </Modal>
   </>
 }

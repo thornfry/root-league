@@ -13,6 +13,15 @@ Entries 13 to 25 come from the user stories review on 2026-11-26, and entries 26
 
 Entries 40 to 51 come from writing the [build sequence](build.md). They are numbered from 40 on purpose: other work on the website branches is adding entries from 27, and starting at 40 keeps the numbers from colliding. The gap from 27 to 39 is not missing entries.
 
+Entries from 52 on come from Will's click-through of the running site on 2026-11-27.
+
+## 52. Players cannot leave the league from the site
+
+- **Date:** 2026-11-27
+- **Context:** Story 4 gives a prospect a Leave league button on Home. Will would rather removing people stay with the admin.
+- **Decision:** Home has no Leave league button. The admin removes people on Roster. The `leave_league` function stays in the database, unused by the site. This supersedes the leave line of story 4 and its row in the permissions table.
+- **Consequence:** A prospect who wants out asks the admin.
+
 ## 51. Test and library choices
 
 - **Date:** 2026-11-26
