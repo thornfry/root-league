@@ -2,7 +2,14 @@
 
 Decisions for the league website, newest first, in a short ADR form. All were made in the planning interview on 2026-11-26. The plan they shape is [plan.md](plan.md). League-wide decisions are on [planning decisions](../decisions.md).
 
-Entries 13 to 24 come from the user stories review on 2026-11-26. Each names the decision it supersedes or reaffirms; the old entries and the [plan](plan.md) are left as they were. The stories are in [user-stories.md](user-stories.md).
+Entries 13 to 25 come from the user stories review on 2026-11-26. Each names the decision it supersedes or reaffirms; the old entries and the [plan](plan.md) are left as they were. The stories are in [user-stories.md](user-stories.md).
+
+## 25. Access is a whitelist of Discord user IDs
+
+- **Date:** 2026-11-26
+- **Context:** Will first wanted login-only, then public reading with a Discord server check ([13](#13-reading-is-open-to-everyone-and-writing-needs-a-discord-sign-in), [14](#14-sign-in-needs-discord-server-membership-and-no-bot-token)), and in between considered personal invite links and codes. He has now decided on a whitelist of Discord user IDs. He knows he has to gather the IDs, using Discord's developer mode.
+- **Decision:** The admin enters each person's Discord user ID ahead of time, with an optional name label. There is one shared season link, which is the site address; it carries no code and is not secret. A Discord sign-in whose user ID is on the whitelist becomes a viewer. Any other sign-in sees only a "not invited" message and no league data. A visitor who has not signed in sees only the sign-in page. Every read and write is checked against the whitelist in the database, so removing an ID cuts off that person at once, including from an open session. There are no per-person codes and no Discord server check. This supersedes 13, which made reading public, and 14, which gated on server membership, and it replaces the gating in the plan's Join section. It leaves [15](#15-joining-is-a-button-that-lands-on-the-waitlist) in place: a whitelisted viewer still clicks Join league and lands on the waitlist. It also leaves the roles in [17](#17-permissions-come-from-four-app-roles) in place, with viewer now meaning whitelisted and signed in.
+- **Consequence:** The site is private to the people Will lists, spectators and pick'em players included, so each spectator needs an ID entered. Sign-in asks Discord for the identity scope only; there is no bot, no bot token and no server ID to configure. A whitelist entry whose ID matches a seeded roster name links that name to the account at first sign-in, so the seed's players need no manual link. Gathering IDs is manual work for Will, and the setup page explains how to copy one. The first admin is the ID entered by the seed.
 
 ## 24. Features cut from v1 after the stories review
 
