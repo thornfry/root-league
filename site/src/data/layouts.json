@@ -1,0 +1,483 @@
+{
+  "8-2-2": {
+    "players": 8,
+    "gamesEach": 2,
+    "maps": 2,
+    "stats": {"meetingSpread": 2, "mostMeetings": 2, "fewestMeetings": 0, "mapRepeats": 2, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":0,"slots":[3,1,5,7]},
+      {"map":1,"slots":[6,2,4,5]},
+      {"map":1,"slots":[0,7,3,4]},
+      {"map":0,"slots":[2,6,1,0]}
+    ]
+  },
+  "8-2-3": {
+    "players": 8,
+    "gamesEach": 2,
+    "maps": 3,
+    "stats": {"meetingSpread": 2, "mostMeetings": 2, "fewestMeetings": 0, "mapRepeats": 1, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":0,"slots":[2,1,6,5]},
+      {"map":1,"slots":[0,7,1,4]},
+      {"map":0,"slots":[4,0,2,3]},
+      {"map":2,"slots":[7,3,5,6]}
+    ]
+  },
+  "8-2-4": {
+    "players": 8,
+    "gamesEach": 2,
+    "maps": 4,
+    "stats": {"meetingSpread": 2, "mostMeetings": 2, "fewestMeetings": 0, "mapRepeats": 0, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":2,"slots":[2,6,0,5]},
+      {"map":1,"slots":[4,0,7,3]},
+      {"map":0,"slots":[5,7,2,1]},
+      {"map":3,"slots":[6,1,3,4]}
+    ]
+  },
+  "8-2-5": {
+    "players": 8,
+    "gamesEach": 2,
+    "maps": 5,
+    "stats": {"meetingSpread": 2, "mostMeetings": 2, "fewestMeetings": 0, "mapRepeats": 0, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":0,"slots":[0,5,1,7]},
+      {"map":3,"slots":[4,7,3,2]},
+      {"map":2,"slots":[6,1,2,5]},
+      {"map":1,"slots":[3,6,0,4]}
+    ]
+  },
+  "8-2-6": {
+    "players": 8,
+    "gamesEach": 2,
+    "maps": 6,
+    "stats": {"meetingSpread": 2, "mostMeetings": 2, "fewestMeetings": 0, "mapRepeats": 0, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":1,"slots":[0,5,1,2]},
+      {"map":2,"slots":[6,1,2,3]},
+      {"map":3,"slots":[7,0,3,4]},
+      {"map":0,"slots":[5,7,4,6]}
+    ]
+  },
+  "8-3-3": {
+    "players": 8,
+    "gamesEach": 3,
+    "maps": 3,
+    "stats": {"meetingSpread": 2, "mostMeetings": 2, "fewestMeetings": 0, "mapRepeats": 3, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":1,"slots":[6,5,0,3]},
+      {"map":0,"slots":[2,3,1,0]},
+      {"map":2,"slots":[4,7,3,5]},
+      {"map":2,"slots":[1,6,2,7]},
+      {"map":1,"slots":[7,0,4,1]},
+      {"map":0,"slots":[5,4,6,2]}
+    ]
+  },
+  "8-3-4": {
+    "players": 8,
+    "gamesEach": 3,
+    "maps": 4,
+    "stats": {"meetingSpread": 2, "mostMeetings": 2, "fewestMeetings": 0, "mapRepeats": 2, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":2,"slots":[1,4,7,6]},
+      {"map":0,"slots":[5,0,4,7]},
+      {"map":1,"slots":[0,6,1,2]},
+      {"map":3,"slots":[2,7,0,3]},
+      {"map":0,"slots":[3,2,6,5]},
+      {"map":1,"slots":[4,5,3,1]}
+    ]
+  },
+  "8-3-5": {
+    "players": 8,
+    "gamesEach": 3,
+    "maps": 5,
+    "stats": {"meetingSpread": 2, "mostMeetings": 2, "fewestMeetings": 0, "mapRepeats": 1, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":3,"slots":[2,7,1,6]},
+      {"map":2,"slots":[6,3,7,5]},
+      {"map":1,"slots":[4,0,5,7]},
+      {"map":0,"slots":[3,2,6,0]},
+      {"map":0,"slots":[5,1,2,4]},
+      {"map":4,"slots":[1,4,0,3]}
+    ]
+  },
+  "8-3-6": {
+    "players": 8,
+    "gamesEach": 3,
+    "maps": 6,
+    "stats": {"meetingSpread": 2, "mostMeetings": 2, "fewestMeetings": 0, "mapRepeats": 0, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":1,"slots":[6,3,2,4]},
+      {"map":3,"slots":[7,5,0,6]},
+      {"map":0,"slots":[0,4,6,1]},
+      {"map":2,"slots":[2,1,7,0]},
+      {"map":4,"slots":[5,2,1,3]},
+      {"map":5,"slots":[4,7,3,5]}
+    ]
+  },
+  "8-4-4": {
+    "players": 8,
+    "gamesEach": 4,
+    "maps": 4,
+    "stats": {"meetingSpread": 1, "mostMeetings": 2, "fewestMeetings": 1, "mapRepeats": 4, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":0,"slots":[1,4,7,6]},
+      {"map":1,"slots":[3,2,6,4]},
+      {"map":1,"slots":[5,0,4,7]},
+      {"map":2,"slots":[6,5,3,1]},
+      {"map":3,"slots":[7,3,1,0]},
+      {"map":0,"slots":[2,7,5,3]},
+      {"map":3,"slots":[0,6,2,5]},
+      {"map":2,"slots":[4,1,0,2]}
+    ]
+  },
+  "8-4-5": {
+    "players": 8,
+    "gamesEach": 4,
+    "maps": 5,
+    "stats": {"meetingSpread": 1, "mostMeetings": 2, "fewestMeetings": 1, "mapRepeats": 3, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":4,"slots":[0,7,6,2]},
+      {"map":0,"slots":[7,5,1,6]},
+      {"map":0,"slots":[4,2,3,5]},
+      {"map":2,"slots":[1,6,4,3]},
+      {"map":3,"slots":[2,4,0,1]},
+      {"map":2,"slots":[5,0,7,4]},
+      {"map":1,"slots":[3,1,2,7]},
+      {"map":1,"slots":[6,3,5,0]}
+    ]
+  },
+  "8-4-6": {
+    "players": 8,
+    "gamesEach": 4,
+    "maps": 6,
+    "stats": {"meetingSpread": 1, "mostMeetings": 2, "fewestMeetings": 1, "mapRepeats": 2, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":1,"slots":[7,5,6,3]},
+      {"map":4,"slots":[1,3,4,6]},
+      {"map":3,"slots":[5,7,1,0]},
+      {"map":0,"slots":[4,2,5,1]},
+      {"map":2,"slots":[3,4,2,7]},
+      {"map":0,"slots":[0,6,7,4]},
+      {"map":5,"slots":[2,0,3,5]},
+      {"map":1,"slots":[6,1,0,2]}
+    ]
+  },
+  "10-2-2": {
+    "players": 10,
+    "gamesEach": 2,
+    "maps": 2,
+    "stats": {"meetingSpread": 1, "mostMeetings": 1, "fewestMeetings": 0, "mapRepeats": 4, "mapRepeatsLowerBound": 2},
+    "games": [
+      {"map":1,"slots":[4,1,7,9]},
+      {"map":1,"slots":[0,6,1,2]},
+      {"map":0,"slots":[3,9,5,6]},
+      {"map":0,"slots":[8,2,3,7]},
+      {"map":0,"slots":[5,8,4,0]}
+    ]
+  },
+  "10-2-3": {
+    "players": 10,
+    "gamesEach": 2,
+    "maps": 3,
+    "stats": {"meetingSpread": 1, "mostMeetings": 1, "fewestMeetings": 0, "mapRepeats": 2, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":1,"slots":[0,6,7,4]},
+      {"map":0,"slots":[3,7,5,1]},
+      {"map":1,"slots":[9,1,4,8]},
+      {"map":2,"slots":[8,2,3,6]},
+      {"map":0,"slots":[5,9,2,0]}
+    ]
+  },
+  "10-2-4": {
+    "players": 10,
+    "gamesEach": 2,
+    "maps": 4,
+    "stats": {"meetingSpread": 1, "mostMeetings": 1, "fewestMeetings": 0, "mapRepeats": 1, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":1,"slots":[8,5,4,3]},
+      {"map":2,"slots":[2,3,9,1]},
+      {"map":0,"slots":[7,9,6,5]},
+      {"map":0,"slots":[6,0,1,8]},
+      {"map":3,"slots":[4,7,2,0]}
+    ]
+  },
+  "10-2-5": {
+    "players": 10,
+    "gamesEach": 2,
+    "maps": 5,
+    "stats": {"meetingSpread": 1, "mostMeetings": 1, "fewestMeetings": 0, "mapRepeats": 0, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":3,"slots":[1,3,8,7]},
+      {"map":1,"slots":[5,7,0,4]},
+      {"map":4,"slots":[9,0,3,6]},
+      {"map":0,"slots":[8,9,4,2]},
+      {"map":2,"slots":[6,1,2,5]}
+    ]
+  },
+  "10-2-6": {
+    "players": 10,
+    "gamesEach": 2,
+    "maps": 6,
+    "stats": {"meetingSpread": 1, "mostMeetings": 1, "fewestMeetings": 0, "mapRepeats": 0, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":4,"slots":[5,4,9,2]},
+      {"map":2,"slots":[1,0,7,9]},
+      {"map":3,"slots":[8,7,4,6]},
+      {"map":0,"slots":[3,8,2,0]},
+      {"map":1,"slots":[6,3,1,5]}
+    ]
+  },
+  "10-4-4": {
+    "players": 10,
+    "gamesEach": 4,
+    "maps": 4,
+    "stats": {"meetingSpread": 1, "mostMeetings": 2, "fewestMeetings": 1, "mapRepeats": 7, "mapRepeatsLowerBound": 4},
+    "games": [
+      {"map":1,"slots":[5,0,8,7]},
+      {"map":0,"slots":[0,5,2,9]},
+      {"map":0,"slots":[4,3,6,5]},
+      {"map":2,"slots":[9,8,3,6]},
+      {"map":3,"slots":[1,4,5,8]},
+      {"map":2,"slots":[2,6,7,1]},
+      {"map":0,"slots":[8,7,4,2]},
+      {"map":1,"slots":[6,9,0,4]},
+      {"map":1,"slots":[3,2,1,0]},
+      {"map":3,"slots":[7,1,9,3]}
+    ]
+  },
+  "10-4-5": {
+    "players": 10,
+    "gamesEach": 4,
+    "maps": 5,
+    "stats": {"meetingSpread": 1, "mostMeetings": 2, "fewestMeetings": 1, "mapRepeats": 5, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":0,"slots":[5,2,7,1]},
+      {"map":2,"slots":[6,8,2,3]},
+      {"map":3,"slots":[0,9,4,2]},
+      {"map":4,"slots":[4,6,1,0]},
+      {"map":1,"slots":[2,7,6,9]},
+      {"map":3,"slots":[3,0,5,6]},
+      {"map":1,"slots":[8,5,0,7]},
+      {"map":2,"slots":[7,1,3,4]},
+      {"map":0,"slots":[9,4,8,5]},
+      {"map":4,"slots":[1,3,9,8]}
+    ]
+  },
+  "10-4-6": {
+    "players": 10,
+    "gamesEach": 4,
+    "maps": 6,
+    "stats": {"meetingSpread": 1, "mostMeetings": 2, "fewestMeetings": 1, "mapRepeats": 4, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":2,"slots":[3,0,1,2]},
+      {"map":0,"slots":[4,3,8,7]},
+      {"map":4,"slots":[1,9,5,4]},
+      {"map":1,"slots":[7,1,6,8]},
+      {"map":0,"slots":[6,4,2,5]},
+      {"map":3,"slots":[9,6,3,1]},
+      {"map":5,"slots":[0,7,4,9]},
+      {"map":2,"slots":[8,5,0,6]},
+      {"map":3,"slots":[5,2,7,3]},
+      {"map":1,"slots":[2,8,9,0]}
+    ]
+  },
+  "12-2-2": {
+    "players": 12,
+    "gamesEach": 2,
+    "maps": 2,
+    "stats": {"meetingSpread": 1, "mostMeetings": 1, "fewestMeetings": 0, "mapRepeats": 4, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":1,"slots":[2,3,1,6]},
+      {"map":0,"slots":[11,1,4,7]},
+      {"map":0,"slots":[7,0,2,5]},
+      {"map":1,"slots":[10,4,6,9]},
+      {"map":0,"slots":[8,10,5,3]},
+      {"map":1,"slots":[9,11,0,8]}
+    ]
+  },
+  "12-2-3": {
+    "players": 12,
+    "gamesEach": 2,
+    "maps": 3,
+    "stats": {"meetingSpread": 1, "mostMeetings": 1, "fewestMeetings": 0, "mapRepeats": 0, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":0,"slots":[10,1,4,5]},
+      {"map":1,"slots":[8,3,5,9]},
+      {"map":0,"slots":[0,11,3,7]},
+      {"map":2,"slots":[2,9,1,0]},
+      {"map":1,"slots":[6,10,7,2]},
+      {"map":2,"slots":[11,4,6,8]}
+    ]
+  },
+  "12-2-4": {
+    "players": 12,
+    "gamesEach": 2,
+    "maps": 4,
+    "stats": {"meetingSpread": 1, "mostMeetings": 1, "fewestMeetings": 0, "mapRepeats": 0, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":0,"slots":[0,10,1,8]},
+      {"map":1,"slots":[5,9,7,10]},
+      {"map":1,"slots":[3,1,6,4]},
+      {"map":2,"slots":[11,0,4,7]},
+      {"map":3,"slots":[8,6,2,5]},
+      {"map":0,"slots":[9,11,3,2]}
+    ]
+  },
+  "12-2-5": {
+    "players": 12,
+    "gamesEach": 2,
+    "maps": 5,
+    "stats": {"meetingSpread": 1, "mostMeetings": 1, "fewestMeetings": 0, "mapRepeats": 0, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":1,"slots":[3,6,0,7]},
+      {"map":3,"slots":[8,7,1,4]},
+      {"map":0,"slots":[2,9,4,6]},
+      {"map":0,"slots":[1,0,11,10]},
+      {"map":2,"slots":[10,2,3,5]},
+      {"map":4,"slots":[11,5,8,9]}
+    ]
+  },
+  "12-2-6": {
+    "players": 12,
+    "gamesEach": 2,
+    "maps": 6,
+    "stats": {"meetingSpread": 1, "mostMeetings": 1, "fewestMeetings": 0, "mapRepeats": 0, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":2,"slots":[9,10,1,0]},
+      {"map":5,"slots":[7,1,3,5]},
+      {"map":3,"slots":[3,0,8,6]},
+      {"map":4,"slots":[2,11,7,9]},
+      {"map":1,"slots":[11,6,5,4]},
+      {"map":0,"slots":[10,2,4,8]}
+    ]
+  },
+  "12-3-3": {
+    "players": 12,
+    "gamesEach": 3,
+    "maps": 3,
+    "stats": {"meetingSpread": 1, "mostMeetings": 1, "fewestMeetings": 0, "mapRepeats": 6, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":2,"slots":[8,7,1,2]},
+      {"map":2,"slots":[0,2,11,4]},
+      {"map":0,"slots":[7,4,10,6]},
+      {"map":1,"slots":[9,0,6,8]},
+      {"map":1,"slots":[1,9,4,5]},
+      {"map":2,"slots":[5,6,2,3]},
+      {"map":0,"slots":[11,5,8,10]},
+      {"map":1,"slots":[3,11,9,7]},
+      {"map":0,"slots":[10,3,0,1]}
+    ]
+  },
+  "12-3-4": {
+    "players": 12,
+    "gamesEach": 3,
+    "maps": 4,
+    "stats": {"meetingSpread": 1, "mostMeetings": 1, "fewestMeetings": 0, "mapRepeats": 5, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":0,"slots":[1,11,4,10]},
+      {"map":1,"slots":[7,1,8,5]},
+      {"map":2,"slots":[4,8,3,9]},
+      {"map":2,"slots":[2,0,5,4]},
+      {"map":0,"slots":[10,5,6,3]},
+      {"map":1,"slots":[0,9,1,6]},
+      {"map":3,"slots":[11,6,2,8]},
+      {"map":0,"slots":[9,2,10,7]},
+      {"map":3,"slots":[3,7,11,0]}
+    ]
+  },
+  "12-3-5": {
+    "players": 12,
+    "gamesEach": 3,
+    "maps": 5,
+    "stats": {"meetingSpread": 1, "mostMeetings": 1, "fewestMeetings": 0, "mapRepeats": 4, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":0,"slots":[1,10,2,7]},
+      {"map":0,"slots":[9,8,1,0]},
+      {"map":4,"slots":[8,11,7,4]},
+      {"map":2,"slots":[6,2,3,8]},
+      {"map":3,"slots":[5,9,11,2]},
+      {"map":3,"slots":[4,6,5,1]},
+      {"map":1,"slots":[11,0,10,6]},
+      {"map":2,"slots":[7,5,0,3]},
+      {"map":1,"slots":[10,3,4,9]}
+    ]
+  },
+  "12-3-6": {
+    "players": 12,
+    "gamesEach": 3,
+    "maps": 6,
+    "stats": {"meetingSpread": 1, "mostMeetings": 1, "fewestMeetings": 0, "mapRepeats": 3, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":1,"slots":[8,2,10,7]},
+      {"map":4,"slots":[1,3,9,2]},
+      {"map":5,"slots":[0,5,7,3]},
+      {"map":2,"slots":[10,6,0,9]},
+      {"map":0,"slots":[4,0,2,11]},
+      {"map":1,"slots":[5,10,11,1]},
+      {"map":3,"slots":[9,8,4,5]},
+      {"map":0,"slots":[6,11,3,8]},
+      {"map":2,"slots":[7,1,6,4]}
+    ]
+  },
+  "12-4-4": {
+    "players": 12,
+    "gamesEach": 4,
+    "maps": 4,
+    "stats": {"meetingSpread": 1, "mostMeetings": 2, "fewestMeetings": 1, "mapRepeats": 9, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":1,"slots":[6,8,10,7]},
+      {"map":3,"slots":[4,7,3,1]},
+      {"map":1,"slots":[3,2,9,6]},
+      {"map":3,"slots":[8,1,2,11]},
+      {"map":2,"slots":[0,5,8,3]},
+      {"map":2,"slots":[7,11,6,0]},
+      {"map":0,"slots":[9,4,11,8]},
+      {"map":0,"slots":[11,3,5,10]},
+      {"map":1,"slots":[5,6,1,4]},
+      {"map":0,"slots":[2,9,7,5]},
+      {"map":2,"slots":[10,0,4,2]},
+      {"map":3,"slots":[1,10,0,9]}
+    ]
+  },
+  "12-4-5": {
+    "players": 12,
+    "gamesEach": 4,
+    "maps": 5,
+    "stats": {"meetingSpread": 1, "mostMeetings": 2, "fewestMeetings": 1, "mapRepeats": 7, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":0,"slots":[0,5,11,8]},
+      {"map":2,"slots":[11,10,7,2]},
+      {"map":4,"slots":[6,11,8,4]},
+      {"map":1,"slots":[7,4,5,9]},
+      {"map":4,"slots":[8,2,3,7]},
+      {"map":0,"slots":[3,0,4,10]},
+      {"map":1,"slots":[9,3,1,11]},
+      {"map":3,"slots":[5,6,10,3]},
+      {"map":0,"slots":[1,7,6,0]},
+      {"map":3,"slots":[4,1,2,5]},
+      {"map":2,"slots":[10,8,9,1]},
+      {"map":1,"slots":[2,9,0,6]}
+    ]
+  },
+  "12-4-6": {
+    "players": 12,
+    "gamesEach": 4,
+    "maps": 6,
+    "stats": {"meetingSpread": 1, "mostMeetings": 2, "fewestMeetings": 1, "mapRepeats": 6, "mapRepeatsLowerBound": 0},
+    "games": [
+      {"map":4,"slots":[9,2,5,7]},
+      {"map":2,"slots":[5,1,3,8]},
+      {"map":1,"slots":[4,8,0,2]},
+      {"map":0,"slots":[2,11,10,3]},
+      {"map":4,"slots":[0,10,1,5]},
+      {"map":3,"slots":[8,7,6,10]},
+      {"map":2,"slots":[1,9,2,6]},
+      {"map":0,"slots":[11,0,8,9]},
+      {"map":5,"slots":[10,3,9,4]},
+      {"map":3,"slots":[7,4,11,1]},
+      {"map":5,"slots":[6,5,4,11]},
+      {"map":1,"slots":[3,6,7,0]}
+    ]
+  }
+}
