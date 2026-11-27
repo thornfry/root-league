@@ -9,6 +9,7 @@ import { Roster } from './pages/admin/Roster'
 import { MyList } from './pages/player/MyList'
 import { LeagueInfo } from './pages/player/LeagueInfo'
 import { Players } from './pages/player/Players'
+import { PickemLeaderboard, Pickems } from './pages/player/Pickems'
 
 // One line per route, to keep merges small. A later commit replaces a line's element with its page.
 export const routes: RouteObject[] = [
@@ -20,8 +21,8 @@ export const routes: RouteObject[] = [
       { path: '/players', element: <Players /> },
       { path: '/pairings', element: <Pairings /> },
       { path: '/game/:gameNo', element: <Game /> },
-      { path: '/pickems', HydrateFallback: () => <h1>Pick&apos;ems</h1>, lazy: async () => ({ Component: (await import('./pages/player/Pickems')).Pickems }) },
-      { path: '/pickems/leaderboard', HydrateFallback: () => <h1>Pick&apos;em leaderboard</h1>, lazy: async () => ({ Component: (await import('./pages/player/Pickems')).PickemLeaderboard }) },
+      { path: '/pickems', element: <Pickems /> },
+      { path: '/pickems/leaderboard', element: <PickemLeaderboard /> },
       { path: '/my-list', element: <MembershipListEntry><MyList /></MembershipListEntry> },
       { path: '/info', element: <LeagueInfo /> },
       { path: '/info/:page', element: <LeagueInfo /> },
