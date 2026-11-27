@@ -3,6 +3,7 @@ import { AppRoot, CONSENT_PATH, LeaveGate, RequireAdmin } from './auth/AppGate'
 import { Placeholder } from './pages/Placeholder'
 import { Home } from './pages/player/Home'
 import { MembershipListEntry } from './pages/player/ProspectHome'
+import { Roster } from './pages/admin/Roster'
 import { LeagueInfo } from './pages/player/LeagueInfo'
 import { Players } from './pages/player/Players'
 
@@ -26,7 +27,7 @@ export const routes: RouteObject[] = [
         children: [
           { path: '/admin', element: <Placeholder title="Dashboard" /> },
           { path: '/admin/whitelist', element: <Placeholder title="Whitelist" /> },
-          { path: '/admin/roster', element: <Placeholder title="Roster" /> },
+          { path: '/admin/roster', element: <Roster /> },
           { path: '/admin/season', HydrateFallback: () => <p role="status">Loading season</p>, lazy: async () => ({ Component: (await import('./pages/admin/Season')).Season }) },
           { path: '/admin/start', element: <Placeholder title="Start season" /> },
           { path: '/admin/disputes', element: <Placeholder title="Disputes" /> },
