@@ -5,13 +5,139 @@ export type Database = {
   
   "public": {
           Tables: {
-            [_ in never]: never
+            "app_config": {
+                  Row: {
+                    "key": string,"value": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "key": string,"value": string
+                  }
+                  Update: {
+                    "key"?: string,"value"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"edit_log": {
+                  Row: {
+                    "action": string,"actor_person_id": string | null,"at": string,"id": number,"new": Json | null,"old": Json | null,"row_key": string | null,"table_name": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"actor_person_id"?: string | null,"at"?: string,"id"?: never,"new"?: Json | null,"old"?: Json | null,"row_key"?: string | null,"table_name": string
+                  }
+                  Update: {
+                    "action"?: string,"actor_person_id"?: string | null,"at"?: string,"id"?: never,"new"?: Json | null,"old"?: Json | null,"row_key"?: string | null,"table_name"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"people": {
+                  Row: {
+                    "auth_user_id": string | null,"discord_id": string | null,"display_name": string,"id": string,"seed_key": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "auth_user_id"?: string | null,"discord_id"?: string | null,"display_name": string,"id"?: string,"seed_key"?: string | null
+                  }
+                  Update: {
+                    "auth_user_id"?: string | null,"discord_id"?: string | null,"display_name"?: string,"id"?: string,"seed_key"?: string | null
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"whitelist": {
+                  Row: {
+                    "added_at": string,"added_by": string | null,"discord_id": string,"is_admin": boolean,"label": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "added_at"?: string,"added_by"?: string | null,"discord_id": string,"is_admin"?: boolean,"label"?: string | null
+                  }
+                  Update: {
+                    "added_at"?: string,"added_by"?: string | null,"discord_id"?: string,"is_admin"?: boolean,"label"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "whitelist_added_by_fkey"
+      columns: ["added_by"]
+isOneToOne: false
+      referencedRelation: "people"
+      referencedColumns: ["id"]
+    }
+                  ]
+                }
           }
           Views: {
             [_ in never]: never
           }
           Functions: {
-            [_ in never]: never
+            "ensure_person":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "auth_user_id": string | null,
+"discord_id": string | null,
+"display_name": string,
+"id": string,
+"seed_key": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "people"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"whitelist_add":
+{ Args: { "p_discord_id": string,"p_label"?: string }; Returns: {
+              "added_at": string,
+"added_by": string | null,
+"discord_id": string,
+"is_admin": boolean,
+"label": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "whitelist"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"whitelist_add_many":
+{ Args: { "p_entries": Json }; Returns: number
+                           },
+"whitelist_label":
+{ Args: { "p_discord_id": string,"p_label": string }; Returns: {
+              "added_at": string,
+"added_by": string | null,
+"discord_id": string,
+"is_admin": boolean,
+"label": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "whitelist"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"whitelist_remove":
+{ Args: { "p_discord_id": string }; Returns: undefined
+                           },
+"whitelist_set_admin":
+{ Args: { "p_discord_id": string,"p_is_admin": boolean }; Returns: {
+              "added_at": string,
+"added_by": string | null,
+"discord_id": string,
+"is_admin": boolean,
+"label": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "whitelist"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"whoami":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           }
           }
           Enums: {
             [_ in never]: never
