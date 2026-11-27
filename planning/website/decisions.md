@@ -2,6 +2,113 @@
 
 Decisions for the league website, newest first, in a short ADR form. All were made in the planning interview on 2026-11-26. The plan they shape is [plan.md](plan.md). League-wide decisions are on [planning decisions](../decisions.md).
 
+Entries 13 to 25 come from the user stories review on 2026-11-26, and entries 26 and 27 from the design review the same day. Each names the decision it supersedes or reaffirms; the old entries and the [plan](plan.md) are left as they were. The stories are in [user-stories.md](user-stories.md).
+
+## 27. Ranked lists are private until the lists lock date
+
+- **Date:** 2026-11-26
+- **Context:** Story 3, [5](#5-everything-is-public-including-ranked-lists) and [25](#25-access-is-a-whitelist-of-discord-user-ids) let everyone who can read the site, which is now every whitelisted person, see ranked lists as soon as they are saved. The approved design hides them until lock ([26](#26-the-approved-design-amends-the-story-screens)) and left it as an open item. Will has confirmed it.
+- **Decision:** A ranked faction list is visible only to its owner and the admin until the lists lock date. Before lock, the Players page shows each person's name and whether their list is in, and nothing else; after lock, it shows every ranked list to everyone who can read the site. The rule is enforced in the database read policy, not only on the screen, so another person's list cannot be fetched before lock. The admin still sees and edits every list at any time (Players, Roster and Fix it). This supersedes the list-visibility lines of story 3, the "public, including ranked lists" decision in 5, and the "ranked lists readable from the moment they are saved" consequence in 25. Everything else in 5 and 25 stands: the site is readable only by whitelisted people, and writes need a sign-in.
+- **Consequence:** Players cannot copy or counter each other's lists while ranking. The repo's `preferences.json` is already public, so this hides lists only on the site, and only the seed's lists were ever in the open. The read policy needs a lock-date check, and the admin's CSV export includes lists regardless.
+
+## 26. The approved design amends the story screens
+
+- **Date:** 2026-11-26
+- **Context:** Will reviewed the design canvas ([design.md](design.md)) with comments and approved it. Several screens differ from the stories: they are simpler than the stories describe.
+- **Decision:** The canvas is the source of truth for screens. It drops the Join page and the queue place (Join league goes straight to faction picking), the per-player answer list and confirmation counts on a game, the badge reading guide, role tags for players, and the large lock countdown card. It adds a Submit list button, a Your games block on Home, and a phone menu. The Players page shows only who has a list in until lists lock. The rules in the stories are unchanged: disputes, submissions and their log, pool-change flags and the lock date all stay. The full list is on [design.md](design.md#changed-from-the-stories). This supersedes the story text it names, for the screens only.
+- **Consequence:** The stories are not edited. A builder reads the design for what to show and the stories for what must be true. Three points wait for Will: whether disputes stay, whether ranked lists stay hidden until lock, and the countdown line.
+
+## 25. Access is a whitelist of Discord user IDs
+
+- **Date:** 2026-11-26
+- **Context:** Will first wanted login-only, then public reading with a Discord server check ([13](#13-reading-is-open-to-everyone-and-writing-needs-a-discord-sign-in), [14](#14-sign-in-needs-discord-server-membership-and-no-bot-token)), and in between considered personal invite links and codes. He has now decided on a whitelist of Discord user IDs. He knows he has to gather the IDs, using Discord's developer mode.
+- **Decision:** The admin enters each person's Discord user ID ahead of time, with an optional name label. There is one shared season link, which is the site address; it carries no code and is not secret. A Discord sign-in whose user ID is on the whitelist becomes a viewer. Any other sign-in sees only a "not invited" message and no league data. A visitor who has not signed in sees only the sign-in page. Every read and write is checked against the whitelist in the database, so removing an ID cuts off that person at once, including from an open session. There are no per-person codes and no Discord server check. This supersedes 13, which made reading public, and 14, which gated on server membership, and it replaces the gating in the plan's Join section. It leaves [15](#15-joining-is-a-button-that-lands-on-the-waitlist) in place: a whitelisted viewer still clicks Join league and lands on the waitlist. It also leaves the roles in [17](#17-permissions-come-from-four-app-roles) in place, with viewer now meaning whitelisted and signed in.
+- **Consequence:** The site is private to the people Will lists, spectators and pick'em players included, so each spectator needs an ID entered. Sign-in asks Discord for the identity scope only; there is no bot, no bot token and no server ID to configure. A whitelist entry whose ID matches a seeded roster name links that name to the account at first sign-in, so the seed's players need no manual link. Gathering IDs is manual work for Will, and the setup page explains how to copy one. The first admin is the ID entered by the seed.
+
+## 24. Features cut from v1 after the stories review
+
+- **Date:** 2026-11-26
+- **Context:** Will asked for the stories to be reviewed and fluff cut. Several plan features no longer earn their place once the bot token, the repo export and the separate pairing run are gone.
+- **Decision:** Cut from v1: the `/result` and `/mypairings` slash commands and the channel posts (supersedes [11](#11-discord-app-http-slash-commands-and-channel-posts-in-v1-built-last)); the season archive page and season switcher (supersedes the UI half of [8](#8-seasons-are-in-the-data-model-the-ui-shows-the-current-one); the data model keeps `season_id`); the stale-draft guard (supersedes the last sentence of [9](#9-faction-lists-lock-at-a-fixed-deadline-enforced-automatically)); the Export page for `preferences.json`, `pairings.md` and `roster.md`, replaced by CSV in [23](#23-the-admin-fix-it-screen-and-csv-replace-the-repo-export); the Discord role gate; the separate Player page; the recent-results block on Home; the pairings filters by player and map, replaced by Mine, All, Completed and Upcoming; Copy roster when creating a season.
+- **Consequence:** Less to build and keep in step. A dispute alert is a banner on the admin pages, not a Discord post. Anything cut can return as its own ticket.
+
+## 23. The admin fix-it screen and CSV replace the repo export
+
+- **Date:** 2026-11-26
+- **Context:** Will wants one place where the admin can edit any data on the fly, and wants CSV rather than repo-format files for moving data in and out. [Decision 2](#2-the-database-is-live-the-repo-gets-exported-snapshots) had the admin export three repo files for committing.
+- **Decision:** A Fix it screen lets the admin edit any table's data, with a warning where an edit breaks a pairing rule and the change always allowed. Every edit is written to the append-only log with who made it. CSV export covers faction picks and the whole league state, and the whole league state can be imported back after a preview of what will change. Pairings are not imported; the seat layouts are hardcoded ([21](#21-seat-layouts-are-hardcoded-and-factions-are-assigned-in-the-app)). The database stays the source of truth and the sync direction in decision 2 stays one way. The repo files are a one-time seed.
+- **Consequence:** Anything wrong can be mended in the browser. Anyone wanting the old repo files builds them from the CSV. The Python tool's input format is no longer produced by the site.
+
+## 22. Faction info and league info come from the repo
+
+- **Date:** 2026-11-26
+- **Context:** Players need a short reference when ranking factions and a place to read the league rules. The plan's Rules page only linked out to GitHub.
+- **Decision:** Each faction on the list screen shows its name, type and reach from the faction data file, plus a link to its page on the Root Database or the Law of Root. No summary text is written. The League info section renders `league/format.md`, `league/pairing-rules.md` and `league/how-pairing-works.md` into the site at build time, so the repo stays the only copy.
+- **Consequence:** No text lives in the database or is kept in step by hand. A rule change is a repo commit and a redeploy. Faction links are checked when the faction data file is built.
+
+## 21. Seat layouts are hardcoded and factions are assigned in the app
+
+- **Date:** 2026-11-26
+- **Context:** The expensive part of the pairing tool is tables, seats and maps, and it does not depend on factions. Planning [pairing approach](../pairing-approach.md#suggested-approach) already suggests a fixed, checked template with players shuffled into its slots. Will asked for it, for counts of 8, 10 and 12 players and 2, 3 and 4 games each. This supersedes the plan's single pairing run, the table-and-map part of [3](#3-the-python-pairing-tool-is-ported-to-typescript-and-kept-as-the-reference), and the planning decision that 8 players are not planned for, for the site only.
+- **Decision:** The site ships one precomputed layout for each valid pair: 8 players with 2, 3 or 4 games, 10 with 2 or 4, 12 with 2, 3 or 4. A layout holds numbered player slots, the table for each game, the turn-order seat of each slot and the map index, and it is made once by the Python tool or an agent and checked by tests against the pairing rules for meetings, seats and maps. The admin picks capacity and games each from the valid pairs; 10 with 3 is not offered. When the admin starts the season, the site assigns player numbers to the league list at random from a stored seed, then runs the faction step in the browser against the fixed layout. Only that step is ported to TypeScript. Before the season starts, players can see the layout with slot numbers and no names.
+- **Consequence:** No layout search runs on the site, and nothing is imported. A fixed layout gives the faction step less room than choosing among several layouts. If the faction step cannot satisfy the hard rules, the report names the blocking players and tables, and the admin re-rolls the player numbers with a new seed, changes a list, or both. The 8 players with 3 games layout is not even; the setup screen shows the layout's meeting spread so the admin chooses knowing that.
+
+## 20. One lists lock date, then the admin starts the season
+
+- **Date:** 2026-11-26
+- **Context:** Will wanted a date by which pairings and lists must be locked, and pairings generated immediately after. The pairing step needs review and a browser; a server function cannot run it reliably on the free plan.
+- **Decision:** The season has one date, the lists lock. The database refuses player list edits after it; the admin can move it. Once it passes, the admin starts the season in one flow: assign player numbers, assign factions, review the report, publish. Publishing starts the season: the league list becomes league players and joining closes. This reaffirms decision 9 for the lock and supersedes its warning about stale pairings, which cannot occur because lists lock before the faction step runs.
+- **Consequence:** There is no pairings deadline and no scheduling. The admin dashboard shows "lists locked, season not started" as the prompt to act.
+
+## 19. Anyone signed in can pick winners on games they are not in
+
+- **Date:** 2026-11-26
+- **Context:** Will wants a pick'em game, like an NFL pick'em league, open to spectators who sign in with Discord as well as players. It is new and has no earlier decision.
+- **Decision:** For each game a person is not seated in, they can pick a first and a second winner. A first pick that is a winner scores 3, a second pick that is a winner scores 1, and the two must be different players. Picks can be made or changed until a result is recorded for the game, which is the lock. Other people's picks stay hidden until the result is recorded. A season pick'em leaderboard ranks everyone who has made picks. There is no money and no stake.
+- **Consequence:** Picks made after a game was played but before its result was entered cannot be told from picks made before; the admin can delete a pick on the Fix it screen. A game with several winners scores each pick separately, so one person can score 4. Disputed and void games score nothing until resolved.
+
+## 18. Every seated player submits a result and conflicts go to the admin
+
+- **Date:** 2026-11-26
+- **Context:** [Decision 4](#4-players-enter-results-the-admin-can-fix-no-confirmation-step) had one shared result that anyone at the table could overwrite, with no confirmation. Will now wants players to submit and conflicting answers flagged to the admin.
+- **Decision:** Each seated player has their own submission, which they can change until the game is settled. The first submission records the result at once, so pick'ems close and standings count it. A later submission with the same winners confirms it. A submission with different winners marks the game Disputed: it counts for nothing, both answers are shown, and the admin is alerted. A player changing their submission to match clears the dispute. The admin can settle a game with a final answer at any time, which stops further player edits until the admin reopens it. Winners are still one or more players seated at the game ([decision 7](#7-results-record-winners-only-and-each-winner-gets-a-full-win)).
+- **Consequence:** A mistaken first entry counts until someone disagrees. No game waits on all four players. The append-only log and the admin's edit stay as in decision 4.
+
+## 17. Permissions come from four app roles
+
+- **Date:** 2026-11-26
+- **Context:** The plan had a visitor, player and admin permission table enforced in policies. Will wants roles the app tracks itself, so that actions map to permissions and the admin assigns roles.
+- **Decision:** Four roles, held in a roles table, each a fixed bundle of permissions defined in code. Viewer: anyone who has signed in. Prospect: anyone who has clicked Join league, on the league list or the waitlist before the season starts. League player: anyone on the league list when the admin starts the season. Admin: Will only for now, and more can be assigned later. An unauthenticated visitor holds no role and can read. The admin assigns and removes roles and moves people between the lists; roles are not editable in the app in v1. This supersedes the plan's permission table and the join step in [6](#6-anyone-in-the-discord-server-can-join-the-admin-curates).
+- **Consequence:** Permissions are one table in the stories and one set of checks in the database. Adding a role later is a new bundle, not a rewrite.
+
+## 16. The roster is a league list and a waitlist with a capacity
+
+- **Date:** 2026-11-26
+- **Context:** The plan's roster had Confirmed, Possible and Withdrawn. Will describes a league list, a waitlist as protection against too many joiners, and a seat-number setting. In the interview he agreed that "seat numbers" means the league's capacity. The turn-order seats at a table stay pairing output.
+- **Decision:** A season has a capacity of 8, 10 or 12 (see [21](#21-seat-layouts-are-hardcoded-and-factions-are-assigned-in-the-app)). The roster has two ordered lists, the league list, which can hold at most the capacity, and the waitlist. Only the admin moves people between them, by dragging. Before the season starts, a prospect sees no difference between the two lists and can set a ranked list on either; only the admin sees which one they are on. The statuses Confirmed, Possible and Withdrawn are dropped. The seed maps Confirmed to the league list and Possible to the waitlist.
+- **Consequence:** The league list must hold exactly the capacity before the season can start. A withdrawn player is removed or moved to the waitlist.
+
+## 15. Joining is a button that lands on the waitlist
+
+- **Date:** 2026-11-26
+- **Context:** The plan gated self-join on Discord server membership and an optional role. Will first described a season invite link, then personal single-use links, then dropped links: the admin can move people around before the season starts, and that already keeps non-players out of league actions.
+- **Decision:** No invite links, codes or approval queue. A signed-in viewer clicks Join league, becomes a prospect and lands at the end of the waitlist. The admin drags them onto the league list. This supersedes the joining part of decision 6; sign-in is gated by [14](#14-sign-in-needs-discord-server-membership-and-no-bot-token).
+- **Consequence:** A stranger who is in the Discord server could join the waitlist; they hold no place until the admin moves them. Joining closes when the season starts.
+
+## 14. Sign-in needs Discord server membership and no bot token
+
+- **Date:** 2026-11-26
+- **Context:** Will wants only members of his Discord server to sign in, and no bot token. The plan checked membership at join with a bot token ([6](#6-anyone-in-the-discord-server-can-join-the-admin-curates)), and listed the `guilds.members.read` check with the user's own token as its fallback.
+- **Decision:** Sign-in asks Discord for the `identify` and `guilds.members.read` scopes. Straight after sign-in an Edge Function receives the provider token, asks Discord for the person's member record in the league's server with that token, and records that they are verified. An account that is not verified holds no role and can only read. The check runs on every sign-in. The server ID is public configuration; there is no bot token and no role check. This supersedes decision 6's membership check and the bot parts of [11](#11-discord-app-http-slash-commands-and-channel-posts-in-v1-built-last).
+- **Consequence:** There is no bot to invite and nothing secret to store for sign-in. Leaving the server takes effect at the next sign-in, or when the admin removes the person. The provider token is only available at sign-in, so the check cannot be repeated later without it. The first build commit for it records one run against the real server.
+
+## 13. Reading is open to everyone and writing needs a Discord sign-in
+
+- **Date:** 2026-11-26
+- **Context:** The plan made everything public ([5](#5-everything-is-public-including-ranked-lists)). Will first said only authenticated users should see the tool, then said spectators and friends should be able to look at matchups, with writing gated on login.
+- **Decision:** Every page reads without login: roster, ranked lists, schedule, pairings, results, standings and the pick'em leaderboard. Everything that writes needs a verified Discord sign-in. This reaffirms decision 5, including public ranked lists, and adds the sign-in requirement for the new pick'em writes.
+- **Consequence:** Simple read rules. Spectators see everything players see. Pick'em picks are the exception: they stay hidden until the game's result is recorded ([19](#19-anyone-signed-in-can-pick-winners-on-games-they-are-not-in)).
+
 ## 12. The app lives in site/, beside the existing tooling
 
 - **Date:** 2026-11-26

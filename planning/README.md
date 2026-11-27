@@ -8,7 +8,7 @@ Working material for Will: design notes, spikes, samples and tools. Nothing here
 - [Open questions](open-questions.md): what is still undecided, and findings to confirm.
 - [Pairing approach](pairing-approach.md): how to build pairings, and what each player count allows.
 - [tools/pairing/](tools/pairing/): the pairing tool and its tests. Built before the current rules, so it does not meet them yet; the gaps are on [how pairing works](../league/how-pairing-works.md#known-gaps). Run the tests with `python3 -m unittest` from that folder.
-- [Website](website/plan.md): the plan for the league website (Supabase, a static site on Railway, Discord login and a Discord app), with its [decisions](website/decisions.md).
+- [Website](website/plan.md): the plan for the league website (Supabase, a static site on Railway, Discord login and a Discord app), with its [decisions](website/decisions.md).  Refined [user stories](website/user-stories.md) supersede parts of the plan, and the approved [design](website/design.md) amends the story screens.
 
 ## Season 1
 

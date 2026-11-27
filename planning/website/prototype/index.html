@@ -1,0 +1,1951 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Root League (prototype)</title>
+<!--
+  Root League website: clickable UX prototype, version 2.
+  One self-contained file. No build step, no libraries, no network calls except the Google Fonts stylesheet.
+  Built from the approved user stories (planning/website/user-stories.md), the design canvas, and the later decisions in planning/website/decisions.md (26 and 27).
+  Discord sign-in, Supabase and the faction step are stubbed in this page. League info text is the repo's league/*.md, embedded.
+  Data is saved in this browser's localStorage when available. Use "Reset data" in the purple prototype bar at the foot of the page.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Root League: tokens and components from the design canvas (league.css), plus the app's page layout. */
+:root {
+  --paper: #EEF0EA; --card: #FFFFFF; --ink: #15201B; --ink2: #46544C; --line: #D3D9D0; --line2: #B3BDB0;
+  --forest: #1D4B38; --forest-d: #0F1C16; --forest-wash: #DDE9E0; --amber: #E39A2D;
+  --clay: #8A2F1A; --clay-wash: #F6E1D8; --ok: #1D6B43; --ok-wash: #DCEFE3; --warn: #7A4B00; --warn-wash: #FBEBC7; --warn-ink: #5E3A00;
+  --blue: #2F4858; --blue-wash: #DDE8EE; --link: #1D4B38; --adm: #15201B; --band-line: #8FA699; --sel: #1D4B38;
+  --f-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --f-body: 'Inter', system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --paper: #0F1713; --card: #17211C; --ink: #E8EFEA; --ink2: #A9B8AE; --line: #2A3831; --line2: #4A5C52;
+    --forest: #2E7B58; --forest-wash: #1F3A2D; --clay: #F0A08A; --clay-wash: #3C211A; --ok: #86D6A8; --ok-wash: #173A27; --warn: #F2C56A; --warn-wash: #3B2D0C; --warn-ink: #F6D58E;
+    --blue: #A6CBE0; --blue-wash: #1A2D39; --link: #8FD1AE; --adm: #E8EFEA; --sel: #5FBF8E; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --paper: #0F1713; --card: #17211C; --ink: #E8EFEA; --ink2: #A9B8AE; --line: #2A3831; --line2: #4A5C52;
+  --forest: #2E7B58; --forest-wash: #1F3A2D; --clay: #F0A08A; --clay-wash: #3C211A; --ok: #86D6A8; --ok-wash: #173A27; --warn: #F2C56A; --warn-wash: #3B2D0C; --warn-ink: #F6D58E;
+  --blue: #A6CBE0; --blue-wash: #1A2D39; --link: #8FD1AE; --adm: #E8EFEA; --sel: #5FBF8E; color-scheme: dark; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); }
+.lg { font-family: var(--f-body); color: var(--ink); background: var(--paper); font-size: 15px; line-height: 1.5; box-sizing: border-box; min-height: 100vh; }
+.lg *, .lg *::before, .lg *::after { box-sizing: border-box; }
+.lg h1, .lg h2, .lg h3, .lg p { margin: 0; }
+.lg a { color: var(--link); }
+.disp { font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; line-height: .95; overflow-wrap: anywhere; }
+.num { font-family: var(--f-display); font-weight: 700; font-variant-numeric: tabular-nums; }
+.kicker { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--ink2); }
+.muted { color: var(--ink2); }
+.sr { position: absolute; left: -9999px; }
+.sr:focus { left: 8px; top: 8px; z-index: 100; background: #fff; color: #000; padding: 8px 12px; }
+.band { background: var(--forest-d); color: #E8EFEA; }
+.band .brand { font-family: var(--f-display); font-weight: 700; font-size: 28px; letter-spacing: .06em; text-transform: uppercase; color: #fff; text-decoration: none; }
+.band .brand i { font-style: normal; color: var(--amber); }
+.band nav a { color: #C3D2C9; text-decoration: none; font-size: 15px; font-weight: 500; padding: 22px 0 18px; border-bottom: 3px solid transparent; }
+.band nav a.on { color: #fff; border-bottom-color: var(--amber); }
+.band .who { font-size: 14px; color: #C3D2C9; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+.rule { height: 1px; background: var(--line); border: 0; margin: 0; }
+.tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; line-height: 1; padding: 5px 8px; border-radius: 4px; background: var(--card); color: var(--ink); border: 1px solid var(--line2); white-space: nowrap; }
+.tag.ok { background: var(--ok-wash); color: var(--ok); border-color: transparent; }
+.tag.warn { background: var(--warn-wash); color: var(--warn); border-color: transparent; }
+.tag.bad { background: var(--clay-wash); color: var(--clay); border-color: transparent; }
+.tag.mil { background: var(--clay-wash); color: var(--clay); border-color: transparent; }
+.tag.ins { background: var(--blue-wash); color: var(--blue); border-color: transparent; }
+.tag.mil::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.tag.ins::before { content: ''; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid currentColor; }
+.tag.solid { background: var(--forest); color: #fff; border-color: transparent; }
+.tag.adm { background: var(--adm); color: var(--paper); border-color: transparent; }
+.reach { font-size: 12px; font-weight: 600; color: var(--ink2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.seal { width: 30px; height: 30px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; flex: none; font-family: var(--f-display); font-weight: 700; font-size: 15px; letter-spacing: .03em; color: #fff; background: #555; }
+.seal.lg2 { width: 40px; height: 40px; font-size: 19px; border-radius: 9px; }
+.seal.cats { background: #E8742A; color: #15201B; } .seal.rats { background: #B5432E; } .seal.badgers { background: #6B6F7A; } .seal.moles { background: #7A4E86; }
+.seal.birds { background: #2C6FB7; } .seal.frogs { background: #1F7A59; } .seal.otters { background: #3A9BC1; color: #15201B; } .seal.vagabond { background: #5B6770; }
+.seal.knaves { background: #6B4A2B; } .seal.bats { background: #3B3B7A; } .seal.crows { background: #1F2A33; } .seal.WA { background: #3E7A22; } .seal.lizards { background: #C9A227; color: #15201B; }
+.fchip { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+.fchip .fn { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.fmeta { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 8px; font: 600 15px var(--f-body); border: 1px solid var(--line2); background: var(--card); color: var(--ink); text-decoration: none; cursor: pointer; -webkit-appearance: none; appearance: none; }
+.btn.pri { background: var(--forest); color: #fff; border-color: var(--forest); }
+.btn.danger { color: var(--clay); border-color: var(--clay); }
+.btn.discord { background: #4752C4; border-color: #4752C4; color: #fff; }
+.btn.sm { min-height: 36px; padding: 0 12px; font-size: 14px; }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--link); }
+.btn.dis, .btn[disabled] { opacity: .5; cursor: not-allowed; }
+.lg a.btn { color: var(--ink); text-decoration: none; }
+.lg a.btn.pri, .lg a.btn.discord { color: #fff; }
+.lg a.btn.danger { color: var(--clay); }
+.lg a.btn.ghost { color: var(--link); }
+.btn.ghost.danger { color: var(--clay); }
+.lg a.gno, .gcard .gh a.gno { color: var(--ink); text-decoration: none; }
+.btn:focus-visible, .ib:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible { outline: 3px solid #2B6CB0; outline-offset: 2px; }
+.band a:focus-visible, .band button:focus-visible { outline-color: #9CC3F0; }
+.input, .sel { min-height: 44px; border: 1px solid var(--line2); border-radius: 8px; background: var(--card); padding: 0 12px; font: 500 15px var(--f-body); color: var(--ink); }
+.tbl { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.tbl th { text-align: left; font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink2); padding: 12px 16px; border-bottom: 1px solid var(--line2); background: var(--card); }
+.tbl td { padding: 14px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl tr.lead td { background: var(--forest-wash); }
+.gcard { background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.gcard .gh { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.gcard .gno { font-family: var(--f-display); font-weight: 700; font-size: 30px; line-height: 1; display: inline-flex; align-items: baseline; gap: 10px; flex: 1; }
+.gcard .gno .muted { font-family: var(--f-body); font-size: 14px; font-weight: 500; }
+.gcard .seat { padding: 12px 18px; display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 10px; border-bottom: 1px solid var(--line); }
+.gcard .seat.win { background: var(--ok-wash); }
+.gcard .sno { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--ink2); }
+.gcard .gf { display: flex; align-items: center; gap: 14px; padding: 12px 18px; background: var(--paper); font-size: 13px; color: var(--ink2); }
+.phnote { border: 1px dashed var(--line2); border-radius: 8px; padding: 8px 12px; font-size: 12px; line-height: 1.45; color: var(--ink2); background: var(--paper); }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field label, .lbl { font-size: 13px; font-weight: 600; color: var(--ink); }
+.field input, .field textarea, .field select { min-height: 44px; border: 1px solid var(--line2); border-radius: 8px; background: var(--card); padding: 0 12px; font: 500 15px var(--f-body); color: var(--ink); width: 100%; }
+.field textarea { padding: 10px 12px; line-height: 1.5; min-height: 120px; font-family: ui-monospace, Menlo, monospace; font-size: 14px; }
+.chk, .rad { display: flex; align-items: center; gap: 12px; min-height: 56px; border: 1px solid var(--line2); border-radius: 8px; padding: 0 14px; background: var(--card); cursor: pointer; }
+.chk.on, .rad.on { border: 2px solid var(--sel); background: var(--ok-wash); padding: 0 13px; }
+.rad { min-height: 48px; gap: 10px; }
+.rad.off { opacity: .6; cursor: not-allowed; }
+.chk input, .rad input { width: 24px; height: 24px; accent-color: var(--forest); flex: none; margin: 0; }
+.ib { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--line2); background: var(--card); display: inline-flex; align-items: center; justify-content: center; flex: none; color: var(--ink); cursor: pointer; padding: 0; }
+.ib[disabled] { opacity: .4; cursor: not-allowed; }
+.alert { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 8px; font-size: 14px; line-height: 1.5; }
+.alert svg { flex: none; margin-top: 2px; }
+.alert > div { min-width: 0; overflow-wrap: anywhere; }
+.alert.warn { background: var(--warn-wash); color: var(--warn-ink); }
+.alert.bad { background: var(--clay-wash); color: var(--clay); }
+.alert.ok { background: var(--ok-wash); color: var(--ok); }
+.alert.info { background: var(--blue-wash); color: var(--blue); }
+.alert a { color: inherit; }
+.tag.adm.who2 { margin-left: 4px; }
+
+/* ---- app layout ---- */
+.hd-desk { display: none; }
+.page { max-width: 1280px; margin: 0 auto; padding: 24px 16px 120px; display: flex; flex-direction: column; gap: 22px; }
+.page > * { min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.stack8 { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.stack18 { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.rowb { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.p16 { padding: 16px; } .p18 { padding: 18px; } .p20 { padding: 20px; }
+.h1 { font-size: clamp(48px, 17vw, 72px); } .h1s { font-size: clamp(40px, 13vw, 56px); }
+.h2 { font-size: 30px; } .h2b { font-size: 34px; }
+.cols2 { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.cols-main, .cols-side { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.cols-main > *, .cols-side > * { min-width: 0; }
+.cols3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.hd-phone .bar { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 16px; gap: 8px; }
+.menu-btn { width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--band-line); background: transparent; color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.mlink { display: flex; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1px solid var(--line); font-weight: 600; font-size: 17px; text-decoration: none; color: var(--ink) !important; }
+.mlink.on { box-shadow: inset 4px 0 0 var(--amber); padding-left: 12px; }
+.dtop { max-width: 1280px; margin: 0 auto; padding: 0 64px; }
+.gate { max-width: 440px; margin: 0 auto; padding: 48px 16px 40px; display: flex; flex-direction: column; gap: 22px; }
+.sticky-sub { position: fixed; left: 0; right: 0; bottom: 51px; z-index: 30; padding: 10px 16px; background: var(--card); border-top: 1px solid var(--line2); display: flex; gap: 10px; justify-content: center; }
+.sticky-sub .btn { flex: 1; max-width: 420px; }
+.gtable { display: none; }
+.tbl-wrap { overflow-x: auto; }
+.lrow { display: grid; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.lrow:last-child { border-bottom: 0; }
+.lrow.lead { background: var(--forest-wash); }
+.rk { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; font-size: 18px; border-radius: 6px; }
+.rk.top { background: var(--amber); color: #15201B; }
+.listhead { padding: 10px 16px; border-bottom: 1px solid var(--line2); display: grid; gap: 8px; }
+.pill { display: flex; gap: 8px; flex-wrap: wrap; }
+.drop { outline: 2px dashed var(--sel); outline-offset: -4px; }
+.dragrow { cursor: grab; }
+.faclist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.facadd { padding: 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.facadd .fchip .fn { font-size: 14px; }
+.md h1 { font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; line-height: .95; font-size: clamp(44px, 12vw, 64px); margin: 0 0 14px; }
+.md h2 { font-family: var(--f-display); font-weight: 700; text-transform: uppercase; font-size: 30px; line-height: 1; margin: 26px 0 10px; }
+.md p { margin: 0 0 12px; max-width: 70ch; }
+.md ol, .md ul { padding-left: 24px; margin: 0 0 14px; max-width: 70ch; }
+.md li { margin: 0 0 10px; }
+.md ol > li::marker { font-family: var(--f-display); font-weight: 700; font-size: 1.15em; color: var(--ink2); }
+.md code { font-family: ui-monospace, Menlo, monospace; font-size: .9em; background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+.md a { overflow-wrap: anywhere; }
+.modalbk { position: fixed; inset: 0; background: rgba(8, 14, 11, .6); z-index: 80; display: flex; align-items: flex-end; justify-content: center; padding: 0; }
+.modalbk[hidden] { display: none; }
+.modal { background: var(--card); color: var(--ink); width: 100%; max-width: 520px; border-radius: 14px 14px 0 0; padding: 20px 16px 24px; display: flex; flex-direction: column; gap: 14px; max-height: 90vh; overflow: auto; font-family: var(--f-body); }
+.toast { position: fixed; left: 50%; bottom: 64px; transform: translateX(-50%); background: #15201B; color: #fff; padding: 12px 16px; border-radius: 8px; z-index: 90; font: 600 14px var(--f-body); max-width: calc(100vw - 32px); box-shadow: 0 4px 16px rgba(0,0,0,.3); }
+.toast[hidden] { display: none; }
+.toast.bad { background: #8A2F1A; }
+
+/* tables that stack into cards on phones */
+@media (max-width: 899px) {
+  .tbl.rs thead { display: none; }
+  .tbl.rs, .tbl.rs tbody, .tbl.rs tr, .tbl.rs td { display: block; width: 100%; }
+  .tbl.rs tr { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .tbl.rs tr:last-child { border-bottom: 0; }
+  .tbl.rs td { border: 0; padding: 3px 0; }
+  .tbl.rs td[data-l]::before { content: attr(data-l) ": "; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); }
+}
+@media (min-width: 900px) {
+  .hd-phone { display: none; }
+  .hd-desk { display: block; }
+  .page { padding: 44px 64px 100px; gap: 28px; }
+  .h1 { font-size: 80px; } .h1s { font-size: 72px; }
+  .cols2 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .cols-side { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 40px; align-items: start; }
+  .cols-main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  .gtable { display: block; }
+  .gcards { display: none; }
+  .modalbk { align-items: center; padding: 20px; }
+  .modal { border-radius: 14px; }
+  .sticky-sub { position: static; border: 0; padding: 0; background: transparent; justify-content: flex-start; }
+  .sticky-sub .btn { flex: none; }
+  .sticky-sub.only-mobile { display: none; }
+  .faclist { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .gate { padding-top: 96px; }
+}
+@media (min-width: 900px) { .only-phone { display: none !important; } }
+@media (max-width: 899px) { .only-desk { display: none !important; } }
+
+/* ---- prototype-only controls: deliberately unlike the product ---- */
+#proto { position: fixed; left: 0; right: 0; bottom: 0; z-index: 70; font: 13px/1.4 ui-monospace, Menlo, Consolas, monospace; color: #F1E9FF; }
+#proto .pb { background: #2A1450; border-top: 3px dashed #FFB6F0; display: flex; align-items: center; gap: 8px; padding: 6px 10px; min-height: 48px; flex-wrap: wrap; }
+#proto .pb b { background: #FFB6F0; color: #2A1450; padding: 2px 6px; border-radius: 2px; letter-spacing: .08em; }
+#proto .pb span.who { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#proto button, #proto select { font: inherit; color: #F1E9FF; background: #3D2370; border: 1px solid #A78BDB; border-radius: 3px; padding: 6px 10px; min-height: 34px; cursor: pointer; }
+#proto select { background: #1B0D36; }
+#proto .sheet { background: #1B0D36; border-top: 1px solid #A78BDB; padding: 12px; display: grid; gap: 14px; max-height: 60vh; overflow: auto; grid-template-columns: minmax(0, 1fr); }
+#proto .sheet h4 { margin: 0 0 6px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: #FFB6F0; }
+#proto .sheet label { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
+#proto .sheet .btns { display: flex; gap: 6px; flex-wrap: wrap; }
+#proto .sheet p { margin: 4px 0; color: #D5C7F0; }
+@media (min-width: 900px) { #proto .sheet { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+</style>
+</head>
+<body>
+<div class="lg" id="lg"><div id="app"></div></div>
+<div id="modalbk" class="modalbk" hidden><div id="modal" class="modal" role="dialog" aria-modal="true"></div></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<div id="proto" role="region" aria-label="Prototype controls (not part of the product)"></div>
+<script>
+'use strict';
+/* ============================================================
+   Data: factions (league/factions.md), seed (season-1/), layouts, league text.
+   ============================================================ */
+const FACTIONS = [
+  { code: 'cats', short: 'CA', name: 'Marquise de Cat', type: 'Militant', reach: 10 },
+  { code: 'rats', short: 'LH', name: 'Lord of the Hundreds', type: 'Militant', reach: 9 },
+  { code: 'badgers', short: 'KI', name: 'Keepers in Iron', type: 'Militant', reach: 8 },
+  { code: 'moles', short: 'UD', name: 'Underground Duchy', type: 'Militant', reach: 8 },
+  { code: 'birds', short: 'ED', name: 'Eyrie Dynasties', type: 'Militant', reach: 7 },
+  { code: 'frogs', short: 'LD', name: 'Lilypad Diaspora', type: 'Militant', reach: 7 },
+  { code: 'otters', short: 'RC', name: 'Riverfolk Company', type: 'Insurgent', reach: 5 },
+  { code: 'vagabond', short: 'VB', name: 'Vagabond', type: 'Insurgent', reach: 5 },
+  { code: 'knaves', short: 'KD', name: 'Knaves of the Deepwood', type: 'Insurgent', reach: 4 },
+  { code: 'bats', short: 'TC', name: 'Twilight Council', type: 'Insurgent', reach: 4 },
+  { code: 'crows', short: 'CC', name: 'Corvid Conspiracy', type: 'Insurgent', reach: 3 },
+  { code: 'WA', short: 'WA', name: 'Woodland Alliance', type: 'Insurgent', reach: 3 },
+  { code: 'lizards', short: 'LC', name: 'Lizard Cult', type: 'Insurgent', reach: 2 }
+];
+const FA = {}, NAME2CODE = {};
+FACTIONS.forEach(f => { FA[f.code] = f; NAME2CODE[f.name] = f.code; });
+const ALL_CODES = FACTIONS.map(f => f.code);
+const NAMES = ['Will', 'Delaney', 'Alex', 'Matt', 'Nick', 'Adam', 'Zach', 'Kyra', 'Anthony', 'David', 'Chuck', 'Corey'];
+const SEED_LISTS = {
+  Alex: ['Underground Duchy', 'Lord of the Hundreds', 'Woodland Alliance', 'Vagabond', 'Lilypad Diaspora'],
+  Will: ['Eyrie Dynasties', 'Underground Duchy', 'Lizard Cult', 'Twilight Council', 'Woodland Alliance'],
+  Matt: ['Woodland Alliance', 'Lord of the Hundreds', 'Eyrie Dynasties', 'Underground Duchy', 'Vagabond'],
+  David: ['Woodland Alliance', 'Knaves of the Deepwood', 'Vagabond', 'Corvid Conspiracy', 'Underground Duchy', 'Lilypad Diaspora'],
+  Delaney: ['Lord of the Hundreds', 'Lizard Cult', 'Underground Duchy', 'Lilypad Diaspora', 'Marquise de Cat'],
+  Kyra: ['Knaves of the Deepwood', 'Vagabond', 'Marquise de Cat', 'Underground Duchy', 'Riverfolk Company'],
+  Nick: ['Corvid Conspiracy', 'Lizard Cult', 'Woodland Alliance', 'Eyrie Dynasties', 'Marquise de Cat'],
+  Adam: ['Marquise de Cat', 'Vagabond', 'Eyrie Dynasties', 'Woodland Alliance'],
+  Zach: ['Lord of the Hundreds', 'Twilight Council', 'Marquise de Cat', 'Woodland Alliance', 'Corvid Conspiracy'],
+  Anthony: ['Lord of the Hundreds', 'Eyrie Dynasties', 'Marquise de Cat', 'Woodland Alliance', 'Vagabond'],
+  Chuck: ['Marquise de Cat', 'Eyrie Dynasties', 'Woodland Alliance', 'Vagabond'],
+  Corey: ['Vagabond', 'Lord of the Hundreds', 'Riverfolk Company', 'Eyrie Dynasties', 'Marquise de Cat']
+};
+const SEED_SUBMITTED = ['Alex', 'Will', 'Matt', 'David', 'Kyra'];
+const MAPS0 = ['Winter', 'Autumn', 'Lake', 'Mountain'];
+const VALID = { 8: [2, 3, 4], 10: [2, 4], 12: [2, 3, 4] };
+const LAYOUTS = {"8-2":{"tables":[{"m":0,"s":[7,2,3,1]},{"m":1,"s":[2,5,6,4]},{"m":2,"s":[3,4,1,8]},{"m":3,"s":[8,6,7,5]}]},"8-3":{"tables":[{"m":0,"s":[7,5,3,6]},{"m":1,"s":[2,6,5,8]},{"m":2,"s":[4,7,8,2]},{"m":2,"s":[3,1,4,5]},{"m":3,"s":[8,4,6,1]},{"m":3,"s":[1,2,7,3]}]},"8-4":{"tables":[{"m":0,"s":[6,1,2,7]},{"m":0,"s":[2,4,8,3]},{"m":1,"s":[7,6,4,8]},{"m":1,"s":[1,5,3,4]},{"m":2,"s":[4,7,5,2]},{"m":2,"s":[5,8,1,6]},{"m":3,"s":[8,3,7,1]},{"m":3,"s":[3,2,6,5]}]},"10-2":{"tables":[{"m":0,"s":[5,10,4,2]},{"m":0,"s":[2,3,1,9]},{"m":1,"s":[4,9,6,8]},{"m":2,"s":[3,7,8,10]},{"m":3,"s":[1,5,7,6]}]},"10-4":{"tables":[{"m":0,"s":[1,7,8,5]},{"m":0,"s":[5,2,9,4]},{"m":0,"s":[3,5,10,6]},{"m":1,"s":[4,6,1,8]},{"m":1,"s":[7,8,2,10]},{"m":1,"s":[8,3,5,9]},{"m":2,"s":[6,9,7,2]},{"m":2,"s":[10,4,3,7]},{"m":3,"s":[9,10,4,1]},{"m":3,"s":[2,1,6,3]}]},"12-2":{"tables":[{"m":0,"s":[3,6,7,11]},{"m":0,"s":[9,5,12,4]},{"m":1,"s":[11,4,10,8]},{"m":2,"s":[1,2,6,12]},{"m":3,"s":[8,3,1,5]},{"m":3,"s":[10,9,2,7]}]},"12-3":{"tables":[{"m":0,"s":[1,2,3,4]},{"m":0,"s":[4,5,6,7]},{"m":0,"s":[8,9,4,10]},{"m":1,"s":[11,7,1,8]},{"m":1,"s":[3,10,11,6]},{"m":2,"s":[5,11,9,2]},{"m":2,"s":[12,1,10,5]},{"m":3,"s":[6,8,2,12]},{"m":3,"s":[9,12,7,3]}]},"12-4":{"tables":[{"m":0,"s":[1,2,3,4]},{"m":0,"s":[5,6,2,7]},{"m":0,"s":[8,7,9,1]},{"m":1,"s":[4,10,8,2]},{"m":1,"s":[3,8,6,11]},{"m":1,"s":[7,11,4,5]},{"m":2,"s":[12,5,1,8]},{"m":2,"s":[9,3,5,10]},{"m":2,"s":[6,4,12,9]},{"m":3,"s":[10,12,7,3]},{"m":3,"s":[11,1,10,6]},{"m":3,"s":[2,9,11,12]}]}};
+const SAMPLE4 = {"slotNames":{"Will":1,"Corey":2,"Adam":3,"Alex":4,"Delaney":5,"Kyra":6,"David":7,"Nick":8,"Anthony":9,"Zach":10,"Matt":11,"Chuck":12},"facs":[[["Will","bats"],["Corey","birds"],["Adam","WA"],["Alex","moles"]],[["Delaney","moles"],["Kyra","vagabond"],["Corey","rats"],["David","WA"]],[["Nick","birds"],["David","knaves"],["Anthony","cats"],["Will","moles"]],[["Alex","rats"],["Zach","bats"],["Nick","WA"],["Corey","vagabond"]],[["Adam","birds"],["Nick","lizards"],["Kyra","cats"],["Matt","rats"]],[["David","vagabond"],["Matt","birds"],["Alex","WA"],["Delaney","rats"]],[["Chuck","cats"],["Delaney","frogs"],["Will","birds"],["Nick","crows"]],[["Anthony","birds"],["Adam","cats"],["Delaney","lizards"],["Zach","WA"]],[["Kyra","moles"],["Alex","vagabond"],["Chuck","birds"],["Anthony","WA"]],[["Zach","cats"],["Chuck","WA"],["David","crows"],["Adam","vagabond"]],[["Matt","moles"],["Will","lizards"],["Zach","rats"],["Kyra","knaves"]],[["Corey","otters"],["Anthony","rats"],["Matt","WA"],["Chuck","vagabond"]]]};
+const MD = {"format":"# League Format\n\nHow the league is played. Pairings follow the [pairing rules](pairing-rules.md).\n\n1. **Score is a win.** Other places earn nothing.\n2. **Every table has 4 players.**\n3. **Player count is ideally a multiple of 4.** Each season's roster sets it.\n4. **No Advanced Setup (AdSet).** Each player ranks the factions they want, and the pairings choose from that list.\n5. **Rounds are a grouping, not a time slot.** Games may be listed in rounds, but a round's games need not be played at the same time.\n6. **Two games at once is allowed.** It is a scheduling detail, not something the pairings aim for.\n","rules":"# Pairing Rules\n\nWhat every set of pairings must satisfy, roughly in priority order. The league's [format](format.md) sets the table size and the number of games. Faction codes, types and reach are on [factions](factions.md).\n\n1. **Factions only from the player's own list.** A player only plays factions from their own ranked list. This rule is never broken.\n2. **No repeats, high picks.** A player never repeats a faction, and gets factions as close to the top of their list as possible.\n3. **Even meetings.** Every pair of players meets about the same number of times. No pair sits together every game while other pairs never meet.\n4. **Different seat every game.** Each player sits in a different seat in each of their games. Seat 1 is first in turn order.\n5. **Different map every game.** Each player plays a different map in each of their games.\n6. **Table reach at least 21.** This is the Law of Root's recommended sum for 4 players (5.2.1); see [reach](factions.md#reach).\n7. **Militant and insurgent mix.** Each table has a sensible mix of militant and insurgent factions.\n8. **One of each faction and one board per table.** These limits apply to each table, not to a round. Two games in the same round can use the same faction or the same board.\n","how":"# How Pairing Works\n\nHow the pairing tool decides who plays whom, in which seat, on which map and with which faction. The goal is that you can see why you were placed where you were. The code is in [`league_pairing.py`](../planning/tools/pairing/league_pairing.py) if you want to check it.\n\nThe tool aims at the [pairing rules](pairing-rules.md). Your input is your ranked faction list in [`preferences.json`](../season-1/preferences.json); nothing else about you, such as skill or past results, is used.\n\n## The three steps\n\nThe tool works in three steps, in this order. Each step fixes its part before the next one starts.\n\n1. **Tables and maps.** It deals every player into the right number of games, then keeps swapping players between tables and maps between games, keeping a swap when it makes things more even. It scores a layout on two things: every pair of players meeting about the same number of times, and each player seeing as many different maps as possible. Meetings count far more than maps. It builds several layouts this way and keeps the best few. See [`build_plan`](../planning/tools/pairing/league_pairing.py#L173).\n2. **Factions.** For those few layouts, it starts each player on their top picks, then keeps trying changes: swapping two of a player's factions between their games, or trying another faction from their list. It first avoids anything that breaks a table rule (a faction twice at one table, a faction twice for one player, table reach below 21). Then it ranks results by, in order:\n   - **Worst-off player:** how far the unluckiest player ended up below their own top picks.\n   - **Everyone together:** how far all players ended up below their top picks, added up.\n\n   So the tool would rather give two players their 2nd pick than give one player their 4th. The best result across the layouts wins. See [`assign_factions`](../planning/tools/pairing/league_pairing.py#L267).\n3. **Seats.** Seats are set last, exactly rather than by search, so that nobody sits in the same seat twice. Seat 1 goes first. See [`assign_seats`](../planning/tools/pairing/league_pairing.py#L306).\n\nAt the end, a check confirms every hard rule holds. See [`check`](../planning/tools/pairing/league_pairing.py#L367).\n\n## What it means for you\n\n- **Who you play is random but fair.** Players are mixed so nobody faces the same opponent much more than anyone else. Which particular players you meet comes down to the shuffle.\n- **Your factions come from your list.** Higher on your list means more likely to be played. If you got a lower pick, it is because giving you a higher one would have left someone else worse off, or your table needed more reach.\n- **Your seat is just a rotation.** Seats carry no meaning beyond turn order, and you get a different one each game.\n- **Anyone can rerun it.** The tool uses a numbered seed for its random choices. The same faction lists and seed give the same pairings, so the published pairings can be checked.\n\n## Known gaps\n\nThe tool was built before the current rules and is still being brought in line. Until these are fixed, it does not fully meet the [pairing rules](pairing-rules.md):\n\n- **Off-list factions.** If it cannot fit everyone from their own lists, it can fall back to a faction outside a player's list, as a last resort. The rules forbid this.\n- **Militant and insurgent mix.** It does not check the mix at each table yet.\n- **Games each.** It defaults to 4 games each; the number for this season is not set yet.\n\nThe 12-player samples in planning were laid out by hand from a fixed pattern, not by this tool.\n"};
+const REPO = 'https://github.com/thornfry/root-league/blob/main/';
+const DB_URL = 'https://www.therootdatabase.com/search/faction/';
+const LAW_URL = 'https://www.therootdatabase.com/law/setup/en/';
+const NOT_WL = '100000000000000099';
+const SPEC1 = '100000000000000013', SPEC2 = '100000000000000014';
+const DAY = 864e5, HOUR = 36e5;
+const MIN_REACH = 21;
+
+/* ---------- seeded random ---------- */
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function shuffle(arr, rng) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+/* ---------- table rules ---------- */
+function tableIssues(codes) {
+  const out = [], set = new Set(codes);
+  if (set.size < codes.length) out.push('a faction appears twice');
+  const reach = codes.reduce((s, c) => s + FA[c].reach, 0);
+  if (reach < MIN_REACH) out.push('reach is ' + reach + ', needs at least ' + MIN_REACH);
+  const mil = codes.filter(c => FA[c].type === 'Militant').length;
+  if (mil === 0) out.push('no militant faction');
+  if (mil === codes.length) out.push('no insurgent faction');
+  if (set.has('vagabond') && set.has('knaves')) out.push('Vagabond and Knaves together');
+  return out;
+}
+const tableReach = codes => codes.reduce((s, c) => s + FA[c].reach, 0);
+const tableMix = codes => { const m = codes.filter(c => FA[c].type === 'Militant').length; return m + ' militant, ' + (codes.length - m) + ' insurgent'; };
+function tableCost(codes) {
+  const reach = tableReach(codes);
+  return tableIssues(codes).length * 100 + (reach < MIN_REACH ? (MIN_REACH - reach) * 5 : 0);
+}
+
+/* Faction step on a fixed layout. tables: arrays of player indices in seat order. */
+function assignFactions(tables, players, g, rng) {
+  const fac = tables.map(() => [null, null, null, null]);
+  const cells = players.map(() => []);
+  tables.forEach((tab, t) => tab.forEach((p, s) => cells[p].push([t, s])));
+  players.forEach((pl, p) => {
+    const picks = shuffle(pl.list.slice(0, g), rng);
+    cells[p].forEach((c, k) => { fac[c[0]][c[1]] = picks[k % picks.length]; });
+  });
+  const rankOf = (p, code) => players[p].list.indexOf(code);
+  const tc = t => tableCost(fac[t]);
+  const iters = 20000;
+  for (let it = 0; it < iters; it++) {
+    const T = 25 * Math.pow(0.2 / 25, it / iters);
+    const p = Math.floor(rng() * players.length), cs = cells[p];
+    if (rng() < 0.6 || players[p].list.length <= g) {
+      if (cs.length < 2) continue;
+      const a = Math.floor(rng() * cs.length); let b = Math.floor(rng() * cs.length); if (a === b) continue;
+      const [t1, s1] = cs[a], [t2, s2] = cs[b];
+      const before = tc(t1) + (t2 !== t1 ? tc(t2) : 0);
+      const x = fac[t1][s1]; fac[t1][s1] = fac[t2][s2]; fac[t2][s2] = x;
+      const d = tc(t1) + (t2 !== t1 ? tc(t2) : 0) - before;
+      if (d > 0 && rng() > Math.exp(-d / T)) { const y = fac[t1][s1]; fac[t1][s1] = fac[t2][s2]; fac[t2][s2] = y; }
+    } else {
+      const [t, s] = cs[Math.floor(rng() * cs.length)];
+      const used = new Set(cs.map(c => fac[c[0]][c[1]]));
+      const free = players[p].list.filter(c => !used.has(c));
+      if (!free.length) continue;
+      const nf = free[Math.floor(rng() * free.length)], old = fac[t][s];
+      const before = tc(t) + rankOf(p, old);
+      fac[t][s] = nf;
+      const d = tc(t) + rankOf(p, nf) - before;
+      if (d > 0 && rng() > Math.exp(-d / T)) fac[t][s] = old;
+    }
+  }
+  return fac;
+}
+
+/* ---------- layouts ---------- */
+const layoutFor = (cap, games) => LAYOUTS[cap + '-' + games] || null;
+function layoutSpread(lay, N, g) {
+  const meet = Array.from({ length: N }, () => new Array(N).fill(0));
+  let seatRepeat = 0;
+  lay.tables.forEach(t => { for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) if (i !== j) meet[t.s[i] - 1][t.s[j] - 1]++; });
+  for (let p = 1; p <= N; p++) {
+    const seats = []; lay.tables.forEach(t => { const k = t.s.indexOf(p); if (k >= 0) seats.push(k); });
+    seatRepeat += seats.length - new Set(seats).size;
+  }
+  const dist = {};
+  let repeatMax = 0;
+  for (let p = 0; p < N; p++) {
+    const d = {}; let extra = 0;
+    for (let q = 0; q < N; q++) if (q !== p) { const k = meet[p][q]; d[k] = (d[k] || 0) + 1; if (k > 1) extra += k - 1; }
+    Object.keys(d).forEach(k => { (dist[k] = dist[k] || []).push(d[k]); });
+    repeatMax = Math.max(repeatMax, extra);
+  }
+  const rows = Object.keys(dist).map(k => ({ k: +k, min: Math.min.apply(null, dist[k]), max: Math.max.apply(null, dist[k]) })).sort((a, b) => a.k - b.k);
+  const maps = {}; lay.tables.forEach(t => { maps[t.m] = (maps[t.m] || 0) + 1; });
+  const sameForAll = rows.every(r => r.min === r.max);
+  return { rows, even: repeatMax <= 1 && sameForAll, seatRepeat, games: lay.tables.length, maps, N, g, repeatMax };
+}
+
+/* ============================================================
+   State and the mock "server" rules. The real site enforces these in the
+   database; here they are plain functions over one object, S, in localStorage.
+   ============================================================ */
+const KEY = 'root-league-prototype-v2';
+let S = null;
+const slug = n => String(n).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const now = () => Date.now() + S.clock;
+const uid = p => p + (S.nid++);
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* works without storage */ } }
+function loadState() { try { const o = JSON.parse(localStorage.getItem(KEY)); return o && o.v === 2 ? o : null; } catch (e) { return null; } }
+const did = n => '1000000000000000' + String(NAMES.indexOf(n) + 1).padStart(2, '0');
+const codesOf = names => names.map(n => NAME2CODE[n]);
+const ceilHour = ms => Math.ceil(ms / HOUR) * HOUR;
+
+function seedState(start) {
+  const t = Date.now();
+  const st = { v: 2, nid: 1, clock: 0, start, persona: { kind: 'signedout', name: 'Alex' }, signAs: 'viewer', ui: {}, log: [],
+    wl: [], people: [], season: null };
+  NAMES.forEach(n => st.wl.push({ id: did(n), label: n, admin: n === 'Will', by: 'seed', at: t - 5 * DAY }));
+  st.wl.push({ id: SPEC1, label: 'Spectator 1', admin: false, by: 'Will', at: t - 3 * DAY });
+  st.wl.push({ id: SPEC2, label: 'Spectator 2', admin: false, by: 'Will', at: t - 3 * DAY });
+  NAMES.forEach(n => st.people.push({ id: 'p-' + slug(n), name: n, did: did(n) }));
+  const pid = n => 'p-' + slug(n);
+  const lists = {};
+  NAMES.forEach(n => { lists[pid(n)] = { codes: codesOf(SEED_LISTS[n]), st: SEED_SUBMITTED.includes(n) ? 'submitted' : 'provisional' }; });
+  const lockAt = ceilHour(t + 9 * DAY + 8 * HOUR);
+  const se = { name: 'Season 1', cap: 12, each: 4, maps: MAPS0.slice(), pool: ALL_CODES.slice(), minList: 4, lockAt, started: false,
+    league: ['Delaney', 'Alex', 'Matt', 'Nick', 'Adam', 'Zach', 'Kyra', 'Anthony', 'David', 'Will'].map(pid), wait: ['Chuck', 'Corey'].map(pid),
+    lists, draft: null, slot: {}, games: [], picks: [], seed: 48213 };
+  st.season = se;
+  if (start === 'mid') {
+    se.league = NAMES.slice().sort().map(pid); se.wait = []; se.started = true; se.lockAt = t - 5 * DAY;
+    NAMES.forEach(n => { se.lists[pid(n)].st = 'submitted'; });
+    const slots = SAMPLE4.slotNames;
+    Object.keys(slots).forEach(n => { se.slot[pid(n)] = slots[n]; });
+    const tables = LAYOUTS['12-4'].tables;
+    se.games = tables.map((tb, i) => ({ no: i + 1, mapIdx: tb.m, void: false, settled: null, subs: {}, hist: [],
+      seats: SAMPLE4.facs[i].map((nf, k) => ({ seat: k + 1, pid: pid(nf[0]), f: nf[1] })) }));
+    const ago = h => t - h * HOUR;
+    const sub = (no, who, wins, h) => { const g = se.games[no - 1]; g.subs[pid(who)] = wins.map(pid);
+      g.hist.push({ who, text: 'submitted ' + wins.join(', ') + ' as the winner' + (wins.length > 1 ? 's' : ''), at: ago(h) }); };
+    sub(1, 'Alex', ['Alex'], 30); sub(2, 'Kyra', ['Kyra'], 27); sub(4, 'Zach', ['Zach'], 1); sub(5, 'Matt', ['Matt'], 20);
+    sub(3, 'Will', ['Will'], 6); sub(3, 'Anthony', ['Anthony'], 5);
+    se.games[2].hist[1].text += '. Game disputed.';
+    se.games[11].void = true; se.games[11].hist.push({ who: 'Will', text: 'voided the game', at: ago(40) });
+    const pk = (who, no, a, b) => se.picks.push({ acct: who === 'Spectator 1' ? SPEC1 : did(who), game: no, first: pid(a), second: b ? pid(b) : null, at: ago(60) });
+    pk('Alex', 2, 'Kyra', 'Delaney'); pk('Matt', 2, 'Delaney', 'Kyra'); pk('Will', 2, 'Kyra', 'David'); pk('Nick', 2, 'David', 'Corey');
+    pk('Zach', 2, 'Corey', 'Kyra'); pk('Spectator 1', 2, 'David', 'Delaney');
+    pk('Alex', 5, 'Matt', 'Nick'); pk('Will', 5, 'Matt', 'Adam'); pk('Will', 4, 'Nick', 'Zach'); pk('Matt', 1, 'Will', 'Alex'); pk('Matt', 4, 'Zach', 'Nick');
+    pk('Zach', 1, 'Alex', 'Adam'); pk('Nick', 1, 'Alex', 'Will'); pk('Spectator 1', 1, 'Alex', 'Corey');
+    pk('Alex', 3, 'Will', 'Anthony'); pk('Alex', 12, 'Anthony', 'Matt'); pk('Will', 12, 'Chuck', 'Corey');
+    pk('Alex', 7, 'Delaney', 'Will');
+  }
+  return st;
+}
+function resetState(start) { S = seedState(start); save(); }
+
+/* ---------- lookups ---------- */
+const SE = () => S.season;
+const person = id => S.people.find(p => p.id === id);
+const pname = id => (person(id) || { name: '(removed)' }).name;
+const wlOf = id => S.wl.find(w => w.id === id);
+const personOfAcct = a => S.people.find(p => p.did === a) || null;
+const stage = () => SE().started ? 'live' : now() >= SE().lockAt ? 'locked' : 'open';
+const stageLabel = () => ({ open: 'Open', locked: 'Locked', live: 'Live' }[stage()]);
+const onList = pid => SE().league.includes(pid) ? 'league' : SE().wait.includes(pid) ? 'wait' : null;
+const gameBy = no => SE().games.find(g => g.no === Number(no));
+const seatOf = (g, pid) => g.seats.find(s => s.pid === pid);
+const listOf = pid => (SE().lists[pid] || { codes: [], st: 'provisional' });
+const listValid = pid => { const l = listOf(pid); return l.codes.length >= SE().minList && l.codes.every(c => SE().pool.includes(c)); };
+
+function acct() {
+  const p = S.persona;
+  if (p.kind === 'signedout') return null;
+  if (p.kind === 'notwl') return NOT_WL;
+  if (p.kind === 'viewer') return SPEC1;
+  if (p.kind === 'admin') return did('Will');
+  const pp = S.people.find(x => x.name === p.name);
+  return pp && pp.did ? pp.did : null;
+}
+/* everything the pages need to know about who is looking */
+function me() {
+  const a = acct();
+  if (!a) return { state: 'visitor' };
+  const w = wlOf(a);
+  if (!w) return { state: 'notinvited', acct: a };
+  const pr = personOfAcct(a);
+  const list = pr ? onList(pr.id) : null;
+  return { state: 'in', acct: a, wl: w, admin: !!w.admin, person: pr, pid: pr ? pr.id : null, list,
+    onRoster: !!list, player: !!(list === 'league' && SE().started), prospect: !!(list && !(list === 'league' && SE().started)),
+    key: pr ? pr.id : a, name: pr ? pr.name : (w.label || 'Viewer') };
+}
+const nameOfAcct = a => { const p = personOfAcct(a); return p ? p.name : (wlOf(a) ? (wlOf(a).label || 'Viewer') : 'Unknown'); };
+
+/* ---------- log ---------- */
+function logit(area, what, oldv, newv) {
+  const m = me();
+  S.log.push({ id: uid('l'), at: now(), who: m.state === 'in' ? m.name : 'System', area, what, old: oldv == null ? '' : String(oldv), nw: newv == null ? '' : String(newv) });
+}
+
+/* ---------- games and results ---------- */
+const sameSet = (a, b) => a.length === b.length && a.every(x => b.includes(x));
+function gstate(g) {
+  if (g.void) return 'void';
+  if (g.settled) return 'settled';
+  const ks = Object.keys(g.subs);
+  if (!ks.length) return 'upcoming';
+  const f = g.subs[ks[0]];
+  return ks.every(k => sameSet(g.subs[k], f)) ? 'recorded' : 'disputed';
+}
+const counted = g => { const s = gstate(g); return s === 'recorded' || s === 'settled'; };
+function winnersOf(g) {
+  const s = gstate(g);
+  if (s === 'settled') return g.settled.winners;
+  if (s === 'recorded') return g.subs[Object.keys(g.subs)[0]];
+  return [];
+}
+const gameReach = g => tableReach(g.seats.map(s => s.f));
+const mapName = g => SE().maps[g.mapIdx % SE().maps.length];
+const gameHasPickClosed = g => g.void || Object.keys(g.subs).length > 0 || !!g.settled;
+
+function canSubmit(g, m) {
+  if (m.state !== 'in') return false;
+  if (!SE().started) return false;
+  if (g.void || g.settled) return false;
+  return m.admin || (m.pid && !!seatOf(g, m.pid));
+}
+function submitResult(no, winners) {
+  const g = gameBy(no), m = me();
+  if (!g) return { ok: false, msg: 'There is no such game.' };
+  if (!canSubmit(g, m)) return { ok: false, msg: g && g.settled ? 'The admin settled this game. Players cannot change it.' : 'Only players seated at this game, or the admin, can submit a result.' };
+  if (!winners.length) return { ok: false, msg: 'Tick at least one winner.' };
+  if (winners.some(w => !seatOf(g, w))) return { ok: false, msg: 'Every winner must be seated at this game.' };
+  const before = gstate(g), key = m.key, had = key in g.subs;
+  g.subs[key] = winners.slice();
+  const after = gstate(g);
+  g.hist.push({ who: m.name, text: (had ? 'changed their answer to ' : 'submitted ') + winners.map(pname).join(', ') + ' as the winner' + (winners.length > 1 ? 's' : '') + (after === 'disputed' ? '. Game disputed.' : before === 'disputed' && after === 'recorded' ? '. Dispute cleared.' : ''), at: now() });
+  logit('Results', 'Table ' + g.no + ': ' + m.name + ' submitted', '', winners.map(pname).join(', '));
+  save();
+  return { ok: true, msg: 'Result submitted.' };
+}
+function settleGame(no, winners) {
+  const g = gameBy(no), m = me();
+  if (!m.admin || !g) return { ok: false, msg: 'Only the admin can settle a game.' };
+  if (!winners.length) return { ok: false, msg: 'Pick at least one winner.' };
+  const old = winnersOf(g).map(pname).join(', ');
+  g.settled = { winners: winners.slice(), by: m.name, at: now() };
+  g.hist.push({ who: m.name, text: 'settled the game: ' + winners.map(pname).join(', ') + ' won', at: now() });
+  logit('Results', 'Table ' + g.no + ': settled', old || 'no result', winners.map(pname).join(', '));
+  save();
+  return { ok: true, msg: 'Table ' + g.no + ' settled.' };
+}
+function reopenGame(no) {
+  const g = gameBy(no), m = me();
+  if (!m.admin || !g || !g.settled) return { ok: false, msg: 'Nothing to reopen.' };
+  const old = g.settled.winners.map(pname).join(', ');
+  g.settled = null;
+  g.hist.push({ who: m.name, text: 'reopened the game', at: now() });
+  logit('Results', 'Table ' + g.no + ': reopened', old, gstate(g));
+  save();
+  return { ok: true, msg: 'Table ' + g.no + ' reopened.' };
+}
+function setVoid(no, v) {
+  const g = gameBy(no), m = me();
+  if (!m.admin || !g) return { ok: false, msg: 'Only the admin can do that.' };
+  g.void = !!v;
+  g.hist.push({ who: m.name, text: v ? 'voided the game' : 'unvoided the game', at: now() });
+  logit('Results', 'Table ' + g.no + ': ' + (v ? 'voided' : 'unvoided'), v ? 'live' : 'void', v ? 'void' : 'live');
+  save();
+  return { ok: true, msg: 'Table ' + g.no + (v ? ' voided.' : ' unvoided.') };
+}
+
+/* ---------- standings and pick'ems ---------- */
+function rankRows(rows, key) {
+  let rank = 0;
+  rows.sort((a, b) => b[key] - a[key] || a.name.localeCompare(b.name));
+  rows.forEach((r, i) => { if (i === 0 || r[key] !== rows[i - 1][key]) rank = i + 1; r.rank = rank; });
+  return rows;
+}
+function standings() {
+  const rows = SE().league.map(pid => {
+    let wins = 0, played = 0, left = 0;
+    SE().games.forEach(g => {
+      if (!seatOf(g, pid) || g.void) return;
+      if (counted(g)) { played++; if (winnersOf(g).includes(pid)) wins++; } else left++;
+    });
+    return { pid, name: pname(pid), wins, played, left };
+  });
+  return rankRows(rows, 'wins');
+}
+function pickPoints(p) {
+  const g = gameBy(p.game);
+  if (!g || !counted(g)) return null;
+  const w = winnersOf(g);
+  return (w.includes(p.first) ? 3 : 0) + (p.second && w.includes(p.second) ? 1 : 0);
+}
+function leaderboard() {
+  const by = {};
+  SE().picks.forEach(p => { const r = by[p.acct] = by[p.acct] || { acct: p.acct, name: nameOfAcct(p.acct), pts: 0 }; r.pts += pickPoints(p) || 0; });
+  return rankRows(Object.keys(by).map(k => by[k]), 'pts');
+}
+function pickState(g, m) {
+  if (m.state !== 'in' || !SE().started) return 'none';
+  if (m.pid && seatOf(g, m.pid)) return 'own';
+  return gameHasPickClosed(g) ? 'closed' : 'open';
+}
+function savePick(no, first, second) {
+  const g = gameBy(no), m = me();
+  if (!g || pickState(g, m) !== 'open') return { ok: false, msg: 'Picks are closed for this game.' };
+  if (!first) return { ok: false, msg: 'Choose a first pick.' };
+  if (second && second === first) return { ok: false, msg: 'The first and second picks must be different players.' };
+  if (!seatOf(g, first) || (second && !seatOf(g, second))) return { ok: false, msg: 'Picks must be players at this table.' };
+  const ex = SE().picks.find(p => p.acct === m.acct && p.game === g.no);
+  if (ex) { ex.first = first; ex.second = second || null; ex.at = now(); } else SE().picks.push({ acct: m.acct, game: g.no, first, second: second || null, at: now() });
+  logit('Pickems', m.name + ' picked Table ' + g.no, ex ? pname(ex.first) : '', pname(first) + (second ? ', ' + pname(second) : ''));
+  save();
+  return { ok: true, msg: 'Picks saved.' };
+}
+
+/* ---------- roster ---------- */
+function joinLeague() {
+  const m = me();
+  if (m.state !== 'in' || m.onRoster || stage() !== 'open') return { ok: false, msg: 'Joining is closed.' };
+  let pr = m.person;
+  if (!pr) { pr = { id: uid('p'), name: m.wl.label || 'Player ' + S.nid, did: m.acct }; S.people.push(pr); }
+  SE().wait.push(pr.id);
+  logit('Roster', pr.name + ' joined the league', '', 'Waitlist');
+  S.ui.joined = pr.id;
+  save();
+  return { ok: true };
+}
+function leaveLeague() {
+  const m = me();
+  if (!m.onRoster || SE().started) return { ok: false, msg: 'You can only leave before the season starts.' };
+  SE().league = SE().league.filter(x => x !== m.pid); SE().wait = SE().wait.filter(x => x !== m.pid);
+  delete SE().lists[m.pid];
+  logit('Roster', m.name + ' left the league', m.list === 'league' ? 'League list' : 'Waitlist', '');
+  S.ui.joined = null;
+  save();
+  return { ok: true };
+}
+function rosterMove(pid, to, beforePid) {
+  const se = SE();
+  if (se.started) return { ok: false, msg: 'The season has started. Use Fix it to replace a player.' };
+  const from = onList(pid);
+  if (!from) return { ok: false, msg: 'That person is not on the roster.' };
+  if (to === 'league' && from !== 'league' && se.league.length >= se.cap) return { ok: false, msg: 'The league list is full (' + se.league.length + ' of ' + se.cap + '). Move someone off first, or swap two people in one move.' };
+  se.league = se.league.filter(x => x !== pid); se.wait = se.wait.filter(x => x !== pid);
+  const arr = to === 'league' ? se.league : se.wait;
+  const i = beforePid ? arr.indexOf(beforePid) : -1;
+  if (i >= 0) arr.splice(i, 0, pid); else arr.push(pid);
+  if (from !== to) logit('Roster', pname(pid), from === 'league' ? 'League list' : 'Waitlist', to === 'league' ? 'League list' : 'Waitlist');
+  else logit('Roster', pname(pid) + ' reordered', '', '');
+  save();
+  return { ok: true };
+}
+function rosterSwap(a, b) {
+  const se = SE();
+  if (se.started) return { ok: false, msg: 'The season has started.' };
+  const la = onList(a), lb = onList(b);
+  if (!la || !lb || la === lb) return { ok: false, msg: 'Swap one person from each list.' };
+  const ia = (la === 'league' ? se.league : se.wait).indexOf(a), ib = (lb === 'league' ? se.league : se.wait).indexOf(b);
+  (la === 'league' ? se.league : se.wait)[ia] = b; (lb === 'league' ? se.league : se.wait)[ib] = a;
+  logit('Roster', 'Swapped ' + pname(a) + ' and ' + pname(b), pname(a) + ' on ' + (la === 'league' ? 'League list' : 'Waitlist'), pname(b) + ' on ' + (la === 'league' ? 'League list' : 'Waitlist'));
+  save();
+  return { ok: true };
+}
+function addPerson(name) {
+  name = String(name || '').trim();
+  if (!name) return { ok: false, msg: 'Enter a name.' };
+  if (S.people.some(p => p.name.toLowerCase() === name.toLowerCase())) return { ok: false, msg: name + ' is already a person.' };
+  const pr = { id: uid('p'), name, did: null };
+  S.people.push(pr); SE().wait.push(pr.id);
+  logit('Roster', 'Added ' + name, '', 'Waitlist');
+  save();
+  return { ok: true, msg: name + ' added to the waitlist.' };
+}
+function removeFromRoster(pid) {
+  const se = SE();
+  if (se.started) return { ok: false, msg: 'The season has started. Use Fix it.' };
+  const was = onList(pid);
+  se.league = se.league.filter(x => x !== pid); se.wait = se.wait.filter(x => x !== pid);
+  delete se.lists[pid];
+  se.picks = se.picks.filter(p => p.first !== pid && p.second !== pid);
+  logit('Roster', 'Removed ' + pname(pid), was === 'league' ? 'League list' : 'Waitlist', '');
+  save();
+  return { ok: true };
+}
+
+/* ---------- whitelist ---------- */
+const validId = s => /^\d+$/.test(s);
+function addWl(id, label) {
+  id = String(id || '').trim(); label = String(label || '').trim();
+  if (!validId(id)) return { ok: false, msg: '"' + id + '" is not a Discord user ID. IDs are digits only.' };
+  if (wlOf(id)) return { ok: false, msg: id + ' is already on the whitelist.' };
+  S.wl.push({ id, label, admin: false, by: me().name || 'Will', at: now() });
+  const pr = S.people.find(p => !p.did && label && p.name.toLowerCase() === label.toLowerCase());
+  if (pr) pr.did = id;
+  logit('Whitelist', 'Added ' + id, '', label);
+  save();
+  return { ok: true };
+}
+function parseWlPaste(text) {
+  const rows = [], errs = [], seen = new Set();
+  String(text).split('\n').forEach((line, i) => {
+    if (!line.trim()) return;
+    const k = line.indexOf(',');
+    const id = (k < 0 ? line : line.slice(0, k)).trim(), label = k < 0 ? '' : line.slice(k + 1).trim();
+    if (!validId(id)) errs.push('Row ' + (i + 1) + ': "' + id + '" is not a Discord user ID. IDs are digits only.');
+    else if (wlOf(id) || seen.has(id)) errs.push('Row ' + (i + 1) + ': ' + id + ' is already on the whitelist.');
+    else { rows.push({ id, label }); seen.add(id); }
+  });
+  return { rows, errs };
+}
+function removeWl(id) {
+  const w = wlOf(id);
+  if (!w) return;
+  S.wl = S.wl.filter(x => x.id !== id);
+  logit('Whitelist', 'Removed ' + id, w.label, '');
+  save();
+}
+
+/* ---------- season ---------- */
+function meetingsText(sp) { return sp; }
+function saveSeason(f) {
+  const se = SE(), ch = [];
+  const set = (k, v, label) => { const o = JSON.stringify(se[k]); if (o !== JSON.stringify(v)) { ch.push([label, Array.isArray(se[k]) ? se[k].join(', ') : se[k], Array.isArray(v) ? v.join(', ') : v]); se[k] = v; } };
+  if (se.started && (f.cap !== se.cap || f.games !== se.each)) return { ok: false, msg: 'Capacity and games each are locked once the season starts. Use Fix it.' };
+  if (f.cap < se.league.length) return { ok: false, msg: 'Capacity cannot go below ' + se.league.length + ', the people on the league list. Move people first.' };
+  if (!(VALID[f.cap] || []).includes(f.games)) return { ok: false, msg: f.cap + ' players with ' + f.games + ' games is not offered.' };
+  if (f.maps.length < f.games) return { ok: false, msg: 'Add at least ' + f.games + ' maps, one per game each.' };
+  if (!f.name.trim()) return { ok: false, msg: 'Give the season a name.' };
+  if (!(f.minList >= 1 && f.minList <= f.pool.length)) return { ok: false, msg: 'The minimum list length must be between 1 and the pool size.' };
+  if (isNaN(f.lockAt)) return { ok: false, msg: 'Choose a valid lock date and time.' };
+  set('name', f.name.trim(), 'name'); set('cap', f.cap, 'capacity'); set('each', f.games, 'games each'); set('maps', f.maps, 'maps');
+  set('pool', f.pool, 'pool'); set('minList', f.minList, 'minimum list length'); set('lockAt', f.lockAt, 'lock date');
+  ch.forEach(c => logit('Season', c[0], c[1], c[2] && c[0] === 'lock date' ? fmtDT(c[2]) : c[2]));
+  save();
+  return { ok: true, msg: ch.length ? 'Season saved.' : 'Nothing changed.' };
+}
+
+/* ---------- start season ---------- */
+function startChecks() {
+  const se = SE(), out = [];
+  const locked = stage() !== 'open';
+  out.push({ ok: locked, text: locked ? 'Lists are locked. ' + fmtDT(se.lockAt) + '.' : 'Lists have not locked yet. They lock ' + fmtDT(se.lockAt) + '.', fix: ['Season', '#/admin/season'] });
+  const full = se.league.length === se.cap;
+  out.push({ ok: full, text: full ? 'League list is full. ' + se.league.length + ' of ' + se.cap + '.' : 'League list has ' + se.league.length + ' of ' + se.cap + '. Start season needs exactly ' + se.cap + '.', fix: ['Roster', '#/admin/roster'] });
+  const bad = se.league.filter(p => !listValid(p));
+  out.push({ ok: !bad.length, text: !bad.length ? 'Every league-list player has a valid list. ' + se.league.length + ' of ' + se.league.length + '.' : 'Lists that are not valid: ' + bad.map(pname).join(', ') + '. Each needs at least ' + se.minList + ' factions from the pool.', fix: ['Fix it', '#/admin/fixit'] });
+  return out;
+}
+let run = null; // {seed, pass, total, best, cancelled, timer}
+function startRun(seed, onTick, onDone) {
+  const se = SE();
+  const order = shuffle(se.league, mulberry32(seed * 2654435761 >>> 0));
+  const lay = layoutFor(se.cap, se.each);
+  const players = order.map(pid => ({ id: pid, name: pname(pid), list: listOf(pid).codes.slice() }));
+  const tables = lay.tables.map(t => t.s.map(x => x - 1));
+  const blocking = [];
+  players.forEach((p, i) => {
+    const n = tables.filter(t => t.includes(i)).length;
+    if (p.list.length < n) blocking.push({ rule: 'Own list only', who: p.name + ' has ' + p.list.length + ' faction' + (p.list.length === 1 ? '' : 's') + ' and sits at ' + n + ' tables. A faction cannot repeat, so nothing on their list is left for table ' + (lay.tables.findIndex(t => t.s.includes(i + 1)) + 1) + '.' });
+  });
+  run = { seed, pass: 0, total: 10, best: null, cancelled: false };
+  const r = run;
+  const step = () => {
+    if (r.cancelled) return;
+    if (blocking.length || r.pass >= r.total) {
+      run = null;
+      if (blocking.length) return onDone({ ok: false, seed, blocking });
+      return onDone(finishDraft(seed, order, lay, players, tables, r.best));
+    }
+    const rng = mulberry32((seed * 1000003 + r.pass * 7919) >>> 0);
+    const fac = assignFactions(tables, players, se.each, rng);
+    const viol = fac.reduce((s, row) => s + tableIssues(row).length, 0);
+    const rankSum = fac.reduce((s, row, t) => s + row.reduce((a, c, k) => a + players[tables[t][k]].list.indexOf(c), 0), 0);
+    const score = viol * 1000 + rankSum;
+    if (!r.best || score < r.best.score) r.best = { score, fac };
+    r.pass++;
+    onTick(Math.round(r.pass / r.total * 100));
+    r.timer = setTimeout(step, 110);
+  };
+  r.timer = setTimeout(step, 60);
+}
+function cancelRun() { if (run) { run.cancelled = true; clearTimeout(run.timer); run = null; } }
+function finishDraft(seed, order, lay, players, tables, best) {
+  const se = SE();
+  const games = lay.tables.map((t, i) => ({ no: i + 1, map: t.m, seats: t.s.map((slot, k) => ({ seat: k + 1, slot, pid: order[slot - 1], f: best.fac[i][k] })) }));
+  const bad = [];
+  games.forEach(g => {
+    const iss = tableIssues(g.seats.map(s => s.f));
+    if (iss.length) {
+      const codes = g.seats.map(s => s.f);
+      bad.push({ rule: iss[0].indexOf('reach') === 0 ? 'Table reach at least ' + MIN_REACH : iss[0].indexOf('Vagabond') === 0 || iss[0].indexOf('no ') === 0 ? 'Militant and insurgent mix' : 'One of each faction per table',
+        who: 'Table ' + g.no + ' on ' + se.maps[g.map % se.maps.length] + (iss[0].indexOf('reach') === 0 ? ' tops out at ' + tableReach(codes) : ': ' + iss.join('; ')) + ': ' + g.seats.map(s => pname(s.pid)).join(', ') + '.' });
+    }
+  });
+  if (bad.length) return { ok: false, seed, blocking: bad };
+  const rows = order.map((pid, i) => {
+    const mine = []; games.forEach(g => g.seats.forEach(s => { if (s.pid === pid) mine.push({ no: g.no, rank: players[i].list.indexOf(s.f) + 1 }); }));
+    return { pid, name: pname(pid), ranks: mine.map(x => x.rank) };
+  }).sort((a, b) => a.name.localeCompare(b.name));
+  const worst = Math.max.apply(null, rows.map(r => Math.max.apply(null, r.ranks)));
+  return { ok: true, draft: { seed, order, games, rows, worst } };
+}
+function publishDraft() {
+  const se = SE(), d = se.draft;
+  if (!d) return { ok: false, msg: 'There is no draft to publish.' };
+  se.games = d.games.map(g => ({ no: g.no, mapIdx: g.map, void: false, settled: null, subs: {}, hist: [], seats: g.seats.map(s => ({ seat: s.seat, pid: s.pid, f: s.f })) }));
+  se.slot = {}; d.order.forEach((pid, i) => { se.slot[pid] = i + 1; });
+  se.started = true; se.seed = d.seed; se.draft = null;
+  logit('Season', 'Season started, pairings published', 'Not started', se.games.length + ' games, seed ' + d.seed);
+  save();
+  return { ok: true };
+}
+
+/* ---------- time ---------- */
+function fmtDT(ms) {
+  return new Date(ms).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }).replace(/^(\w+),/, '$1').replace(/,(\s\d\d:)/, ',$1');
+}
+function fmtCd(ms) {
+  if (ms <= 0) return '0h 00m';
+  const d = Math.floor(ms / DAY), h = Math.floor(ms % DAY / HOUR), m = Math.floor(ms % HOUR / 60000);
+  return d > 0 ? d + 'd ' + String(h).padStart(2, '0') + 'h' : h + 'h ' + String(m).padStart(2, '0') + 'm';
+}
+function fmtAgo(ms) {
+  const d = now() - ms;
+  if (d < 60000) return 'just now';
+  if (d < HOUR) return Math.floor(d / 60000) + ' min ago';
+  if (d < DAY) { const h = Math.floor(d / HOUR); return h + (h === 1 ? ' hour ago' : ' hours ago'); }
+  const dd = Math.floor(d / DAY); return dd + (dd === 1 ? ' day ago' : ' days ago');
+}
+const fmtShort = ms => new Date(ms).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+const fmtDay = ms => new Date(ms).toLocaleString('en-GB', { day: 'numeric', month: 'short' });
+
+/* ============================================================
+   CSV export and import, and a small zip writer and reader.
+   ============================================================ */
+const CSV_FILES = ['people', 'roster', 'lists', 'season', 'games', 'seats', 'submissions', 'results', 'pickems', 'log'];
+const csvCell = v => { v = v == null ? '' : String(v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+const csvLine = a => a.map(csvCell).join(',');
+function csvText(head, rows) { return [csvLine(head)].concat(rows.map(r => csvLine(head.map(h => r[h])))).join('\n') + '\n'; }
+function csvParse(text) {
+  const rows = []; let row = [], cell = '', q = false, i = 0;
+  text = text.replace(/^﻿/, '');
+  for (; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+    else if (c === '"') q = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cell); cell = ''; rows.push(row); row = []; }
+    else cell += c;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => !(r.length === 1 && r[0] === ''));
+}
+const yn = b => b ? 'yes' : 'no';
+
+/* current state as { file: {head, rows, key(row)} } */
+function exportModel() {
+  const se = SE(), M = {};
+  M.people = { head: ['id', 'name', 'discord_id'], rows: S.people.map(p => ({ id: p.id, name: p.name, discord_id: p.did || '' })), key: r => r.id };
+  M.roster = { head: ['person', 'list', 'position'], rows: [].concat(se.league.map((p, i) => ({ person: pname(p), list: 'league', position: i + 1 })), se.wait.map((p, i) => ({ person: pname(p), list: 'waitlist', position: i + 1 }))), key: r => r.person };
+  const roster = se.league.concat(se.wait);
+  const maxRank = Math.max(5, ...roster.map(p => listOf(p).codes.length));
+  const lh = ['person', 'status']; for (let i = 1; i <= maxRank; i++) lh.push('rank_' + i);
+  M.lists = { head: lh, rows: roster.filter(p => se.lists[p]).map(p => { const r = { person: pname(p), status: listOf(p).st }; for (let i = 1; i <= maxRank; i++) r['rank_' + i] = listOf(p).codes[i - 1] ? FA[listOf(p).codes[i - 1]].name : ''; return r; }), key: r => r.person };
+  const kv = [['name', se.name], ['capacity', se.cap], ['games_each', se.each], ['maps', se.maps.join(';')], ['pool', se.pool.join(';')], ['min_list', se.minList], ['lock_at', new Date(se.lockAt).toISOString()], ['started', yn(se.started)], ['seed', se.seed]];
+  M.season = { head: ['key', 'value'], rows: kv.map(a => ({ key: a[0], value: a[1] })), key: r => r.key };
+  M.games = { head: ['game', 'map', 'void'], rows: se.games.map(g => ({ game: g.no, map: mapName(g), void: yn(g.void) })), key: r => r.game };
+  M.seats = { head: ['game', 'seat', 'person', 'faction'], rows: [].concat(...se.games.map(g => g.seats.map(s => ({ game: g.no, seat: s.seat, person: pname(s.pid), faction: FA[s.f].name })))), key: r => r.game + '|' + r.seat };
+  M.submissions = { head: ['game', 'person', 'winners'], rows: [].concat(...se.games.map(g => Object.keys(g.subs).map(k => ({ game: g.no, person: pname(k), winners: g.subs[k].map(pname).join(';') })))), key: r => r.game + '|' + r.person };
+  M.results = { head: ['game', 'status', 'winners', 'settled_by'], rows: se.games.map(g => ({ game: g.no, status: gstate(g), winners: winnersOf(g).map(pname).join(';'), settled_by: g.settled ? g.settled.by : '' })), key: r => r.game };
+  M.pickems = { head: ['discord_id', 'game', 'first', 'second'], rows: se.picks.map(p => ({ discord_id: p.acct, game: p.game, first: pname(p.first), second: p.second ? pname(p.second) : '' })), key: r => r.discord_id + '|' + r.game };
+  M.log = { head: ['at', 'who', 'area', 'what', 'old', 'new'], rows: S.log.map(l => ({ at: new Date(l.at).toISOString(), who: l.who, area: l.area, what: l.what, old: l.old, new: l.nw })), key: r => r.at + '|' + r.what };
+  return M;
+}
+function exportFiles() { const M = exportModel(), o = {}; CSV_FILES.forEach(f => { o[f + '.csv'] = csvText(M[f].head, M[f].rows); }); return o; }
+function exportPicksCsv() {
+  const se = SE(), ps = se.league.concat(se.wait).filter(p => se.lists[p]);
+  const n = Math.max(5, ...ps.map(p => listOf(p).codes.length));
+  const head = ['player']; for (let i = 1; i <= n; i++) head.push('rank_' + i);
+  return csvText(head, ps.map(p => { const r = { player: pname(p) }; for (let i = 1; i <= n; i++) r['rank_' + i] = listOf(p).codes[i - 1] ? FA[listOf(p).codes[i - 1]].name : ''; return r; }));
+}
+
+/* ---------- import: parse, validate, diff, apply ---------- */
+function importPlan(files) {
+  const errs = [], parsed = {}, cur = exportModel();
+  Object.keys(files).forEach(fn => {
+    const base = fn.replace(/\.csv$/i, '').toLowerCase();
+    if (!CSV_FILES.includes(base)) { errs.push({ file: fn, msg: 'is not one of the league state files (' + CSV_FILES.map(x => x + '.csv').join(', ') + ').' }); return; }
+    const rows = csvParse(files[fn]);
+    if (!rows.length) { errs.push({ file: fn, msg: 'is empty.' }); return; }
+    const head = rows[0].map(h => h.trim()), want = cur[base].head;
+    const need = base === 'lists' ? ['person', 'status'] : want;
+    const miss = need.filter(h => !head.includes(h));
+    if (miss.length) { errs.push({ file: fn, row: 1, col: miss[0], msg: 'column "' + miss[0] + '" is missing.' }); return; }
+    parsed[base] = rows.slice(1).map((r, i) => { const o = { _row: i + 2 }; head.forEach((h, k) => { o[h] = (r[k] || '').trim(); }); return o; });
+    parsed[base + '_head'] = head;
+  });
+  if (errs.length) return { errs };
+  const E = (file, row, col, msg) => { if (!errs.length) errs.push({ file: file + '.csv', row, col, msg }); };
+  const se = SE();
+  // working copies for cross-file name resolution
+  const people = parsed.people ? parsed.people.map(r => ({ id: r.id, name: r.name, did: r.discord_id || null })) : S.people.map(p => ({ id: p.id, name: p.name, did: p.did }));
+  if (parsed.people) parsed.people.forEach(r => { if (!r.id) E('people', r._row, 'id', 'id is empty.'); else if (!r.name) E('people', r._row, 'name', 'name is empty.'); else if (r.discord_id && !validId(r.discord_id)) E('people', r._row, 'discord_id', '"' + r.discord_id + '" is not a Discord user ID. IDs are digits only.'); });
+  const byName = n => people.find(p => p.name === n);
+  const pool = parsed.season && parsed.season.find(r => r.key === 'pool') ? parsed.season.find(r => r.key === 'pool').value.split(';').filter(Boolean) : se.pool;
+  const sv = k => { const r = parsed.season && parsed.season.find(x => x.key === k); return r ? r.value : null; };
+  const cap = sv('capacity') != null ? +sv('capacity') : se.cap, gms = sv('games_each') != null ? +sv('games_each') : se.each;
+  if (parsed.season) {
+    if (sv('capacity') != null && !(VALID[cap])) E('season', parsed.season.find(r => r.key === 'capacity')._row, 'value', '"' + sv('capacity') + '" is not a capacity. Use 8, 10 or 12.');
+    else if (sv('games_each') != null && !(VALID[cap] || []).includes(gms)) E('season', parsed.season.find(r => r.key === 'games_each')._row, 'value', cap + ' players with ' + sv('games_each') + ' games is not offered.');
+    if (sv('lock_at') != null && isNaN(Date.parse(sv('lock_at')))) E('season', parsed.season.find(r => r.key === 'lock_at')._row, 'value', '"' + sv('lock_at') + '" is not a date.');
+    if (sv('min_list') != null && !(+sv('min_list') >= 1)) E('season', parsed.season.find(r => r.key === 'min_list')._row, 'value', 'the minimum list length must be a number.');
+    pool.forEach(c => { if (!FA[c]) E('season', parsed.season.find(r => r.key === 'pool')._row, 'value', '"' + c + '" is not a faction code.'); });
+  }
+  if (parsed.roster) {
+    parsed.roster.forEach(r => { if (!byName(r.person)) E('roster', r._row, 'person', '"' + r.person + '" is not a person.'); else if (!['league', 'waitlist'].includes(r.list)) E('roster', r._row, 'list', '"' + r.list + '" is not league or waitlist.'); });
+    if (parsed.roster.filter(r => r.list === 'league').length > cap) E('roster', parsed.roster[0]._row, 'list', 'the league list holds at most ' + cap + ' people.');
+  }
+  if (parsed.lists) parsed.lists.forEach(r => {
+    if (!byName(r.person)) return E('lists', r._row, 'person', '"' + r.person + '" is not a person.');
+    if (!['submitted', 'provisional'].includes(r.status)) return E('lists', r._row, 'status', '"' + r.status + '" is not submitted or provisional.');
+    const seen = new Set();
+    parsed.lists_head.filter(h => /^rank_\d+$/.test(h)).forEach(h => {
+      const v = r[h]; if (!v) return;
+      const c = NAME2CODE[v];
+      if (!c || !pool.includes(c)) E('lists', r._row, h, '"' + v + '" is not a faction in the pool.');
+      else if (seen.has(c)) E('lists', r._row, h, '"' + v + '" is on this list twice.'); else seen.add(c);
+    });
+  });
+  const gameNo = (file, r) => { const g = gameBy(r.game); if (!g) E(file, r._row, 'game', 'game ' + r.game + ' is not in the pairings. Pairings are not imported.'); return g; };
+  if (parsed.games) {
+    parsed.games.forEach(r => { const g = gameNo('games', r); if (g) { if (!se.maps.concat(sv('maps') ? sv('maps').split(';') : []).includes(r.map)) E('games', r._row, 'map', '"' + r.map + '" is not a map.'); if (!['yes', 'no'].includes(r.void)) E('games', r._row, 'void', '"' + r.void + '" is not yes or no.'); } });
+    se.games.forEach(g => { if (!parsed.games.some(r => +r.game === g.no)) E('games', 2, 'game', 'there is no row for game ' + g.no + '. Pairings are not imported or removed.'); });
+  }
+  if (parsed.seats) {
+    parsed.seats.forEach(r => { const g = gameNo('seats', r); if (!g) return; if (!g.seats.find(s => s.seat === +r.seat)) E('seats', r._row, 'seat', 'seat ' + r.seat + ' is not at table ' + r.game + '.'); else if (!byName(r.person)) E('seats', r._row, 'person', '"' + r.person + '" is not a person.'); else if (!NAME2CODE[r.faction]) E('seats', r._row, 'faction', '"' + r.faction + '" is not a faction.'); });
+    se.games.forEach(g => g.seats.forEach(s => { if (!parsed.seats.some(r => +r.game === g.no && +r.seat === s.seat)) E('seats', 2, 'game', 'there is no row for table ' + g.no + ', seat ' + s.seat + '. Pairings are not imported or removed.'); }));
+  }
+  const winnersOK = (file, r, col) => {
+    const g = gameNo(file, r); if (!g) return;
+    const seatedNames = g.seats.map(s => (parsed.seats ? null : pname(s.pid)));
+    r[col].split(';').filter(Boolean).forEach(n => { const p = byName(n); if (!p) E(file, r._row, col, '"' + n + '" is not a person.'); });
+  };
+  if (parsed.submissions) parsed.submissions.forEach(r => { if (!byName(r.person)) E('submissions', r._row, 'person', '"' + r.person + '" is not a person.'); else winnersOK('submissions', r, 'winners'); });
+  if (parsed.results) parsed.results.forEach(r => { if (!['upcoming', 'recorded', 'disputed', 'settled', 'void'].includes(r.status)) E('results', r._row, 'status', '"' + r.status + '" is not a game status.'); else winnersOK('results', r, 'winners'); });
+  if (parsed.pickems) parsed.pickems.forEach(r => { if (!validId(r.discord_id)) E('pickems', r._row, 'discord_id', '"' + r.discord_id + '" is not a Discord user ID. IDs are digits only.'); else if (!gameBy(r.game)) E('pickems', r._row, 'game', 'game ' + r.game + ' is not in the pairings.'); else if (!byName(r.first)) E('pickems', r._row, 'first', '"' + r.first + '" is not a person.'); else if (r.second && !byName(r.second)) E('pickems', r._row, 'second', '"' + r.second + '" is not a person.'); });
+  if (errs.length) return { errs };
+  // diff
+  const summary = [];
+  Object.keys(files).forEach(fn => {
+    const base = fn.replace(/\.csv$/i, '').toLowerCase();
+    if (base === 'log') { summary.push({ file: fn, added: 0, changed: 0, removed: 0, note: 'The log is append-only and is not imported.' }); return; }
+    const c = cur[base], mapC = {}, mapN = {};
+    c.rows.forEach(r => { mapC[c.key(r)] = r; });
+    const norm = r => { const o = {}; c.head.forEach(h => { o[h] = String(r[h] == null ? '' : r[h]); }); if (base === 'lists') parsed.lists_head.forEach(h => { if (/^rank_/.test(h)) o[h] = r[h] || ''; }); return o; };
+    parsed[base].forEach(r => { mapN[c.key(r)] = r; });
+    let added = 0, changed = 0, removed = 0;
+    Object.keys(mapN).forEach(k => { if (!mapC[k]) added++; else { const a = norm(mapC[k]), b = norm(mapN[k]); const keys = new Set(Object.keys(a).concat(Object.keys(b).filter(x => x !== '_row'))); let diff = false; keys.forEach(x => { if (String(a[x] || '') !== String(b[x] || '')) diff = true; }); if (diff) changed++; } });
+    Object.keys(mapC).forEach(k => { if (!mapN[k]) removed++; });
+    summary.push({ file: fn, added, changed, removed });
+  });
+  const total = summary.reduce((s, r) => s + r.added + r.changed + r.removed, 0);
+  let gamesChanged = 0, withResult = 0;
+  ['games', 'seats', 'submissions', 'results'].forEach(b => { const s = summary.find(x => x.file.replace(/\.csv$/i, '') === b); if (s) gamesChanged += s.added + s.changed + s.removed; });
+  if (SE().started && gamesChanged) withResult = SE().games.filter(g => counted(g)).length ? 1 : 0;
+  return { errs: [], parsed, summary, total, gamesChanged, withResult, names: Object.keys(files) };
+}
+function applyImport(plan) {
+  const P = plan.parsed, se = SE();
+  if (P.people) {
+    S.people = P.people.map(r => ({ id: r.id, name: r.name, did: r.discord_id || null }));
+    const ids = new Set(S.people.map(p => p.id));
+    se.league = se.league.filter(x => ids.has(x)); se.wait = se.wait.filter(x => ids.has(x));
+  }
+  const pidByName = n => (S.people.find(p => p.name === n) || {}).id;
+  if (P.season) {
+    const sv = k => { const r = P.season.find(x => x.key === k); return r ? r.value : null; };
+    if (sv('name') != null) se.name = sv('name');
+    if (!se.started) { if (sv('capacity') != null) se.cap = +sv('capacity'); if (sv('games_each') != null) se.each = +sv('games_each'); }
+    if (sv('maps') != null) se.maps = sv('maps').split(';').filter(Boolean);
+    if (sv('pool') != null) se.pool = sv('pool').split(';').filter(Boolean);
+    if (sv('min_list') != null) se.minList = +sv('min_list');
+    if (sv('lock_at') != null) se.lockAt = Date.parse(sv('lock_at'));
+  }
+  if (P.roster) {
+    const srt = l => P.roster.filter(r => r.list === l).sort((a, b) => +a.position - +b.position).map(r => pidByName(r.person));
+    se.league = srt('league'); se.wait = srt('waitlist');
+  }
+  if (P.lists) {
+    const lists = {};
+    P.lists.forEach(r => { lists[pidByName(r.person)] = { st: r.status, codes: P.lists_head.filter(h => /^rank_\d+$/.test(h)).sort((a, b) => +a.slice(5) - +b.slice(5)).map(h => NAME2CODE[r[h]]).filter(Boolean) }; });
+    se.lists = lists;
+  }
+  if (P.games) P.games.forEach(r => { const g = gameBy(r.game); g.mapIdx = Math.max(0, se.maps.indexOf(r.map)); g.void = r.void === 'yes'; });
+  if (P.seats) P.seats.forEach(r => { const s = gameBy(r.game).seats.find(x => x.seat === +r.seat); s.pid = pidByName(r.person); s.f = NAME2CODE[r.faction]; });
+  if (P.submissions) {
+    se.games.forEach(g => { g.subs = {}; });
+    P.submissions.forEach(r => { gameBy(r.game).subs[pidByName(r.person)] = r.winners.split(';').filter(Boolean).map(pidByName); });
+  }
+  if (P.results) P.results.forEach(r => { const g = gameBy(r.game); if (r.settled_by) g.settled = { winners: r.winners.split(';').filter(Boolean).map(pidByName), by: r.settled_by, at: now() }; else g.settled = null; });
+  if (P.pickems) se.picks = P.pickems.map(r => ({ acct: r.discord_id, game: +r.game, first: pidByName(r.first), second: r.second ? pidByName(r.second) : null, at: now() }));
+  logit('Import', 'Imported ' + plan.names.join(', '), '', plan.total + ' rows changed');
+  save();
+}
+
+/* ---------- zip (store only to write; store and deflate to read) ---------- */
+const CRC = (() => { const t = []; for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(b) { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function zipStore(files) {
+  const enc = new TextEncoder(), parts = [], central = [];
+  let off = 0;
+  const u16 = n => [n & 255, n >> 8 & 255], u32 = n => [n & 255, n >> 8 & 255, n >> 16 & 255, n >> 24 & 255];
+  Object.keys(files).forEach(name => {
+    const nb = enc.encode(name), db = enc.encode(files[name]), crc = crc32(db);
+    const head = [0x50, 0x4b, 3, 4, 20, 0, 0, 0, 0, 0, 0, 0, 0x21, 0, ...u32(crc), ...u32(db.length), ...u32(db.length), ...u16(nb.length), 0, 0];
+    parts.push(new Uint8Array(head), nb, db);
+    central.push({ nb, crc, size: db.length, off });
+    off += head.length + nb.length + db.length;
+  });
+  const cstart = off;
+  central.forEach(c => {
+    const h = [0x50, 0x4b, 1, 2, 20, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0x21, 0, ...u32(c.crc), ...u32(c.size), ...u32(c.size), ...u16(c.nb.length), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...u32(c.off)];
+    parts.push(new Uint8Array(h), c.nb); off += h.length + c.nb.length;
+  });
+  const end = [0x50, 0x4b, 5, 6, 0, 0, 0, 0, ...u16(central.length), ...u16(central.length), ...u32(off - cstart), ...u32(cstart), 0, 0];
+  parts.push(new Uint8Array(end));
+  return new Blob(parts, { type: 'application/zip' });
+}
+async function unzip(buf) {
+  const b = new Uint8Array(buf), dv = new DataView(buf), dec = new TextDecoder(), out = {};
+  let i = 0;
+  while (i + 30 < b.length && dv.getUint32(i, true) === 0x04034b50) {
+    const method = dv.getUint16(i + 8, true), csize = dv.getUint32(i + 18, true), nl = dv.getUint16(i + 26, true), xl = dv.getUint16(i + 28, true);
+    const name = dec.decode(b.subarray(i + 30, i + 30 + nl)), data = b.subarray(i + 30 + nl + xl, i + 30 + nl + xl + csize);
+    if (method === 0) out[name.split('/').pop()] = dec.decode(data);
+    else if (method === 8 && typeof DecompressionStream !== 'undefined') {
+      const ds = new DecompressionStream('deflate-raw'), w = ds.writable.getWriter(); w.write(data); w.close();
+      out[name.split('/').pop()] = dec.decode(await new Response(ds.readable).arrayBuffer());
+    } else throw new Error('This zip uses a compression the prototype cannot read. Choose the .csv files instead.');
+    i += 30 + nl + xl + csize;
+  }
+  return out;
+}
+function download(name, blobOrText, type) {
+  const blob = blobOrText instanceof Blob ? blobOrText : new Blob([blobOrText], { type: type || 'text/csv' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+
+/* ============================================================
+   Views, part A: shared pieces, gate, header, player pages.
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const U = { f: {}, menu: false };          // transient UI state, not saved
+const fv = (k, d) => U.f[k] !== undefined ? U.f[k] : (d === undefined ? '' : d);
+const ICON = {
+  check: 'M3 8.5l3.2 3.2L13 4.8', plus: 'M8 3v10M3 8h10', arrow: 'M3 8h10 M9 4l4 4-4 4', warn: 'M8 2.2l6.2 11H1.8z M8 6.8v3 M8 11.9v.2',
+  copy: 'M5 5h8v8H5z M3 11V3h8', lock: 'M4.5 7V5.5a3.5 3.5 0 017 0V7 M3.5 7h9v7h-9z', menu: 'M2.5 4.5h11 M2.5 8h11 M2.5 11.5h11',
+  close: 'M4 4l8 8M12 4l-8 8', up: 'M8 13V3 M4 7l4-4 4 4', down: 'M8 3v10 M4 9l4 4 4-4', info: 'M8 7v4 M8 4.6v.2 M8 1.8a6.2 6.2 0 100 12.4A6.2 6.2 0 008 1.8z',
+  x: 'M4 4l8 8M12 4l-8 8'
+};
+const ic = (k, s) => '<svg width="' + (s || 16) + '" height="' + (s || 16) + '" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + ICON[k] + '"/></svg>';
+const seal = (c, big) => '<span class="seal ' + (big ? 'lg2 ' : '') + c + '" aria-hidden="true">' + FA[c].short + '</span>';
+const fchip = c => '<span class="fchip">' + seal(c) + '<span class="fn">' + esc(FA[c].name) + '</span></span>';
+const typeTag = c => FA[c].type === 'Militant' ? '<span class="tag mil">Militant</span>' : '<span class="tag ins">Insurgent</span>';
+const fmeta = c => '<span class="fmeta">' + typeTag(c) + '<span class="reach">Reach ' + FA[c].reach + '</span></span>';
+const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+const alert = (kind, html, icn) => '<div class="alert ' + kind + '" role="status">' + ic(icn || (kind === 'ok' ? 'check' : kind === 'info' ? 'info' : 'warn'), 18) + '<div>' + html + '</div></div>';
+const phnote = html => '<div class="phnote"><b>Prototype:</b> ' + html + '</div>';
+const tag = (kind, text, icn) => '<span class="tag ' + kind + '">' + (icn ? ic(icn, 12) : '') + text + '</span>';
+const youTag = '<span class="tag solid">You</span>';
+const btn = (act, label, o) => { o = o || {}; return '<button type="button" class="btn ' + (o.cls || '') + '" data-act="' + act + '"' + (o.a ? ' data-a="' + esc(o.a) + '"' : '') + (o.b ? ' data-b="' + esc(o.b) + '"' : '') + (o.dis ? ' disabled' : '') + (o.id ? ' id="' + o.id + '"' : '') + '>' + (o.icon ? ic(o.icon) : '') + label + '</button>'; };
+const lnk = (href, label, cls) => '<a class="btn ' + (cls || '') + '" href="' + href + '">' + label + '</a>';
+const route = () => { const h = location.hash.replace(/^#\/?/, ''), q = h.split('?'); return { parts: q[0].split('/').filter(Boolean), key: q[0], q: new URLSearchParams(q[1] || '') }; };
+const go = h => { if (location.hash === h) render(); else location.hash = h; };
+const lockLine = () => (stage() === 'open' ? 'Locks in <span data-cd="' + SE().lockAt + '">' + fmtCd(SE().lockAt - now()) + '</span>, ' : 'Locked ') + esc(fmtDT(SE().lockAt));
+const seasonTags = () => stage() === 'open' ? tag('ok', 'Open for joining', 'check') : stage() === 'locked' ? tag('', 'Locked', 'lock') + tag('', 'Not started') : tag('solid', 'Live');
+function toast(msg, bad) { const t = $('#toast'); t.textContent = msg; t.className = 'toast' + (bad ? ' bad' : ''); t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, 3200); }
+function ask(o) {
+  const mb = $('#modalbk'), md = $('#modal');
+  U.modal = o;
+  md.innerHTML = '<h2 class="disp h2">' + esc(o.title) + '</h2>' + (o.body ? '<div>' + o.body + '</div>' : '') +
+    (o.input ? '<div class="field"><label for="m-in">' + esc(o.input.label) + '</label><input id="m-in" type="text" value="' + esc(o.input.value || '') + '" autocomplete="off"></div>' : '') +
+    '<div class="row"><button type="button" class="btn ' + (o.danger ? 'danger' : 'pri') + '" data-act="modal-ok">' + esc(o.ok || 'OK') + '</button><button type="button" class="btn" data-act="modal-cancel">Cancel</button></div>';
+  mb.hidden = false;
+  const i = $('#m-in'); if (i) { i.focus(); i.select(); } else $('[data-act="modal-ok"]').focus();
+}
+const closeModal = () => { $('#modalbk').hidden = true; U.modal = null; };
+
+/* ---------- names inside games ---------- */
+const nameCell = (g, s, m) => {
+  const w = winnersOf(g);
+  return '<span>' + esc(pname(s.pid)) + (m.pid === s.pid ? ' ' + youTag : '') + (w.includes(s.pid) ? ' <span class="tag ok">Winner</span>' : '') + '</span>';
+};
+function statusTag(g) {
+  const s = gstate(g);
+  return { upcoming: tag('', 'Upcoming'), recorded: tag('solid', 'Recorded'), settled: tag('solid', 'Recorded'), disputed: tag('warn', 'Disputed'), void: tag('bad', 'Void') }[s];
+}
+function resultText(g) {
+  const s = gstate(g);
+  if (s === 'void') return 'Void: not counted';
+  if (s === 'disputed') return 'Disputed, the admin will decide';
+  if (s === 'upcoming') return 'No result yet';
+  return 'Won by ' + winnersOf(g).map(pname).join(', ');
+}
+function gameCard(g, m) {
+  return '<article class="gcard"><div class="gh"><a class="gno" href="#/game/' + g.no + '">Table ' + g.no + ' <span class="muted">' + esc(mapName(g)) + '</span></a>' + statusTag(g) + '</div>' +
+    g.seats.map(s => '<div class="seat' + (winnersOf(g).includes(s.pid) ? ' win' : '') + '"><span class="num">' + s.seat + '</span>' + nameCell(g, s, m) + fchip(s.f) + '</div>').join('') +
+    '<div class="gf">' + esc(resultText(g)) + '</div></article>';
+}
+function gameTable(games, m) {
+  return '<div class="card tbl-wrap"><table class="tbl"><thead><tr><th>Table</th><th>Map</th><th>Seat 1</th><th>Seat 2</th><th>Seat 3</th><th>Seat 4</th><th>Result</th></tr></thead><tbody>' +
+    games.map(g => '<tr><td><a class="num" style="font-size:24px;text-decoration:none;color:var(--ink)" href="#/game/' + g.no + '">' + g.no + '</a></td><td>' + esc(mapName(g)) + '</td>' +
+      g.seats.map(s => '<td><div class="stack8"><span class="num">' + s.seat + ' ' + nameCell(g, s, m) + '</span>' + fchip(s.f) + '<span>' + typeTag(s.f) + '</span></div></td>').join('') +
+      '<td>' + statusTag(g) + '<div class="muted" style="margin-top:6px;font-size:13px">' + esc(resultText(g)) + '</div></td></tr>').join('') + '</tbody></table></div>';
+}
+
+/* ---------- header ---------- */
+function navItems(m) {
+  const base = [['', 'Home'], ['players', 'Players'], ['pairings', 'Pairings'], ['pickems', "Pick'ems"]];
+  if (m.onRoster) base.push(['my-list', 'My list']);
+  base.push(['info', 'League info']);
+  return base;
+}
+const ADMIN_NAV = [['admin', 'Dashboard'], ['admin/whitelist', 'Whitelist'], ['admin/roster', 'Roster'], ['admin/season', 'Season'], ['admin/start', 'Start season'], ['admin/disputes', 'Disputes'], ['admin/fixit', 'Fix it'], ['admin/csv', 'CSV']];
+const onNav = (r, p) => p === '' ? r.parts.length === 0 : p === 'admin' ? r.parts.join('/') === 'admin' : r.parts.join('/').indexOf(p) === 0 || (p === 'pairings' && r.parts[0] === 'game');
+function headerHTML(r, m) {
+  const brand = '<a class="brand" href="#/">Root <i>League</i></a>';
+  if (m.state !== 'in') {
+    const out = m.state === 'notinvited' ? '<button type="button" class="btn sm" data-act="signout" style="background:transparent;color:#fff;border-color:var(--band-line)">Sign out</button>' : '<span></span>';
+    return '<header class="band"><div class="bar" style="display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 16px;max-width:1280px;margin:0 auto">' + brand + out + '</div></header>';
+  }
+  const items = navItems(m);
+  const phone = '<header class="band hd-phone"><div class="bar">' + brand + '<button type="button" class="menu-btn" data-act="menu" aria-label="' + (U.menu ? 'Close menu' : 'Menu') + '" aria-expanded="' + U.menu + '">' + ic(U.menu ? 'close' : 'menu', 22) + '</button></div></header>';
+  const dn = items.map(i => '<a class="' + (onNav(r, i[0]) ? 'on' : '') + '" href="#/' + i[0] + '">' + i[1] + '</a>').join('');
+  const desk = '<header class="hd-desk"><div class="band"><div class="dtop" style="display:flex;align-items:flex-end;gap:40px;flex-wrap:wrap"><a class="brand" href="#/" style="padding:18px 0">Root <i>League</i></a><nav aria-label="Main" style="display:flex;gap:28px;flex-grow:1;flex-wrap:wrap">' + dn + '</nav>' +
+    '<div style="display:flex;align-items:center;gap:12px;padding-bottom:12px"><span class="who">' + esc(SE().name) + ', ' + stage() + '</span><span class="who">Signed in as <b style="color:#fff">' + esc(m.name) + '</b></span>' + (m.admin ? '<span class="tag adm">Admin</span>' : '') + '<button type="button" class="btn sm" data-act="signout" style="background:transparent;color:#fff;border-color:var(--band-line)">Sign out</button></div></div></div>' +
+    (m.admin ? '<div class="band adm" style="background:#1D4B38;color:#fff"><div class="dtop" style="display:flex;align-items:center;gap:28px;flex-wrap:wrap"><span class="kicker" style="color:#D5E3DA">Admin</span><nav aria-label="Admin" style="display:flex;gap:26px;flex-wrap:wrap">' +
+      ADMIN_NAV.map(i => '<a class="' + (onNav(r, i[0]) ? 'on' : '') + '" href="#/' + i[0] + '" style="color:' + (onNav(r, i[0]) ? '#fff' : '#D5E3DA') + ';padding:14px 0 11px;border-bottom:3px solid ' + (onNav(r, i[0]) ? 'var(--amber)' : 'transparent') + ';text-decoration:none;font-size:15px;font-weight:500">' + i[1] + '</a>').join('') + '</nav></div></div>' : '') + '</header>';
+  return phone + desk;
+}
+function menuPanel(r, m) {
+  const link = i => '<a class="mlink' + (onNav(r, i[0]) ? ' on' : '') + '" href="#/' + i[0] + '">' + i[1] + '</a>';
+  return '<nav class="page only-phone" aria-label="Menu" style="gap:24px"><div>' + navItems(m).map(link).join('') + '</div>' +
+    (m.admin ? '<div class="stack8"><div class="kicker">Admin only</div>' + ADMIN_NAV.map(link).join('') + '</div>' : '') +
+    '<button type="button" class="btn" data-act="signout">Sign out</button></nav>';
+}
+
+/* ---------- gate ---------- */
+function pLanding() {
+  return '<main class="gate" id="main"><h1 class="disp" style="font-size:88px">Root<br>League</h1><a class="btn discord" href="#/discord" style="width:100%;min-height:52px;font-size:16px">Continue with Discord</a></main>';
+}
+function pConsent() {
+  return '<main class="gate" id="main">' + phnote('Stand-in for the real Discord page, so the flow reads end to end. Not Discord\'s design.') +
+    '<div class="card p20" style="border-width:2px"><div class="stack" style="gap:14px"><h1 class="disp" style="font-size:40px">Root League wants to see who you are</h1><p style="font-size:15px">Your Discord username, avatar and user ID.</p>' +
+    '<button type="button" class="btn discord" data-act="authorise" style="min-height:52px">Authorise</button><a class="btn" href="#/">Cancel</a></div></div>' +
+    '<button type="button" class="btn ghost" data-act="authorise-notwl" style="justify-content:flex-start;padding:0;font-size:14px;text-decoration:underline">Prototype only: sign in with an account that is not on the list</button></main>';
+}
+function pNotInvited(m) {
+  return '<main class="gate" id="main"><div class="stack18"><h1 class="disp h1s">Not on the list yet</h1><p style="font-size:17px">Send your Discord ID to the admin, then reload this page.</p>' +
+    '<div class="card p16"><div class="stack"><div class="kicker">Your Discord ID</div><div class="num" id="myid" style="font-size:30px;letter-spacing:.04em;word-break:break-all">' + esc(m.acct) + '</div>' +
+    btn('copy-id', 'Copy my ID', { icon: 'copy' }) + '</div></div>' +
+    btn('reload', 'Reload', { cls: 'pri', icon: 'arrow' }) + '</div></main>';
+}
+
+/* ---------- lists on pages ---------- */
+function standingsCard(m) {
+  const rows = standings();
+  return '<div class="card"><div class="listhead kicker" style="grid-template-columns:36px minmax(0,1fr) 44px 52px 44px"><span>#</span><span>Player</span><span>Wins</span><span>Played</span><span>Left</span></div>' +
+    rows.map(r => '<div class="lrow' + (r.pid === m.pid ? ' lead' : '') + '" style="grid-template-columns:36px minmax(0,1fr) 44px 52px 44px"><span class="num rk' + (r.rank === 1 && r.wins > 0 ? ' top' : '') + '">' + r.rank + '</span><span>' + esc(r.name) + (r.pid === m.pid ? ' ' + youTag : '') + '</span><span class="num">' + r.wins + '</span><span class="muted">' + r.played + '</span><span class="muted">' + r.left + '</span></div>').join('') + '</div>';
+}
+function boardCard(m, limit) {
+  const rows = leaderboard();
+  if (!rows.length) return '<div class="card p16 muted">Nobody has made a pick yet.</div>';
+  return '<div class="card"><div class="listhead kicker" style="grid-template-columns:36px minmax(0,1fr) 64px"><span>#</span><span>Person</span><span>Points</span></div>' +
+    (limit ? rows.slice(0, limit) : rows).map(r => '<div class="lrow' + (r.acct === m.acct ? ' lead' : '') + '" style="grid-template-columns:36px minmax(0,1fr) 64px"><span class="num">' + r.rank + '</span><span>' + esc(r.name) + (r.acct === m.acct ? ' ' + youTag : '') + '</span><span class="num">' + r.pts + ' <span class="muted" style="font-family:var(--f-body);font-size:12px">pts</span></span></div>').join('') + '</div>';
+}
+function seasonHead() {
+  return '<div class="stack8"><div class="kicker">Current season</div><h1 class="disp h1">' + esc(SE().name) + '</h1><div class="row">' + seasonTags() + '</div></div>';
+}
+function myGameCard(g, m) {
+  const s = seatOf(g, m.pid), st = gstate(g);
+  return '<div class="card p16 stack" style="gap:10px"><div class="rowb"><b><a href="#/game/' + g.no + '" style="color:var(--ink);text-decoration:none">Table ' + g.no + ', ' + esc(mapName(g)) + '</a></b>' +
+    (st === 'upcoming' ? '<a class="btn sm pri" href="#/game/' + g.no + '">Enter result</a>' : statusTag(g)) + '</div>' +
+    '<div class="row"><span class="muted">Seat ' + s.seat + '</span>' + fchip(s.f) + '</div><span class="muted">' + esc(resultText(g)) + '</span></div>';
+}
+
+/* ---------- home ---------- */
+function pHome(m) {
+  const se = SE(), st = stage();
+  if (m.player) {
+    const mine = se.games.filter(g => seatOf(g, m.pid));
+    return '<main class="page" id="main">' + seasonHead() + '<section class="stack"><h2 class="disp h2b">Your games</h2><div class="cols2">' + mine.map(g => myGameCard(g, m)).join('') + '</div></section>' +
+      '<div class="cols-main"><section class="stack" id="standings"><h2 class="disp h2b">Standings</h2>' + standingsCard(m) + '</section>' +
+      '<section class="stack"><div class="rowb"><h2 class="disp h2b">Pick\'em leaderboard</h2><a href="#/pickems">View all</a></div>' + boardCard(m, 5) + '</section></div></main>';
+  }
+  if (m.onRoster && st !== 'live') return pProspectHome(m);
+  let box;
+  if (st === 'open') box = '<div class="card p18" style="border:2px solid var(--forest)"><div class="stack"><h2 class="disp h2b">Join ' + esc(se.name) + '</h2><button type="button" class="btn pri" data-act="join" style="min-height:52px;font-size:16px">' + ic('plus') + 'Join league</button></div></div>';
+  else if (st === 'locked') box = '<div class="card p18"><div class="stack"><h2 class="disp h2b">Joining is closed</h2><p>Lists are locked. The season has not started yet.</p></div></div>';
+  else box = '<div class="card p18" style="border:2px solid var(--forest)"><div class="stack"><h2 class="disp h2b">Season in progress</h2><p style="font-size:15px">Joining is closed. Follow the games and make your picks.</p><div class="row"><a class="btn pri" href="#/pickems">' + ic('arrow') + 'Pick\'ems</a><button type="button" class="btn" data-act="scroll" data-a="standings">Standings</button></div></div></div>';
+  return '<main class="page" id="main">' + seasonHead() + box +
+    (st === 'live' ? '<div class="cols-main"><section class="stack" id="standings"><h2 class="disp h2b">Standings</h2>' + standingsCard(m) + '</section><section class="stack"><div class="rowb"><h2 class="disp h2b">Pick\'em leaderboard</h2><a href="#/pickems">View all</a></div>' + boardCard(m, 5) + '</section></div>' : '') + '</main>';
+}
+function pProspectHome(m) {
+  const se = SE(), st = stage(), l = listOf(m.pid), ok = l.codes.length >= se.minList;
+  const submitted = ok && l.st === 'submitted';
+  const seals = '<div class="row" style="gap:6px">' + l.codes.map(c => seal(c)).join('') + '</div>';
+  const listCard = submitted
+    ? '<div class="card p16"><div class="stack"><h2 class="disp h2">Your faction list</h2><div class="row">' + tag('ok', 'Submitted', 'check') + '<span class="muted">' + plural(l.codes.length, 'faction') + '</span></div>' + seals + '<a class="btn" href="#/my-list">' + (st === 'open' ? 'Edit my list' : 'View my list') + '</a></div></div>'
+    : '<div class="card p16" style="border:2px solid #E3B15A"><div class="stack"><h2 class="disp h2">Your faction list</h2>' + alert('warn', '<b>Not submitted yet.</b> ' + (st === 'open' ? 'Rank your factions before lists lock.' : 'Lists are locked. Ask the admin.')) + (l.codes.length ? seals : '') +
+      (st === 'open' ? '<a class="btn pri" href="#/my-list" style="min-height:52px">' + ic('arrow') + (l.codes.length ? 'Review and submit' : 'Rank my factions') + '</a>' : '') + '</div></div>';
+  const cd = st === 'open' ? '<div class="card p16" style="display:flex;align-items:center;gap:16px;background:var(--warn-wash);border-color:transparent;flex-wrap:wrap"><div style="display:flex;flex-direction:column"><span class="num" style="font-size:40px;line-height:1;color:var(--warn-ink)" data-cd="' + se.lockAt + '">' + fmtCd(se.lockAt - now()) + '</span><span style="font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--warn-ink)">until lists lock</span></div><p style="font-size:14px;color:var(--warn-ink)">' + esc(fmtDT(se.lockAt)) + '</p></div>'
+    : alert('info', 'Lists are locked. ' + esc(fmtDT(se.lockAt)) + '. The season has not started yet.', 'lock');
+  return '<main class="page" id="main">' + seasonHead() + cd + '<div class="cols2" style="align-items:start">' + listCard +
+    '<div class="card p16"><div class="stack"><h2 class="disp h2">Pairings</h2><p class="muted">Not published yet.</p><a class="btn" href="#/pairings">See the layout</a></div></div></div>' +
+    (st !== 'live' ? '<div><button type="button" class="btn danger ghost" data-act="leave" style="padding:0">Leave league</button></div>' : '') + '</main>';
+}
+
+/* ---------- my list ---------- */
+function canEditList(m) { return m.onRoster && !SE().started && (stage() === 'open' || m.admin); }
+function initDraft(m) {
+  const l = listOf(m.pid);
+  if (!U.draft || U.draft.pid !== m.pid) U.draft = { pid: m.pid, codes: l.codes.slice() };
+}
+function pMyList(m) {
+  if (!m.onRoster) return '<main class="page" id="main"><h1 class="disp h1s">My list</h1>' + alert('info', 'Join the league to rank factions. <a href="#/">Back to Home</a>') + '</main>';
+  const se = SE(), editable = canEditList(m);
+  initDraft(m);
+  const codes = editable ? U.draft.codes : listOf(m.pid).codes;
+  const link = '<a href="' + DB_URL + '" target="_blank" rel="noopener">Root Database</a> <a href="' + LAW_URL + '" target="_blank" rel="noopener">Law of Root</a>';
+  const items = codes.map((c, i) => '<div class="card p16 stack" style="gap:10px"><div class="row" style="flex-wrap:nowrap;gap:12px"><span class="num" style="font-size:30px;width:28px">' + (i + 1) + '</span><span class="fchip" style="flex:1">' + seal(c) + '<span class="fn">' + esc(FA[c].name) + '</span></span>' +
+    (editable ? '<button type="button" class="ib" data-act="l-up" data-a="' + i + '" aria-label="Move ' + esc(FA[c].name) + ' up"' + (i === 0 ? ' disabled' : '') + '>' + ic('up') + '</button><button type="button" class="ib" data-act="l-down" data-a="' + i + '" aria-label="Move ' + esc(FA[c].name) + ' down"' + (i === codes.length - 1 ? ' disabled' : '') + '>' + ic('down') + '</button>' : '') + '</div>' +
+    '<div class="row" style="gap:12px">' + fmeta(c) + '<span class="row" style="gap:12px;font-size:14px">' + link + '</span>' + (editable ? '<button type="button" class="btn sm ghost danger" data-act="l-remove" data-a="' + i + '">Remove</button>' : '') + '</div></div>').join('');
+  const need = Math.max(se.minList, se.each), n = codes.length, can = n >= need;
+  if (!editable) {
+    return '<main class="page" id="main"><div class="rowb"><h1 class="disp h1s">My list</h1>' + tag('', 'Locked', 'lock') + '</div>' +
+      alert('info', (se.started ? 'The season has started. ' : 'Lists locked on ' + esc(fmtDT(se.lockAt)) + '. ') + 'Ask the admin if something needs changing.', 'lock') +
+      '<div class="stack" style="max-width:720px">' + items + '</div></main>';
+  }
+  const fresh = S.ui.joined === m.pid && !listOf(m.pid).codes.length && !codes.length;
+  const submit = (id) => '<button type="button" class="btn pri" data-act="l-submit"' + (can ? '' : ' disabled') + ' style="min-height:52px">' + 'Submit list</button>';
+  const addable = se.pool.filter(c => !codes.includes(c));
+  return '<main class="page" id="main">' + (S.ui.joined === m.pid ? alert('ok', '<b>You\'re on the list!</b>', 'check') : '') +
+    '<div class="stack8"><h1 class="disp h1s">' + (S.ui.joined === m.pid && !listOf(m.pid).codes.length ? 'Rank your factions' : 'My list') + '</h1>' +
+    '<span class="muted">' + lockLine() + '</span>' +
+    '<p class="muted">Best first. Pick at least ' + need + '.' + (can ? '' : ' ' + (need - n) + ' to go.') + '</p></div>' +
+    '<div class="only-desk">' + submit() + '</div>' +
+    (codes.length ? '<div class="stack" style="max-width:720px">' + items + '</div>' : '<div class="card p16"><span class="muted">Nothing ranked yet. Tap Add on a faction below.</span></div>') +
+    (addable.length ? '<h2 class="disp h2b">Add a faction</h2><div class="faclist">' + addable.map(c => '<div class="card facadd"><span class="fchip">' + seal(c) + '<span class="fn">' + esc(FA[c].name) + '</span></span><span class="reach">' + FA[c].type + ', reach ' + FA[c].reach + '</span><div class="row" style="gap:10px"><a href="' + DB_URL + '" target="_blank" rel="noopener" style="font-size:13px">Root DB</a><button type="button" class="btn sm" data-act="l-add" data-a="' + c + '" style="margin-left:auto">Add</button></div></div>').join('') + '</div>' : '') +
+    '<div class="row"><button type="button" class="btn" data-act="l-discard">Discard</button></div>' +
+    '<div class="sticky-sub only-mobile">' + submit() + '</div></main>';
+}
+
+/* ---------- players ---------- */
+function pPlayers(m) {
+  const se = SE(), ids = se.league.concat(se.wait).slice().sort((a, b) => pname(a).localeCompare(pname(b)));
+  const open = stage() === 'open';
+  const head = '<div class="stack8"><h1 class="disp h1s">Players</h1>' + (open ? '<span class="muted">' + (m.admin ? 'Ranked lists show to players once they lock. As admin you see them now.' : 'Ranked lists show here once they lock. Until then only the owner and the admin see them.') + '</span>' : '') + '</div>';
+  if (open && m.admin) {
+    return '<main class="page" id="main">' + head + '<div class="cols2" style="align-items:start">' + ids.map(p => { const l = listOf(p), done = l.st === 'submitted' && l.codes.length >= se.minList;
+      return '<div class="card p16 stack" style="gap:10px"><div class="rowb"><b>' + esc(pname(p)) + '</b>' + (done ? tag('ok', 'List in', 'check') : '<span class="muted">Waiting</span>') + '</div>' +
+        (l.codes.length ? l.codes.map((c, i) => '<span class="fchip"><span class="num" style="width:18px;font-size:20px">' + (i + 1) + '</span>' + seal(c) + '<span class="fn">' + esc(FA[c].name) + '</span></span>').join('') : '<span class="muted">No list yet</span>') + '</div>'; }).join('') + '</div></main>';
+  }
+  if (open) {
+    return '<main class="page" id="main">' + head + '<div class="card" style="max-width:640px">' + ids.map(p => { const l = listOf(p), done = l.st === 'submitted' && l.codes.length >= se.minList;
+      return '<div class="lrow" style="grid-template-columns:minmax(0,1fr) auto"><span>' + esc(pname(p)) + (p === m.pid ? ' ' + youTag : '') + '</span>' + (done ? tag('ok', 'List in', 'check') : '<span class="muted">Waiting</span>') + '</div>'; }).join('') + '</div></main>';
+  }
+  return '<main class="page" id="main">' + head + '<div class="cols2" style="align-items:start">' + ids.map(p => '<div class="card p16 stack" style="gap:10px"><div class="row"><b>' + esc(pname(p)) + '</b>' + (p === m.pid ? youTag : '') + '</div>' +
+    listOf(p).codes.map((c, i) => '<span class="fchip"><span class="num" style="width:18px;font-size:20px">' + (i + 1) + '</span>' + seal(c) + '<span class="fn">' + esc(FA[c].name) + '</span></span>').join('') + '</div>').join('') + '</div></main>';
+}
+
+/* ---------- pairings ---------- */
+function filtered(f, m) {
+  const g = SE().games;
+  if (f === 'mine') return g.filter(x => m.pid && seatOf(x, m.pid));
+  if (f === 'completed') return g.filter(counted);
+  if (f === 'upcoming') return g.filter(x => !counted(x) && !x.void);
+  return g;
+}
+function pPairings(m) {
+  const se = SE();
+  if (!se.started) {
+    const lay = layoutFor(se.cap, se.each);
+    const cards = lay ? lay.tables.map((t, i) => '<article class="gcard"><div class="gh"><span class="gno">Table ' + (i + 1) + ' <span class="muted">' + esc(se.maps[t.m % se.maps.length]) + '</span></span>' + tag('', 'Not started') + '</div><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr))">' +
+      t.s.map((slot, k) => '<div style="padding:12px 18px"><div class="sno gcard-sno" style="font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)">Seat ' + (k + 1) + '</div><div class="num" style="font-size:26px">P' + slot + '</div></div>').join('') + '</div></article>').join('') : '';
+    return '<main class="page" id="main"><div class="stack8"><div class="kicker">' + esc(se.name) + '</div><h1 class="disp h1s">Pairings</h1></div>' +
+      alert('info', '<b>Not started.</b> Names and factions show up when the season starts. Lists lock ' + esc(fmtDT(se.lockAt)) + '.') +
+      '<div class="muted" style="font-size:14px">Layout for ' + se.cap + ' players, ' + se.each + ' games each. Player numbers are dealt at random when the admin starts the season.</div>' +
+      '<div class="cols2" style="align-items:start">' + cards + '</div></main>';
+  }
+  const f = U.pf || 'all', list = filtered(f, m);
+  const tabs = [['mine', 'Mine'], ['all', 'All'], ['completed', 'Completed'], ['upcoming', 'Upcoming']].filter(t => t[0] !== 'mine' || m.pid && se.games.some(g => seatOf(g, m.pid)));
+  return '<main class="page" id="main"><div class="stack8"><div class="kicker">' + esc(se.name) + '</div><h1 class="disp h1s">Pairings</h1></div>' +
+    '<div class="pill" role="group" aria-label="Filter games">' + tabs.map(t => '<button type="button" class="btn sm' + (f === t[0] ? ' pri' : '') + '" data-act="pf" data-a="' + t[0] + '" aria-pressed="' + (f === t[0]) + '">' + t[1] + ' <span class="num">' + filtered(t[0], m).length + '</span></button>').join('') + '</div>' +
+    (list.length ? '<div class="gcards cols2" style="align-items:start">' + list.map(g => gameCard(g, m)).join('') + '</div><div class="gtable">' + gameTable(list, m) + '</div>' : '<div class="card p16 muted">No games here.</div>') + '</main>';
+}
+
+/* ---------- a game ---------- */
+function resultForm(g, m, preset) {
+  return '<div class="card p16"><div class="stack"><h2 class="disp h2">Who won?</h2><p class="muted">Tick every winner.</p><div class="stack8">' +
+    g.seats.map(s => '<label class="chk' + (preset.includes(s.pid) ? ' on' : '') + '"><input type="checkbox" name="win" value="' + s.pid + '"' + (preset.includes(s.pid) ? ' checked' : '') + ' data-act="chk"><span class="fchip">' + seal(s.f) + '<span class="fn">' + esc(pname(s.pid)) + (m.pid === s.pid ? ' ' + youTag : '') + '</span></span></label>').join('') + '</div>' +
+    '<div class="row"><button type="button" class="btn pri" data-act="submit-result" data-a="' + g.no + '">Submit</button>' + (U.editing === g.no ? '<button type="button" class="btn" data-act="edit-cancel">Cancel</button>' : '') + '</div></div></div>';
+}
+function pGame(m, no) {
+  const g = gameBy(no);
+  if (!g) return '<main class="page" id="main"><h1 class="disp h1s">No such game</h1><a href="#/pairings">All pairings</a></main>';
+  const st = gstate(g), mine = m.pid && seatOf(g, m.pid), can = canSubmit(g, m);
+  const mixc = g.seats.map(s => s.f);
+  let result = '';
+  const myKey = m.key, mySub = g.subs[myKey];
+  if (st === 'disputed') {
+    result += alert('warn', '<b>Disputed.</b> Two different answers. The admin will decide.') +
+      '<div class="stack"><h2 class="disp h2">Answers</h2>' + Object.keys(g.subs).map(k => '<div class="card p16 rowb"><span><b>' + esc(pname(k)) + '</b>' + (k === myKey ? ' ' + youTag : '') + '</span>' + tag('warn', g.subs[k].map(pname).join(', ') + ' won') + '</div>').join('') + '</div>';
+  }
+  if (st === 'settled') result += '<div class="card p16 rowb"><div class="stack8"><span class="kicker">Result</span><b>Won by ' + winnersOf(g).map(pname).join(', ') + '</b></div>' + tag('ok', 'Settled by admin', 'check') + '</div>';
+  if (can && U.editing === g.no) result += resultForm(g, m, mySub || []);
+  else if (can && !mySub) result += (st === 'recorded' ? '<div class="card p16"><div class="stack8"><span class="kicker">Result</span><b>Won by ' + winnersOf(g).map(pname).join(', ') + '</b></div></div>' : '') + resultForm(g, m, []);
+  else if (can && mySub && st !== 'settled') {
+    if (st === 'recorded') result += '<div class="card p16 rowb"><div class="stack8"><span class="kicker">Result</span><b>Won by ' + winnersOf(g).map(pname).join(', ') + '</b></div><button type="button" class="btn sm" data-act="edit-result" data-a="' + g.no + '">Edit result</button></div>';
+    else result += '<div><button type="button" class="btn sm" data-act="edit-result" data-a="' + g.no + '">Edit my answer</button></div>';
+  } else if (st === 'recorded') result += '<div class="card p16"><div class="stack8"><span class="kicker">Result</span><b>Won by ' + winnersOf(g).map(pname).join(', ') + '</b></div></div>';
+  else if (st === 'void') result += alert('warn', '<b>Void.</b> This game is not counted in standings or pick\'ems.');
+  else if (st === 'upcoming' && !can) result += '<div class="card p16 muted">No result yet. Seated players enter it after the game.</div>';
+  if (m.admin && st === 'disputed') result += '<div><a class="btn" href="#/admin/disputes?g=' + g.no + '">Settle on Disputes</a></div>';
+  const seatBlock = '<section class="card">' + g.seats.map((s, i) => '<div class="p16 stack" style="gap:6px;' + (i ? 'border-top:1px solid var(--line)' : '') + '"><div class="row"><span class="kicker">Seat ' + s.seat + (i === 0 ? ', goes first' : '') + '</span>' + (m.pid === s.pid ? youTag : '') + (winnersOf(g).includes(s.pid) ? tag('ok', 'Winner') : '') + '</div><b style="font-size:17px">' + esc(pname(s.pid)) + '</b>' + fchip(s.f) + fmeta(s.f) + '</div>').join('') + '</section>';
+  const hist = '<div class="stack"><h2 class="disp h2">History</h2><div class="card">' + (g.hist.length ? g.hist.map(h => '<div class="p16" style="border-bottom:1px solid var(--line)"><b>' + esc(h.who) + '</b> ' + esc(h.text) + '<div class="muted" style="font-size:13px">' + esc(fmtAgo(h.at)) + '</div></div>').join('') : '<div class="p16 muted">Nothing yet.</div>') + '</div></div>';
+  return '<main class="page" id="main"><a href="#/pairings" style="font-weight:600">All pairings</a>' +
+    '<div class="stack8"><h1 class="disp h1s">Table ' + g.no + ' <span class="muted" style="color:var(--ink2)">' + esc(mapName(g)) + '</span></h1><div class="row">' + statusTag(g) + tag('', 'Reach ' + tableReach(mixc)) + tag('', tableMix(mixc)) + '</div></div>' +
+    '<div class="cols-main"><div class="stack18">' + result + pickPanel(g, m) + '</div><div class="stack18">' + seatBlock + hist + '</div></div></main>';
+}
+function pickPanel(g, m) {
+  const ps = pickState(g, m);
+  if (ps === 'none' || ps === 'own') return '';
+  const mine = SE().picks.find(p => p.acct === m.acct && p.game === g.no);
+  if (ps === 'closed') {
+    const picks = SE().picks.filter(p => p.game === g.no);
+    const st = gstate(g);
+    if (st === 'void') return '<div class="card p16 muted">Picks are closed. Void games score nothing.</div>';
+    let h = '<div class="stack"><div class="row"><h2 class="disp h2">Everyone\'s picks</h2>' + tag('', 'Picks closed') + (st === 'disputed' ? tag('warn', 'Scoring paused') : '') + '</div>';
+    if (!picks.length) return h + '<div class="card p16 muted">Nobody picked this game.</div></div>';
+    h += '<div class="card"><div class="listhead kicker" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr) 44px"><span>Person</span><span>First</span><span>Second</span><span>Pts</span></div>' +
+      picks.map(p => { const pt = pickPoints(p); return '<div class="lrow' + (p.acct === m.acct ? ' lead' : '') + '" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr) 44px"><span>' + esc(nameOfAcct(p.acct)) + (p.acct === m.acct ? ' ' + youTag : '') + '</span><span>' + esc(pname(p.first)) + '</span><span>' + esc(p.second ? pname(p.second) : '-') + '</span><span class="num">' + (pt == null ? '-' : pt) + '</span></div>'; }).join('') + '</div>';
+    if (mine) { const pt = pickPoints(mine); h += '<div class="card p16 rowb"><span>Your score on this game</span><span class="num" style="font-size:32px">' + (pt == null ? 'paused' : pt + ' pts') + '</span></div>'; }
+    return h + '</div>';
+  }
+  const f1 = fv('p1-' + g.no, mine ? mine.first : ''), f2 = fv('p2-' + g.no, mine ? mine.second || '' : '');
+  const opt = (name, cur, other) => g.seats.map(s => '<label class="chk' + (cur === s.pid ? ' on' : '') + '"><input type="radio" name="' + name + '" value="' + s.pid + '"' + (cur === s.pid ? ' checked' : '') + (other === s.pid ? ' disabled' : '') + ' data-act="pick-radio" data-a="' + name + '"><span class="fchip">' + seal(s.f) + '<span class="fn">' + esc(pname(s.pid)) + '<br><span class="muted" style="font-weight:400;font-size:13px">' + (other === s.pid ? 'Already your other pick' : esc(FA[s.f].name)) + '</span></span></span></label>').join('');
+  return '<div class="card p16"><div class="stack"><div class="row"><h2 class="disp h2">Your picks</h2>' + tag('ok', 'Picks open') + '</div><div class="row">' + tag('', 'First pick, 3 points') + '</div><div class="stack8">' + opt('p1', f1, f2) + '</div>' +
+    '<div class="row">' + tag('', 'Second pick, 1 point') + '</div><div class="stack8">' + opt('p2', f2, f1) + '</div>' +
+    '<div class="row"><button type="button" class="btn pri" data-act="save-pick" data-a="' + g.no + '">Save picks</button></div>' + '<div class="muted" style="font-size:13px">' + tag('', 'Hidden until result') + ' Other picks show after the result.</div></div></div>';
+}
+
+/* ---------- pick'ems ---------- */
+function pPickems(m) {
+  const se = SE();
+  if (!se.started) return '<main class="page" id="main"><div class="stack8"><div class="kicker">' + esc(se.name) + '</div><h1 class="disp h1s">Pick\'ems</h1></div>' + alert('info', 'Pick\'ems open when the admin publishes the pairings. <a href="#/pairings">See the layout</a>') + '</main>';
+  const lb = leaderboard(), mine = lb.find(r => r.acct === m.acct);
+  const open = se.games.filter(g => pickState(g, m) === 'open');
+  const my = se.picks.filter(p => p.acct === m.acct).sort((a, b) => a.game - b.game);
+  const scoreCard = '<div class="card p16"><div class="num" style="font-size:56px;line-height:1">' + (mine ? mine.pts : 0) + ' <span style="font-size:24px">points</span></div><div class="kicker">' + (mine ? 'Your score, ' + (lb.filter(r => r.rank === mine.rank).length > 1 ? 'joint ' : '') + ordinal(mine.rank) : 'You have no picks yet') + '</div></div>';
+  return '<main class="page" id="main"><div class="stack8"><div class="kicker">' + esc(se.name) + '</div><h1 class="disp h1s">Pick\'ems</h1>' + (m.pid && se.games.some(g => seatOf(g, m.pid)) ? '<span class="muted">Your own games (' + se.games.filter(g => seatOf(g, m.pid)).map(g => g.no).join(', ') + ') are not offered.</span>' : '') + '</div>' + scoreCard +
+    '<div class="cols-main"><div class="stack18"><section class="stack"><h2 class="disp h2b">Open games</h2>' + (open.length ? open.map(g => { const pk = se.picks.find(p => p.acct === m.acct && p.game === g.no);
+      return '<a class="card p16 rowb" href="#/game/' + g.no + '" style="text-decoration:none;color:var(--ink)"><span><b>Table ' + g.no + ', ' + esc(mapName(g)) + '</b><br><span class="muted">' + g.seats.map(s => esc(pname(s.pid))).join(' vs ') + '</span></span>' + (pk ? tag('ok', 'Picked') : tag('', 'No picks yet')) + '</a>'; }).join('') : '<div class="card p16 muted">No open games.</div>') + '</section>' +
+    '<section class="stack"><h2 class="disp h2b">My picks</h2>' + (my.length ? my.map(p => { const g = gameBy(p.game), pt = pickPoints(p), st = gstate(g);
+      return '<a class="card p16 stack8" href="#/game/' + g.no + '" style="text-decoration:none;color:var(--ink)"><div class="rowb"><b>Table ' + g.no + ', ' + esc(mapName(g)) + '</b>' + statusTag(g) + '</div><span>First: ' + esc(pname(p.first)) + '. Second: ' + esc(p.second ? pname(p.second) : 'none') + '.</span><span class="muted">' + (st === 'disputed' ? 'Scoring paused until the admin settles the game' : st === 'void' ? 'Void games score nothing' : pt == null ? 'Picks stay hidden until the result' : 'Scored ' + plural(pt, 'point')) + '</span></a>'; }).join('') : '<div class="card p16 muted">You have not picked yet. Open a game from the list.</div>') + '</section></div>' +
+    '<section class="stack"><h2 class="disp h2b">Leaderboard</h2>' + boardCard(m) + '</section></div></main>';
+}
+const ordinal = n => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+
+/* ---------- league info: rendered from the repo text ---------- */
+function mdLink(u) {
+  const m = u.match(/^([^#]*)(#.*)?$/), file = m[1], anchor = m[2] || '';
+  if (/^https?:/.test(u)) return [u, true];
+  if (file === 'format.md') return ['#/info/format', false];
+  if (file === 'pairing-rules.md') return ['#/info/rules', false];
+  if (file === 'how-pairing-works.md') return ['#/info/how', false];
+  const norm = file.replace(/^\.\.\//, '');
+  return [REPO + (file.indexOf('../') === 0 ? norm : 'league/' + file) + anchor, true];
+}
+function mdInline(s) {
+  return esc(s).replace(/\[([^\]]+)\]\(([^)]+)\)/g, (x, t, u) => { const l = mdLink(u); return '<a href="' + l[0] + '"' + (l[1] ? ' target="_blank" rel="noopener"' : '') + '>' + t + '</a>'; })
+    .replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+}
+function mdBlocks(lines) {
+  let out = '', i = 0;
+  const mk = /^(\d+\.|-)\s+/;
+  while (i < lines.length) {
+    const l = lines[i];
+    if (!l.trim()) { i++; continue; }
+    let m;
+    if ((m = l.match(/^(#{1,2})\s+(.*)/))) { out += '<h' + m[1].length + '>' + mdInline(m[2]) + '</h' + m[1].length + '>'; i++; continue; }
+    if (mk.test(l)) {
+      const ord = /^\d/.test(l), items = [];
+      while (i < lines.length && (mk.test(lines[i]) && !/^\s/.test(lines[i]) || /^\s+\S/.test(lines[i]) || (!lines[i].trim() && i + 1 < lines.length && /^\s+\S/.test(lines[i + 1])))) {
+        if (mk.test(lines[i]) && !/^\s/.test(lines[i])) items.push([lines[i].replace(mk, '')]);
+        else if (lines[i].trim()) items[items.length - 1].push(lines[i].replace(/^ {1,3}/, ''));
+        i++;
+      }
+      out += '<' + (ord ? 'ol' : 'ul') + '>' + items.map(it => { const k = it.findIndex((x, ix) => ix > 0 && mk.test(x)); const text = (k < 0 ? it : it.slice(0, k)).join(' '); return '<li>' + mdInline(text) + (k < 0 ? '' : mdBlocks(it.slice(k))) + '</li>'; }).join('') + '</' + (ord ? 'ol' : 'ul') + '>';
+      continue;
+    }
+    const para = [];
+    while (i < lines.length && lines[i].trim() && !/^#{1,2}\s/.test(lines[i]) && !mk.test(lines[i])) para.push(lines[i++]);
+    out += '<p>' + mdInline(para.join(' ')) + '</p>';
+  }
+  return out;
+}
+const INFO = [['format', 'League format'], ['rules', 'Pairing rules'], ['how', 'How pairing works']];
+function pInfo(r) {
+  const key = r.parts[1] && MD[r.parts[1]] ? r.parts[1] : 'format';
+  const side = '<nav class="only-desk stack8" aria-label="League info"><div class="kicker">League info</div>' + INFO.map(i => '<a href="#/info/' + i[0] + '" style="font-weight:' + (i[0] === key ? 700 : 500) + ';color:var(--ink);text-decoration:none;padding:8px 0;border-bottom:1px solid var(--line)">' + i[1] + '</a>').join('') + '</nav>';
+  const pills = '<div class="pill only-phone" role="group" aria-label="League info pages">' + INFO.map(i => '<a class="btn sm' + (i[0] === key ? ' pri' : '') + '" href="#/info/' + i[0] + '">' + i[1] + '</a>').join('') + '</div>';
+  return '<main class="page" id="main"><div class="kicker">League info</div>' + pills + '<div class="cols-side">' + side + '<article class="md">' + mdBlocks(MD[key].split('\n')) + '</article></div></main>';
+}
+
+/* ============================================================
+   Views, part B: admin pages.
+   ============================================================ */
+const adminHead = (title, extra) => '<div class="rowb" style="align-items:flex-end"><div class="stack8"><div class="kicker">' + esc(SE().name) + '</div><h1 class="disp h1s">' + title + '</h1></div>' + (extra || '') + '</div>';
+const needAdmin = () => '<main class="page" id="main"><h1 class="disp h1s">Admin only</h1>' + alert('info', 'This page is for the admin. <a href="#/">Back to Home</a>') + '</main>';
+const stat = (n, l) => '<div class="card p16"><div class="num" style="font-size:48px;line-height:1">' + n + '</div><div class="kicker" style="margin-top:4px">' + l + '</div></div>';
+
+function pAdminDash() {
+  const se = SE(), st = stage();
+  const nonVoid = se.games.filter(g => !g.void), rec = se.games.filter(counted).length, disp = se.games.filter(g => gstate(g) === 'disputed');
+  const review = se.picks.filter(p => { const g = gameBy(p.game); return g && (gstate(g) === 'disputed' || g.void); }).length;
+  let card;
+  if (st === 'open') card = '<div class="card p20" style="border:2px solid var(--forest)"><div class="stack"><div class="kicker">Before the season: lists open</div><div class="row">' + tag('ok', 'Open') + '</div><h2 class="disp" style="font-size:44px">Lists open</h2>' +
+    '<p>' + se.league.length + ' of ' + se.cap + ' on the league list, ' + se.wait.length + ' on the waitlist. Lists lock ' + esc(fmtDT(se.lockAt)) + ' (<span data-cd="' + se.lockAt + '">' + fmtCd(se.lockAt - now()) + '</span>).</p><div class="row"><a class="btn pri" href="#/admin/roster">Roster</a><a class="btn" href="#/admin/season">Season</a></div></div></div>';
+  else if (st === 'locked') {
+    const ch = startChecks(), ready = ch.every(c => c.ok);
+    card = '<div class="card p20" style="border:2px solid var(--forest)"><div class="stack"><div class="kicker">Before the season: lists locked</div><div class="row">' + tag('', 'Locked', 'lock') + tag('', 'Not started') + '</div><h2 class="disp" style="font-size:44px">Lists locked, season not started</h2>' +
+      '<p>' + se.league.length + ' of ' + se.cap + ' on the league list, ' + (ch[2].ok ? 'every list valid.' : 'some lists are not valid.') + '</p>' + (ready ? '' : alert('warn', ch.filter(c => !c.ok).map(c => esc(c.text)).join(' '))) +
+      '<a class="btn pri" href="#/admin/start" style="align-self:flex-start">' + ic('arrow') + 'Start season</a></div></div>';
+  } else card = '<div class="card p20"><div class="stack" style="gap:14px"><div class="kicker">During the season: live</div>' +
+    (disp.length ? alert('warn', '<b>' + plural(disp.length, 'game') + (disp.length === 1 ? ' is' : ' are') + ' disputed.</b> ' + disp.map(g => 'Table ' + g.no + ' on ' + esc(mapName(g)) + ': ' + Object.keys(g.subs).map(k => esc(pname(k)) + ' says ' + esc(g.subs[k].map(pname).join(', ')) + ' won').join(', ')).join('. ') + ' <a href="#/admin/disputes" style="font-weight:600">Open Disputes</a>') : alert('ok', 'No games are disputed.')) +
+    '<div class="cols3">' + stat(rec + ' of ' + nonVoid.length, 'Games recorded') + stat(disp.length, 'Disputed') + stat(review, 'Picks to review') + '</div></div></div>';
+  return '<main class="page" id="main">' + adminHead('Dashboard') + card +
+    '<div class="card p20"><div class="stack"><div class="kicker">Go to</div><div class="row">' + ADMIN_NAV.slice(1).map(i => '<a class="btn" href="#/' + i[0] + '">' + i[1] + '</a>').join('') + '</div></div></div></main>';
+}
+
+/* ---------- whitelist ---------- */
+function pWhitelist() {
+  const rows = S.wl.map(w => '<tr><td data-l="Discord user ID"><span class="num" style="font-size:20px">' + esc(w.id) + '</span> ' + esc(w.label || '') + '</td><td data-l="Admin">' + (w.admin ? '<span class="tag adm">Admin</span>' : '<button type="button" class="btn sm ghost" data-act="wl-admin" data-a="' + w.id + '">Make admin</button>') + (w.admin ? ' <button type="button" class="btn sm ghost" data-act="wl-admin" data-a="' + w.id + '">Remove admin</button>' : '') + '</td><td class="muted" data-l="Added by">' + esc(w.by) + '</td><td class="muted" data-l="Added">' + esc(fmtDay(w.at)) + '</td><td><div class="row"><button type="button" class="btn sm ghost" data-act="wl-label" data-a="' + w.id + '">Edit label</button><button type="button" class="btn sm ghost danger" data-act="wl-remove" data-a="' + w.id + '">Remove</button></div></td></tr>').join('');
+  const pe = U.pasteErrs;
+  return '<main class="page" id="main">' + adminHead('Whitelist') +
+    '<div class="card p20"><div class="stack18"><h2 class="disp h2b">Add people</h2><div class="cols2" style="align-items:end"><div class="field"><label for="wl-id">Discord user ID</label><input id="wl-id" data-u="wl-id" inputmode="numeric" placeholder="digits only" value="' + esc(fv('wl-id')) + '" autocomplete="off"></div>' +
+    '<div class="field"><label for="wl-label">Name label (optional)</label><input id="wl-label" data-u="wl-label" placeholder="for your eyes only" value="' + esc(fv('wl-label')) + '" autocomplete="off"></div></div>' +
+    '<div class="row">' + btn('wl-add', 'Add', { cls: 'pri', icon: 'plus' }) + '</div>' + (U.wlErr ? alert('bad', esc(U.wlErr)) : '') +
+    '<div class="field"><label for="wl-paste">Or paste many, one per line: ID, label</label><textarea id="wl-paste" data-u="wl-paste" placeholder="100000000000000101, Spectator 1&#10;12ab, Spectator 2&#10;100000000000000003, Matt" spellcheck="false">' + esc(fv('wl-paste')) + '</textarea></div>' +
+    (pe ? alert(pe.errs.length ? 'bad' : 'ok', (pe.errs.length ? '<b>' + (pe.rows.length ? 'Some rows need fixing.' : 'Nothing added yet. ' + plural(pe.errs.length, 'row') + ' need fixing.') + '</b><br>' + pe.errs.map(esc).join('<br>') : '<b>All ' + plural(pe.rows.length, 'row') + ' look good.</b>')) : '') +
+    '<div class="row">' + btn('wl-check', 'Check rows') + btn('wl-paste-add', 'Add the valid rows', { cls: 'pri' }) + '</div></div></div>' +
+    '<div class="card tbl-wrap"><table class="tbl rs"><thead><tr><th>Discord user ID</th><th>Admin</th><th>Added by</th><th>Added</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+    '<div class="card p20"><div class="stack"><h2 class="disp h2b">How to copy someone\'s Discord ID</h2><ol style="margin:0;padding-left:22px;line-height:1.7"><li>In Discord, open <b>Settings</b>, then <b>Advanced</b>, and turn on <b>Developer Mode</b>.</li><li>Right-click the person, in a server or a message.</li><li>Choose <b>Copy User ID</b> and paste it here.</li></ol><span class="muted">Players can copy their own ID from the sign-in page.</span></div></div>' +
+    alert('warn', 'Removing an entry cuts access at once. Their roster entry and list stay until you remove them on <a href="#/admin/roster">Roster</a>.') + '</main>';
+}
+
+/* ---------- roster ---------- */
+function rosterRow(pid, list) {
+  const se = SE(), l = listOf(pid), pr = person(pid), isAdm = pr && pr.did && (wlOf(pr.did) || {}).admin;
+  const role = se.started && list === 'league' ? tag('solid', 'League player') : tag('', 'Prospect');
+  const done = l.st === 'submitted' && l.codes.length >= se.minList;
+  const listTag = !l.codes.length ? tag('bad', 'No list') : done ? tag('ok', 'Submitted') : tag('warn', 'Provisional');
+  const idx = (list === 'league' ? se.league : se.wait).indexOf(pid), n = (list === 'league' ? se.league : se.wait).length;
+  return '<div class="lrow dragrow" ' + (se.started ? '' : 'draggable="true" data-drag="' + pid + '" data-drop="row" data-pid="' + pid + '" data-list="' + list + '"') + ' style="grid-template-columns:minmax(0,1fr)"><div class="rowb"><div class="stack8"><b>' + esc(pname(pid)) + '</b><div class="row" style="gap:6px"><span class="muted">' + plural(l.codes.length, 'faction') + '</span>' + listTag + role + (isAdm ? '<span class="tag adm">Admin</span>' : '') + (pr && !pr.did ? tag('', 'No sign-in linked') : '') + '</div></div>' +
+    (se.started ? '' : '<div class="row" style="gap:6px">' + (list === 'wait' ? '<button type="button" class="ib" data-act="r-up" data-a="' + pid + '" aria-label="Move ' + esc(pname(pid)) + ' up the waitlist"' + (idx === 0 ? ' disabled' : '') + '>' + ic('up') + '</button><button type="button" class="ib" data-act="r-down" data-a="' + pid + '" aria-label="Move ' + esc(pname(pid)) + ' down the waitlist"' + (idx === n - 1 ? ' disabled' : '') + '>' + ic('down') + '</button>' : '') +
+      '<button type="button" class="btn sm" data-act="r-move" data-a="' + pid + '">' + (list === 'league' ? 'To waitlist' : 'To league list') + '</button><button type="button" class="btn sm ghost danger" data-act="r-remove" data-a="' + pid + '">Remove</button></div>') + '</div></div>';
+}
+function pRoster() {
+  const se = SE(), open = se.cap - se.league.length;
+  const err = U.rosterErr ? alert('bad', esc(U.rosterErr.msg) + (U.rosterErr.swapFor ? '<div class="row" style="margin-top:8px"><select id="swap-sel" class="sel" aria-label="Swap with">' + se.league.map(p => '<option value="' + p + '">' + esc(pname(p)) + '</option>').join('') + '</select>' + btn('r-swap', 'Swap ' + esc(pname(U.rosterErr.swapFor)) + ' in', { a: U.rosterErr.swapFor, cls: 'sm' }) + '</div>' : '')) : '';
+  return '<main class="page" id="main">' + adminHead('Roster', '<div class="row">' + tag(stage() === 'open' ? 'ok' : '', stageLabel()) + '<span class="muted">Capacity ' + se.cap + ' is set on <a href="#/admin/season">Season</a></span></div>') +
+    (se.started ? alert('info', 'The season has started, so drag is off. Replace a player in a slot on <a href="#/admin/fixit">Fix it</a>.', 'lock') : open > 0 ? alert('warn', plural(open, 'place') + (open === 1 ? ' is' : ' are') + ' open. Start season needs ' + se.cap + ' on the league list.') : alert('ok', 'The league list is full.')) + err +
+    '<div class="cols-main"><section class="stack" data-drop="col" data-list="league"><div class="rowb"><h2 class="disp h2b">League list</h2><span class="num" style="font-size:30px">' + se.league.length + ' of ' + se.cap + '</span></div><div class="card" aria-label="League list">' + (se.league.length ? se.league.map(p => rosterRow(p, 'league')).join('') : '<div class="p16 muted">Nobody is on the league list.</div>') + '</div></section>' +
+    '<section class="stack" data-drop="col" data-list="wait"><div class="rowb"><h2 class="disp h2b">Waitlist</h2><span class="num" style="font-size:30px">' + se.wait.length + '</span></div><div class="card" aria-label="Waitlist">' + (se.wait.length ? se.wait.map(p => rosterRow(p, 'wait')).join('') : '<div class="p16 muted">The waitlist is empty.</div>') + '</div><span class="muted" style="font-size:13px">In join order. Drag to reorder, or use the arrows.</span></section></div>' +
+    '<div class="card p16" style="max-width:520px"><div class="stack"><h3 class="disp h2">Add a person by name</h3><div class="field"><label for="np">Name</label><input id="np" data-u="np" placeholder="Display name" value="' + esc(fv('np')) + '" autocomplete="off"></div>' + btn('r-add', 'Add') + '<span class="muted">They need a whitelisted Discord ID to sign in.</span></div></div></main>';
+}
+
+/* ---------- season setup ---------- */
+function toLocal(ms) { const d = new Date(ms), p = n => String(n).padStart(2, '0'); return { date: d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()), time: p(d.getHours()) + ':' + p(d.getMinutes()) }; }
+function sdInit() {
+  if (U.sd) return;
+  const se = SE(), l = toLocal(se.lockAt);
+  U.sd = { name: se.name, cap: se.cap, games: se.each, maps: se.maps.slice(), pool: se.pool.slice(), minList: se.minList, date: l.date, time: l.time, ack: null };
+}
+function layoutCard(cap, games) {
+  const lay = layoutFor(cap, games);
+  if (!lay) return '<div class="card p20"><div class="stack"><div class="kicker">Layout</div><p>' + cap + ' players with ' + games + ' games is not offered.</p></div></div>';
+  const sp = layoutSpread(lay, cap, games), per = games * 3;
+  const lines = sp.rows.map(r => '<div class="row" style="gap:10px"><span class="num" style="font-size:26px;min-width:34px">' + (r.min === r.max ? r.min : r.min + ' to ' + r.max) + '</span><span class="muted">' + (r.k === 0 ? 'opponents never met' : r.k === 1 ? 'opponents met once' : 'opponent' + (r.max === 1 ? '' : 's') + ' met ' + (r.k === 2 ? 'twice' : r.k + ' times')) + '</span></div>').join('');
+  const mapNames = Object.keys(sp.maps).map(k => (U.sd ? U.sd.maps : SE().maps)[k % (U.sd ? U.sd.maps : SE().maps).length] + ' ' + sp.maps[k]).join(', ');
+  return '<div class="card p20"><div class="stack"><div class="kicker">Layout for ' + cap + ' players, ' + games + ' games each</div><div class="row" style="align-items:baseline"><span class="num" style="font-size:44px;line-height:1">' + sp.games + '</span><span class="muted">games, 4 players each</span>' + (sp.even ? tag('ok', 'Even', 'check') : tag('warn', 'Uneven', 'warn')) + '</div>' + lines +
+    '<p class="muted">' + (sp.seatRepeat ? plural(sp.seatRepeat, 'seat repeat') + '.' : 'Nobody sits in the same seat twice.') + ' Tables per map: ' + esc(mapNames) + '.</p></div></div>' +
+    (!sp.even ? '<div class="card p20"><div class="stack">' + alert('warn', '<b>Not even.</b> Each player sits with ' + per + ' opponents but only ' + (cap - 1) + ' others exist, so ' + (per > cap - 1 ? 'at least ' + (per - (cap - 1)) + ' opponents are met more than once' : 'the meetings are uneven') + '.') +
+      (U.sd && U.sd.ack === cap + '-' + games ? tag('ok', 'Chosen knowingly', 'check') : btn('sd-ack', 'Use it anyway')) + '</div></div>' : '');
+}
+function pSeason() {
+  sdInit();
+  const se = SE(), d = U.sd, started = se.started;
+  const caps = [8, 10, 12].map(c => { const off = c < se.league.length || started; return '<label class="rad' + (d.cap === c ? ' on' : '') + (off ? ' off' : '') + '"><input type="radio" name="cap" value="' + c + '"' + (d.cap === c ? ' checked' : '') + (off ? ' disabled' : '') + ' data-act="sd-cap" data-a="' + c + '"><span class="num" style="font-size:22px">' + c + '</span> players</label>'; }).join('');
+  const gms = [2, 3, 4].map(g => { const ok = (VALID[d.cap] || []).includes(g), off = !ok || started; return '<label class="rad' + (d.games === g && ok ? ' on' : '') + (off ? ' off' : '') + '"><input type="radio" name="games" value="' + g + '"' + (d.games === g && ok ? ' checked' : '') + (off ? ' disabled' : '') + ' data-act="sd-games" data-a="' + g + '"><span class="num" style="font-size:22px">' + g + '</span> games' + (!ok ? ', not offered' : '') + '</label>'; }).join('');
+  const maps = d.maps.map((mp, i) => '<span class="tag">' + esc(mp) + ' <button type="button" class="ib" style="width:22px;height:22px;border:0;background:transparent" data-act="sd-map-del" data-a="' + i + '" aria-label="Remove map ' + esc(mp) + '">' + ic('x', 12) + '</button></span>').join('');
+  const pool = FACTIONS.map(f => '<label class="chk' + (d.pool.includes(f.code) ? ' on' : '') + '" style="min-height:48px"><input type="checkbox" ' + (d.pool.includes(f.code) ? 'checked' : '') + ' data-act="sd-pool" data-a="' + f.code + '"><span class="fchip">' + seal(f.code) + '<span class="fn">' + esc(f.name) + '</span></span></label>').join('');
+  const need = (VALID[d.cap] || []).includes(d.games) ? layoutSpread(layoutFor(d.cap, d.games), d.cap, d.games).even || d.ack === d.cap + '-' + d.games : false;
+  return '<main class="page" id="main">' + adminHead('Season', tag(stage() === 'open' ? 'ok' : '', stageLabel())) +
+    '<div class="cols-main"><div class="card p20"><div class="stack18"><div class="field"><label for="sd-name">Season name</label><input id="sd-name" data-sd="name" value="' + esc(d.name) + '"></div>' +
+    '<div class="stack8"><div class="lbl">Capacity</div><div class="row">' + caps + '</div><span class="muted">' + (se.league.length ? 'Cannot go below ' + se.league.length + ', the people on the league list.' : 'Choose 8, 10 or 12.') + '</span></div>' +
+    '<div class="stack8"><div class="lbl">Games each</div><div class="row">' + gms + '</div><span class="muted">10 players with 3 games is not offered: that is 7.5 tables.</span></div>' +
+    '<div class="stack8"><div class="lbl">Maps</div><div class="row">' + maps + '</div><div class="row"><input id="sd-newmap" class="input" placeholder="New map name" aria-label="New map name" style="min-width:0;flex:1">' + btn('sd-map-add', 'Add map', { cls: 'sm' }) + '</div><span class="muted">At least one per game each (' + d.games + ').</span></div>' +
+    '<div class="stack8"><div class="lbl">Faction pool</div><div class="cols2" style="gap:8px">' + pool + '</div><span class="muted">' + d.pool.length + ' of 13 in the pool.</span></div>' +
+    '<div class="field"><label for="sd-min">Minimum list length</label><input id="sd-min" data-sd="minList" inputmode="numeric" value="' + esc(d.minList) + '"></div>' +
+    '<div class="cols2"><div class="field"><label for="sd-date">Lists lock date</label><input id="sd-date" type="date" data-sd="date" value="' + esc(d.date) + '"></div><div class="field"><label for="sd-time">Lock time</label><input id="sd-time" type="time" data-sd="time" value="' + esc(d.time) + '"></div></div><span class="muted">Everyone sees it in their own time zone (yours is ' + esc(Intl.DateTimeFormat().resolvedOptions().timeZone) + ').</span>' +
+    '<div class="row">' + btn('sd-save', 'Save season', { cls: 'pri', dis: !need }) + '<a class="btn" href="#/admin/start">Start season</a></div>' + (U.sdMsg ? alert(U.sdMsg.ok ? 'ok' : 'bad', esc(U.sdMsg.msg)) : '') + '</div></div>' +
+    '<div class="stack18">' + layoutCard(d.cap, d.games) + (started ? alert('info', 'Capacity and games each are locked now the season has started. Use <a href="#/admin/fixit">Fix it</a> after.', 'lock') : alert('info', 'Capacity and games each lock when the season starts. Use Fix it after.', 'lock')) + '</div></div></main>';
+}
+
+/* ---------- start season ---------- */
+function pStart() {
+  const se = SE();
+  if (se.started) return '<main class="page" id="main">' + adminHead('Start season', tag('solid', 'Live')) + alert('ok', 'The season has started. ' + plural(se.games.length, 'game') + ' are published. <a href="#/pairings">See the pairings</a>') + '</main>';
+  const ch = startChecks(), ready = ch.every(c => c.ok);
+  const checks = ch.map(c => alert(c.ok ? 'ok' : 'bad', esc(c.text) + (c.ok ? '' : ' <a href="' + c.fix[1] + '">' + c.fix[0] + '</a>'))).join('');
+  const head = adminHead('Start season', tag('', stageLabel(), 'lock'));
+  if (!ready) return '<main class="page" id="main">' + head + '<div class="stack"><div class="kicker">Not ready to start</div>' + checks + '</div></main>';
+  const failed = U.fail;
+  if (failed) return '<main class="page" id="main">' + head + alert('bad', '<b>Faction step could not meet the hard rules.</b> No draft was saved.') +
+    '<div class="stack"><h2 class="disp h2b">What blocked it</h2><div class="card tbl-wrap"><table class="tbl rs"><thead><tr><th>Rule</th><th>Who and where</th></tr></thead><tbody>' + failed.blocking.map(b => '<tr><td data-l="Rule"><b>' + esc(b.rule) + '</b></td><td data-l="Who and where">' + esc(b.who) + '</td></tr>').join('') + '</tbody></table></div></div>' +
+    '<div class="card p20"><div class="stack"><h2 class="disp h2b">What to do</h2><div class="row">' + btn('reroll', 'Re-roll with a new seed', { cls: 'pri' }) + '<a class="btn" href="#/admin/fixit">Edit a list on Fix it</a></div><span class="muted">A new seed reshuffles player numbers. A longer list for the player named above would also fix it.</span></div></div></main>';
+  const running = !!run, d = se.draft;
+  const p = U.pct || 0;
+  return '<main class="page" id="main">' + head + '<div class="stack"><div class="kicker">Ready to start</div>' + checks + '</div>' +
+    '<div class="cols-main" style="align-items:start"><div class="stack18"><div class="card p20"><div class="stack"><h2 class="disp h2b">1. Player numbers</h2><p>Numbers 1 to ' + se.cap + ' are dealt at random from the seed. Same seed, same draft.</p><div class="field"><label for="seed">Seed</label><input id="seed" data-u="seed" inputmode="numeric" value="' + esc(fv('seed', se.seed)) + '"></div><div class="row">' + btn('reroll', 'Re-roll with a new seed', { dis: running }) + '</div></div></div>' +
+    '<div class="card p20"><div class="stack"><h2 class="disp h2b">2. Assign factions</h2>' + (running ? '<div role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + p + '" style="height:10px;border-radius:5px;background:var(--line)"><div style="height:10px;border-radius:5px;background:var(--forest);width:' + p + '%"></div></div><div class="rowb"><span>Assigning factions, ' + p + '%</span>' + btn('run-cancel', 'Cancel', { cls: 'sm' }) + '</div>' : '<p class="muted">The browser runs this step on the fixed layout for ' + se.cap + ' players and ' + se.each + ' games each.</p>' + btn('run', d ? 'Run again with this seed' : 'Assign factions', { cls: d ? '' : 'pri' })) + '</div></div></div>' +
+    '<div class="stack18">' + (d ? draftReport(d) + '<div class="card p20"><div class="stack"><h2 class="disp h2b">4. Publish</h2><p>Pairings go live, joining closes and pick\'ems open.</p><div class="row">' + btn('publish', 'Publish pairings', { cls: 'pri' }) + btn('reroll', 'Re-roll with a new seed') + btn('discard-draft', 'Discard draft', { cls: 'danger' }) + '</div></div></div>' : '<div class="card p20 muted">The draft report shows here once factions are assigned.</div>') + '</div></div></main>';
+}
+function draftReport(d) {
+  const se = SE();
+  const slotOf = {}; d.order.forEach((pid, i) => { slotOf[pid] = i + 1; });
+  return '<div class="card p20"><div class="stack"><h2 class="disp h2b">3. Draft report</h2><div class="row">' + tag('warn', 'Draft: nobody can see it yet') + '</div><p>All hard rules met. Everyone gets their top ' + d.worst + '.</p></div></div>' +
+    '<div class="card tbl-wrap"><table class="tbl rs"><thead><tr><th>No.</th><th>Player</th><th>Rank of each faction given</th></tr></thead><tbody>' + d.rows.map(r => '<tr><td data-l="No." class="num">P' + slotOf[r.pid] + '</td><td data-l="Player">' + esc(r.name) + '</td><td data-l="Ranks" class="num" style="font-size:20px">' + r.ranks.join(' ') + '</td></tr>').join('') + '</tbody></table></div>' +
+    '<div class="card tbl-wrap"><table class="tbl rs"><thead><tr><th>Table</th><th>Map</th><th>Reach</th><th>Mix</th><th>Rules</th></tr></thead><tbody>' + d.games.map(g => { const codes = g.seats.map(s => s.f), iss = tableIssues(codes); return '<tr><td data-l="Table" class="num">' + g.no + '</td><td data-l="Map">' + esc(se.maps[g.map % se.maps.length]) + '</td><td data-l="Reach" class="num">' + tableReach(codes) + '</td><td data-l="Mix">' + tableMix(codes) + '</td><td data-l="Rules">' + (iss.length ? tag('bad', 'Not met') : tag('ok', 'Met', 'check')) + '</td></tr>'; }).join('') + '</tbody></table></div>';
+}
+
+/* ---------- disputes ---------- */
+function pDisputes(r) {
+  const se = SE(), open = se.games.filter(g => gstate(g) === 'disputed'), settled = se.games.filter(g => g.settled);
+  const sel = r.q.get('g') ? gameBy(r.q.get('g')) : (U.dsel ? gameBy(U.dsel) : open[0]);
+  const side = '<div class="stack"><div class="kicker">Open, ' + open.length + '</div>' + (open.length ? open.map(g => '<a class="card p16 stack8" href="#/admin/disputes?g=' + g.no + '" style="text-decoration:none;color:var(--ink);' + (sel && sel.no === g.no ? 'border:2px solid var(--forest)' : '') + '"><div class="rowb"><b>Table ' + g.no + ', ' + esc(mapName(g)) + '</b>' + tag('warn', 'Disputed') + '</div><span class="muted">' + plural(new Set(Object.values(g.subs).map(w => w.slice().sort().join())).size, 'different answer') + ', ' + plural(g.seats.length - Object.keys(g.subs).length, 'player') + ' ' + (g.seats.length - Object.keys(g.subs).length === 1 ? 'has' : 'have') + ' not answered</span></a>').join('') : '<div class="card p16 muted">Nothing is disputed.</div>') +
+    '<div class="kicker">Settled, ' + settled.length + '</div>' + (settled.length ? settled.map(g => '<div class="card p16 rowb"><span><b>Table ' + g.no + '</b> <span class="muted">' + esc(g.settled.winners.map(pname).join(', ')) + ' won</span></span><button type="button" class="btn sm" data-act="reopen" data-a="' + g.no + '">Reopen</button></div>').join('') : '<span class="muted">Nothing settled yet.</span>') + '</div>';
+  let detail = '<div class="card p20 muted">Pick a disputed game to settle it.</div>';
+  if (sel && gstate(sel) === 'disputed') {
+    const g = sel, ans = Object.keys(g.subs), choice = fv('dchoice-' + g.no, ans[0] ? 'a:' + ans[0] : 'other');
+    const sw = fv('dw-' + g.no, null);
+    detail = '<div class="stack18"><div class="row"><h2 class="disp h2b">Table ' + g.no + ' ' + esc(mapName(g)) + '</h2>' + tag('warn', 'Disputed') + '</div>' +
+      '<div class="card tbl-wrap"><table class="tbl rs"><thead><tr><th>Seat</th><th>Player</th><th>Faction</th><th>Their answer</th></tr></thead><tbody>' + g.seats.map(s => '<tr><td data-l="Seat" class="num">' + s.seat + '</td><td data-l="Player">' + esc(pname(s.pid)) + '</td><td data-l="Faction">' + fchip(s.f) + '</td><td data-l="Answer">' + (g.subs[s.pid] ? tag('warn', 'Says: ' + esc(g.subs[s.pid].map(pname).join(', ')) + ' won') : '<span class="muted">No answer yet</span>') + '</td></tr>').join('') + '</tbody></table></div>' +
+      '<div class="card p20"><div class="stack"><h2 class="disp h2b">Settle this game</h2>' + ans.map(k => '<label class="rad' + (choice === 'a:' + k ? ' on' : '') + '"><input type="radio" name="dchoice" value="a:' + k + '"' + (choice === 'a:' + k ? ' checked' : '') + ' data-act="d-choice" data-a="' + g.no + '">Use ' + esc(pname(k)) + '\'s answer: ' + esc(g.subs[k].map(pname).join(', ')) + ' won</label>').join('') +
+      '<label class="rad' + (choice === 'other' ? ' on' : '') + '"><input type="radio" name="dchoice" value="other"' + (choice === 'other' ? ' checked' : '') + ' data-act="d-choice" data-a="' + g.no + '">Enter a different result</label>' +
+      (choice === 'other' ? '<div class="lbl">Winners, one or more</div>' + g.seats.map(s => '<label class="chk' + ((sw || []).includes(s.pid) ? ' on' : '') + '"><input type="checkbox" name="dwin" value="' + s.pid + '"' + ((sw || []).includes(s.pid) ? ' checked' : '') + ' data-act="d-win" data-a="' + g.no + '"><span class="fchip">' + seal(s.f) + '<span class="fn">' + esc(pname(s.pid)) + '</span></span></label>').join('') : '') +
+      '<p class="muted">Players can\'t edit it after this unless you reopen the game.</p><div class="row">' + btn('d-settle', 'Settle game', { cls: 'pri', a: g.no }) + btn('d-cancel', 'Cancel') + '</div></div></div>' +
+      '<div class="card p20"><div class="stack"><h3 class="disp h2">History of this game</h3>' + g.hist.map(h => '<div><b>' + esc(h.who) + '</b> ' + esc(h.text) + ' <span class="muted">' + esc(fmtAgo(h.at)) + '</span></div>').join('') + '</div></div></div>';
+  }
+  return '<main class="page" id="main">' + adminHead('Disputes', open.length ? tag('warn', open.length + ' open') : tag('ok', 'None open')) + '<div class="cols-side">' + side + detail + '</div></main>';
+}
+
+/* ---------- fix it ---------- */
+const FIX_AREAS = [['people', 'People and roles'], ['roster', 'Roster and lists'], ['season', 'Season settings and dates'], ['games', 'Games, seats and factions'], ['results', 'Submissions and results'], ['picks', 'Pick\'ems']];
+function seatIssues(g, seats) {
+  const out = [], codes = seats.map(s => s.f);
+  seats.forEach(s => { const l = listOf(s.pid).codes; if (s.pid && !l.includes(s.f)) out.push('Rule 1, own list only: ' + FA[s.f].name + ' is not on ' + pname(s.pid) + '\'s list.'); });
+  if (new Set(codes).size < codes.length) out.push('Rule 8, one of each faction per table: a faction appears twice at this table.');
+  if (new Set(seats.map(s => s.pid)).size < seats.length) out.push('Four different players at every table: a player is seated twice.');
+  const reach = tableReach(codes); if (reach < MIN_REACH) out.push('Rule 6, table reach at least ' + MIN_REACH + ': this table is now ' + reach + '.');
+  const mil = codes.filter(c => FA[c].type === 'Militant').length;
+  if (mil === 0 || mil === 4) out.push('Rule 7, militant and insurgent mix: this table has no ' + (mil === 0 ? 'militant' : 'insurgent') + ' faction.');
+  if (codes.includes('vagabond') && codes.includes('knaves')) out.push('Rule 7, never Vagabond with Knaves: both are at this table.');
+  SE().games.forEach(o => { if (o.no === g.no) return; seats.forEach(s => { const os = seatOf(o, s.pid); if (os && os.f === s.f) out.push('Rule 2, no repeats: ' + pname(s.pid) + ' also plays ' + FA[s.f].name + ' at table ' + o.no + '.'); }); });
+  return out;
+}
+function fixNav() { return '<nav class="stack8" aria-label="Fix it areas"><div class="kicker">Area</div>' + FIX_AREAS.map(a => '<a href="#/admin/fixit?a=' + a[0] + '" style="padding:10px 0;border-bottom:1px solid var(--line);text-decoration:none;font-weight:' + (U.fixArea === a[0] ? 700 : 500) + ';color:var(--ink)">' + a[1] + '</a>').join('') + '</nav>'; }
+function pFixit(r) {
+  if (r.q.get('a')) U.fixArea = r.q.get('a'); else if (!U.fixArea) U.fixArea = 'games';
+  const se = SE(), area = U.fixArea;
+  let panel = '';
+  if (area === 'games') {
+    const gno = Number(fv('fx-game', se.games.length ? se.games[Math.min(6, se.games.length - 1)].no : 0)), g = gameBy(gno);
+    if (!g) panel = '<div class="card p20 muted">There are no games yet. Start the season first.</div>';
+    else {
+      const cur = U.fxSeats && U.fxSeats.no === g.no ? U.fxSeats.seats : g.seats.map(s => ({ seat: s.seat, pid: s.pid, f: s.f }));
+      const peopleOpts = sel => se.league.concat(se.wait).concat(S.people.map(p => p.id).filter(x => !se.league.includes(x) && !se.wait.includes(x))).map(p => '<option value="' + p + '"' + (p === sel ? ' selected' : '') + '>' + esc(pname(p)) + '</option>').join('');
+      const facOpts = sel => FACTIONS.map(f => '<option value="' + f.code + '"' + (f.code === sel ? ' selected' : '') + '>' + esc(f.name) + '</option>').join('');
+      const iss = seatIssues(g, cur), changed = JSON.stringify(cur) !== JSON.stringify(g.seats.map(s => ({ seat: s.seat, pid: s.pid, f: s.f })));
+      panel = '<div class="card p20"><div class="stack"><div class="rowb"><h2 class="disp h2b">Table ' + g.no + ', ' + esc(mapName(g)) + '</h2><div class="field" style="min-width:160px"><label for="fx-game">Game</label><select id="fx-game" data-act="fx-game">' + se.games.map(x => '<option value="' + x.no + '"' + (x.no === g.no ? ' selected' : '') + '>Table ' + x.no + ', ' + esc(mapName(x)) + '</option>').join('') + '</select></div></div>' +
+        '<table class="tbl rs"><thead><tr><th>Seat</th><th>Player</th><th>Faction</th><th>Reach</th></tr></thead><tbody>' + cur.map((s, i) => '<tr><td data-l="Seat" class="num">' + s.seat + '</td><td data-l="Player"><div class="field"><label for="fp' + i + '" class="sr">Player, seat ' + s.seat + '</label><select id="fp' + i + '" data-act="fx-seat" data-a="' + i + '" data-b="pid">' + peopleOpts(s.pid) + '</select></div></td><td data-l="Faction"><div class="row" style="flex-wrap:nowrap">' + seal(s.f) + '<div class="field" style="flex:1"><label for="ff' + i + '" class="sr">Faction, seat ' + s.seat + '</label><select id="ff' + i + '" data-act="fx-seat" data-a="' + i + '" data-b="f">' + facOpts(s.f) + '</select></div></div></td><td data-l="Reach" class="reach">Reach ' + FA[s.f].reach + '</td></tr>').join('') + '</tbody></table>' +
+        (iss.length ? alert('warn', '<b>This edit breaks ' + plural(iss.length, 'rule') + '.</b> You can still save it.<br>' + iss.map(esc).join('<br>')) : alert('ok', 'No pairing rule is broken.')) +
+        '<div class="row">' + btn('fx-save-seats', iss.length ? 'Save anyway' : 'Save', { cls: 'pri', a: g.no, dis: !changed }) + btn('fx-cancel-seats', 'Cancel') + '</div></div></div>';
+    }
+  } else if (area === 'roster') {
+    const pid = fv('fx-person', se.league[0] || se.wait[0] || ''), pr = person(pid);
+    const cur = U.fxList && U.fxList.pid === pid ? U.fxList.codes : listOf(pid).codes.slice();
+    panel = '<div class="card p20"><div class="stack"><h2 class="disp h2b">Roster and lists</h2><div class="field"><label for="fx-person">Person</label><select id="fx-person" data-act="fx-person">' + S.people.map(p => '<option value="' + p.id + '"' + (p.id === pid ? ' selected' : '') + '>' + esc(p.name) + ' (' + ({ league: 'league list', wait: 'waitlist' }[onList(p.id)] || 'not on the roster') + ')</option>').join('') + '</select></div>' +
+      (pr ? '<div class="field"><label for="fx-list">Roster place</label><select id="fx-list" data-act="fx-place" data-a="' + pid + '"><option value="league"' + (onList(pid) === 'league' ? ' selected' : '') + '>League list</option><option value="wait"' + (onList(pid) === 'wait' ? ' selected' : '') + '>Waitlist</option><option value="none"' + (!onList(pid) ? ' selected' : '') + '>Not on the roster</option></select></div>' +
+        '<div class="lbl">Ranked list (' + plural(cur.length, 'faction') + ')</div>' + cur.map((c, i) => '<div class="card p16 row" style="flex-wrap:nowrap"><span class="num" style="width:24px;font-size:22px">' + (i + 1) + '</span><span style="flex:1">' + fchip(c) + '</span><button type="button" class="ib" data-act="fx-l-up" data-a="' + i + '" aria-label="Move up"' + (i === 0 ? ' disabled' : '') + '>' + ic('up') + '</button><button type="button" class="ib" data-act="fx-l-down" data-a="' + i + '" aria-label="Move down"' + (i === cur.length - 1 ? ' disabled' : '') + '>' + ic('down') + '</button><button type="button" class="btn sm ghost danger" data-act="fx-l-rm" data-a="' + i + '">Remove</button></div>').join('') +
+        '<div class="row"><select id="fx-add" class="sel" aria-label="Add a faction">' + FACTIONS.filter(f => !cur.includes(f.code)).map(f => '<option value="' + f.code + '">' + esc(f.name) + '</option>').join('') + '</select>' + btn('fx-l-add', 'Add', { cls: 'sm' }) + '</div>' +
+        (cur.length < Math.max(se.minList, se.each) ? alert('warn', 'This list has fewer than ' + Math.max(se.minList, se.each) + ' factions. You can still save it.') : '') +
+        '<div class="row">' + btn('fx-l-save', 'Save list', { cls: 'pri', a: pid }) + btn('fx-l-cancel', 'Cancel') + '</div>' : '') + '</div></div>';
+  } else if (area === 'season') {
+    sdInit();
+    const d = U.sd;
+    panel = '<div class="card p20"><div class="stack18"><h2 class="disp h2b">Season settings and dates</h2><div class="field"><label for="fs-name">Season name</label><input id="fs-name" data-sd="name" value="' + esc(d.name) + '"></div><div class="cols2"><div class="field"><label for="fs-cap">Capacity</label><select id="fs-cap" data-sd="cap">' + [8, 10, 12].map(c => '<option value="' + c + '"' + (+d.cap === c ? ' selected' : '') + '>' + c + '</option>').join('') + '</select></div><div class="field"><label for="fs-games">Games each</label><select id="fs-games" data-sd="games">' + [2, 3, 4].map(c => '<option value="' + c + '"' + (+d.games === c ? ' selected' : '') + '>' + c + '</option>').join('') + '</select></div></div>' +
+      '<div class="cols2"><div class="field"><label for="fs-date">Lists lock date</label><input id="fs-date" type="date" data-sd="date" value="' + esc(d.date) + '"></div><div class="field"><label for="fs-time">Lock time</label><input id="fs-time" type="time" data-sd="time" value="' + esc(d.time) + '"></div></div><div class="field"><label for="fs-min">Minimum list length</label><input id="fs-min" data-sd="minList" value="' + esc(d.minList) + '"></div>' +
+      (se.started ? alert('warn', 'The season has started. Changing capacity or games each does not change the published games. You can still save it.') : '') + '<div class="row">' + btn('fx-season-save', 'Save anyway', { cls: 'pri' }) + '</div></div></div>';
+  } else if (area === 'results') {
+    const gno = Number(fv('fx-game', se.games.length ? se.games[0].no : 0)), g = gameBy(gno);
+    if (!g) panel = '<div class="card p20 muted">There are no games yet.</div>';
+    else panel = '<div class="card p20"><div class="stack"><div class="rowb"><h2 class="disp h2b">Table ' + g.no + ' ' + statusTag(g) + '</h2><div class="field" style="min-width:160px"><label for="fx-game">Game</label><select id="fx-game" data-act="fx-game">' + se.games.map(x => '<option value="' + x.no + '"' + (x.no === g.no ? ' selected' : '') + '>Table ' + x.no + ', ' + esc(mapName(x)) + '</option>').join('') + '</select></div></div>' +
+      '<p class="muted">Result: ' + esc(resultText(g)) + '</p>' + g.seats.map(s => { const sub = g.subs[s.pid]; return '<div class="card p16 stack8"><b>' + esc(pname(s.pid)) + '</b><span class="muted">' + (sub ? 'Says: ' + esc(sub.map(pname).join(', ')) + ' won' : 'No answer') + '</span><div class="row"><select class="sel" id="fxr' + s.seat + '" aria-label="' + esc(pname(s.pid)) + '\'s answer">' + '<option value="">No answer</option>' + g.seats.map(w => '<option value="' + w.pid + '"' + (sub && sub.length === 1 && sub[0] === w.pid ? ' selected' : '') + '>' + esc(pname(w.pid)) + ' won</option>').join('') + '</select>' + btn('fx-set-sub', 'Save answer', { cls: 'sm', a: g.no, b: s.pid + '|fxr' + s.seat }) + '</div></div>'; }).join('') +
+      '<div class="row">' + (g.void ? btn('fx-void', 'Unvoid game', { a: g.no, b: '0' }) : btn('fx-void', 'Void game', { a: g.no, b: '1', cls: 'danger' })) + (g.settled ? btn('reopen', 'Reopen settled game', { a: g.no }) : '') + '</div></div></div>';
+  } else if (area === 'picks') {
+    panel = '<div class="card tbl-wrap"><table class="tbl rs"><thead><tr><th>Person</th><th>Game</th><th>First</th><th>Second</th><th></th></tr></thead><tbody>' + (se.picks.length ? se.picks.map((p, i) => '<tr><td data-l="Person">' + esc(nameOfAcct(p.acct)) + '</td><td data-l="Game">Table ' + p.game + '</td><td data-l="First">' + esc(pname(p.first)) + '</td><td data-l="Second">' + esc(p.second ? pname(p.second) : '-') + '</td><td><button type="button" class="btn sm ghost danger" data-act="fx-pick-del" data-a="' + i + '">Delete pick</button></td></tr>').join('') : '<tr><td colspan="5" class="muted">No picks yet.</td></tr>') + '</tbody></table></div>';
+  } else {
+    const unlinked = S.people.filter(p => !p.did), freeIds = S.wl.filter(w => !personOfAcct(w.id));
+    panel = '<div class="card tbl-wrap"><table class="tbl rs"><thead><tr><th>Name</th><th>Discord ID</th><th>Role</th><th></th></tr></thead><tbody>' + S.people.map(p => { const w = p.did && wlOf(p.did); return '<tr><td data-l="Name"><b>' + esc(p.name) + '</b></td><td data-l="Discord ID" class="num">' + esc(p.did || 'none') + '</td><td data-l="Role">' + (w && w.admin ? '<span class="tag adm">Admin</span>' : onList(p.id) ? (se.started && onList(p.id) === 'league' ? 'League player' : 'Prospect') : 'Viewer') + '</td><td><div class="row"><button type="button" class="btn sm ghost" data-act="fx-rename" data-a="' + p.id + '">Rename</button><button type="button" class="btn sm ghost danger" data-act="fx-person-del" data-a="' + p.id + '">Delete person</button></div></td></tr>'; }).join('') + '</tbody></table></div>' +
+      '<div class="card p20"><div class="stack"><h3 class="disp h2">Link a sign-in to a seeded name</h3>' + (unlinked.length && freeIds.length ? '<div class="cols2"><div class="field"><label for="lk-p">Name</label><select id="lk-p">' + unlinked.map(p => '<option value="' + p.id + '">' + esc(p.name) + '</option>').join('') + '</select></div><div class="field"><label for="lk-w">Whitelisted ID not yet linked</label><select id="lk-w">' + freeIds.map(w => '<option value="' + w.id + '">' + esc(w.id + ' ' + (w.label || '')) + '</option>').join('') + '</select></div></div>' + btn('fx-link', 'Link', { cls: 'pri' }) : '<span class="muted">Every name has a sign-in, or every whitelisted ID is linked.</span>') + '</div></div>';
+  }
+  const quick = '<div class="card p20"><div class="stack"><div class="kicker">Other fixes</div><div class="row">' +
+    '<a class="btn sm" href="#/admin/fixit?a=people">Link a sign-in to a seeded name</a><a class="btn sm" href="#/admin/fixit?a=games">Replace a player in a slot</a><a class="btn sm" href="#/admin/fixit?a=results">Void game</a><a class="btn sm" href="#/admin/fixit?a=results">Unvoid game</a><a class="btn sm" href="#/admin/fixit?a=picks">Delete a pick\'em pick</a></div></div></div>';
+  const log = S.log.slice().reverse();
+  return '<main class="page" id="main">' + adminHead('Fix it') + '<div class="cols-side">' + fixNav() + '<div class="stack18">' + panel + quick + '</div></div>' +
+    '<section class="stack"><h2 class="disp h2b">Edit log</h2><div class="card tbl-wrap"><table class="tbl rs"><thead><tr><th>Who</th><th>When</th><th>What</th><th>Old</th><th>New</th></tr></thead><tbody>' + (log.length ? log.map(l => '<tr><td data-l="Who">' + esc(l.who) + '</td><td class="muted" data-l="When">' + esc(fmtShort(l.at)) + '</td><td data-l="What"><span class="muted">' + esc(l.area) + ':</span> ' + esc(l.what) + '</td><td data-l="Old">' + esc(l.old) + '</td><td data-l="New">' + esc(l.nw) + '</td></tr>').join('') : '<tr><td colspan="5" class="muted">Nothing has been edited yet.</td></tr>') + '</tbody></table></div><span class="muted" style="font-size:13px">The log is append-only. Every edit on this screen, and every result a player submits, is written here with who made it.</span></section></main>';
+}
+
+/* ---------- csv ---------- */
+function pCsv() {
+  const pk = csvParse(exportPicksCsv()), plan = U.csvPlan;
+  const show = pk.slice(0, 5);
+  let imp = '';
+  if (plan && plan.errs.length) {
+    const e = plan.errs[0];
+    imp = '<div class="stack">' + alert('bad', '<b>Nothing was written.</b> ' + esc(e.file + (e.row ? ', row ' + e.row : '') + (e.col ? ', column ' + e.col : '') + ': ' + e.msg)) + '</div>';
+  } else if (plan) {
+    imp = '<div class="stack"><h3 class="disp h2">Preview. Nothing is written until you confirm.</h3><div class="card tbl-wrap"><table class="tbl"><thead><tr><th>File</th><th>Added</th><th>Changed</th><th>Removed</th></tr></thead><tbody>' + plan.summary.map(s => '<tr><td>' + esc(s.file) + (s.note ? '<div class="muted" style="font-size:12px">' + esc(s.note) + '</div>' : '') + '</td><td class="num">' + s.added + '</td><td class="num">' + s.changed + '</td><td class="num">' + s.removed + '</td></tr>').join('') + '</tbody></table></div>' +
+      (SE().started && plan.gamesChanged ? alert('warn', 'The season has started. This changes ' + plural(plan.gamesChanged, 'game row') + (plan.withResult ? ', including games with a result' : '') + '.') : '') + (plan.total ? '' : alert('ok', 'Nothing changes. These files match the league as it is.')) +
+      '<div class="row">' + btn('csv-confirm', 'Confirm import', { cls: 'pri' }) + btn('csv-cancel', 'Cancel') + '</div></div>';
+  }
+  return '<main class="page" id="main">' + adminHead('CSV') + '<div class="cols-main"><div class="card p20"><div class="stack"><h2 class="disp h2b">Export</h2><h3 class="disp h2">Faction picks</h3><span class="muted">One row per player.</span><div class="card tbl-wrap"><table class="tbl"><thead><tr>' + pk[0].slice(0, 4).map(h => '<th>' + esc(h) + '</th>').join('') + '</tr></thead><tbody>' + show.slice(1).concat(show.length < 2 ? [] : []).map(r => '<tr>' + r.slice(0, 4).map(c => '<td>' + esc(c) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div>' + btn('csv-picks', 'Download faction picks') +
+    '<h3 class="disp h2" style="margin-top:8px">League state</h3><span class="muted">One file per area, downloaded together as league-state.zip.</span><div class="row" style="gap:6px">' + CSV_FILES.map(f => '<span class="tag">' + f + '.csv</span>').join('') + '</div><div class="row">' + btn('csv-state', 'Download league state', { cls: 'pri' }) + '</div></div></div>' +
+    '<div class="card p20"><div class="stack"><h2 class="disp h2b">Import league state</h2><div class="field"><label for="csv-files">Choose the .csv files, or the zip</label><input id="csv-files" type="file" accept=".csv,.zip,text/csv" multiple data-act="csv-files"></div>' + (plan && plan.names ? '<span class="muted">' + plural(plan.names.length, 'file') + ' chosen: ' + esc(plan.names.join(', ')) + '</span>' : '') + imp +
+    '<span class="muted">Pairings are not imported; they come from the fixed layouts. The log is append-only.</span></div></div></div></main>';
+}
+
+/* ============================================================
+   Views, part C: router, prototype bar, actions, boot.
+   ============================================================ */
+function pageFor(r, m) {
+  if (m.state === 'visitor') return r.parts[0] === 'discord' ? pConsent() : pLanding();
+  if (m.state === 'notinvited') return pNotInvited(m);
+  const p = r.parts[0] || '';
+  if (p === 'admin') {
+    if (!m.admin) return needAdmin();
+    switch (r.parts[1] || '') {
+      case '': return pAdminDash(); case 'whitelist': return pWhitelist(); case 'roster': return pRoster(); case 'season': return pSeason();
+      case 'start': return pStart(); case 'disputes': return pDisputes(r); case 'fixit': return pFixit(r); case 'csv': return pCsv();
+    }
+    return pAdminDash();
+  }
+  switch (p) {
+    case 'players': return pPlayers(m);
+    case 'pairings': return pPairings(m);
+    case 'game': return pGame(m, r.parts[1]);
+    case 'pickems': return pPickems(m);
+    case 'my-list': return pMyList(m);
+    case 'info': return pInfo(r);
+  }
+  return pHome(m);
+}
+function render() {
+  const r = route(), m = me();
+  if (r.key !== U.lastKey) {
+    if (U.lastKey === 'my-list') S.ui.joined = null;
+    if (r.parts[0] !== 'my-list') U.draft = null;
+    if (!/^admin\/(season|fixit)/.test(r.key)) U.sd = null;
+    if (r.parts[0] !== 'game') U.editing = null;
+    if (r.key !== 'admin/csv') U.csvPlan = null;
+    if (r.key !== 'admin/fixit') { U.fxSeats = null; U.fxList = null; }
+    U.rosterErr = null; U.wlErr = null; U.pasteErrs = null; U.sdMsg = null; U.menu = false;
+    U.lastKey = r.key; window.scrollTo(0, 0);
+  }
+  const pg = pageFor(r, m);
+  const body = (U.menu && m.state === 'in') ? menuPanel(r, m) + '<div class="only-desk">' + pg + '</div>' : pg;
+  const keep = document.activeElement && document.activeElement.id;
+  $('#app').innerHTML = '<a class="sr" href="#main">Skip to content</a>' + headerHTML(r, m) + body;
+  if (keep && $('#' + keep) && /^(wl-|np|sd-|seed|fx-|lk-)/.test(keep) && U.keepFocus) { const e = $('#' + keep); e.focus(); }
+  U.stage = stage();
+  renderBar();
+  document.documentElement.dataset.theme = S.theme && S.theme !== 'auto' ? S.theme : '';
+  if (!S.theme || S.theme === 'auto') document.documentElement.removeAttribute('data-theme');
+}
+
+/* ---------- prototype bar ---------- */
+const PERSONAS = [['signedout', 'Signed out'], ['notwl', 'Signed in, not on the whitelist'], ['viewer', 'Whitelisted viewer'], ['prospect', 'Prospect'], ['player', 'League player'], ['admin', 'Admin (Will)']];
+function personaNames(kind) {
+  const se = SE();
+  if (kind === 'prospect') return (se.started ? se.wait : se.league.concat(se.wait)).map(pname);
+  if (kind === 'player') return se.started ? se.league.map(pname) : [];
+  return [];
+}
+function renderBar() {
+  const se = SE(), p = S.persona, m = me(), open = U.barOpen;
+  const names = personaNames(p.kind);
+  const summary = p.kind === 'signedout' ? 'signed out' : m.state === 'notinvited' ? 'signed in, not whitelisted' : m.state === 'in' ? m.name + (m.admin ? ', admin' : m.player ? ', league player' : m.prospect ? ', prospect' : ', viewer') : '';
+  $('#proto').innerHTML = '<div class="pb"><b>PROTOTYPE</b><span class="who" title="Not part of the product">' + esc(summary) + ' | now ' + esc(fmtShort(now())) + '</span><button type="button" data-pb="toggle" aria-expanded="' + !!open + '">Controls</button></div>' +
+    (open ? '<div class="sheet"><div><h4>Who is looking</h4><label>Persona<select data-pb="persona">' + PERSONAS.map(x => '<option value="' + x[0] + '"' + (p.kind === x[0] ? ' selected' : '') + (x[0] === 'player' && !se.started ? ' disabled' : '') + '>' + x[1] + (x[0] === 'player' && !se.started ? ' (after the season starts)' : '') + '</option>').join('') + '</select></label>' +
+      (names.length ? '<label>Which person<select data-pb="name">' + names.map(n => '<option' + (p.name === n ? ' selected' : '') + '>' + esc(n) + '</option>').join('') + '</select></label>' : '') +
+      '<p>Reading as <b>' + esc(summary) + '</b></p></div>' +
+      '<div><h4>Time</h4><p>Lists lock: <b>' + esc(fmtShort(se.lockAt)) + '</b> (' + (stage() === 'open' ? 'open' : stage()) + ')</p><div class="btns"><button type="button" data-pb="time" data-a="1">+1 hour</button><button type="button" data-pb="time" data-a="24">+1 day</button><button type="button" data-pb="lock">Jump past lock</button><button type="button" data-pb="real">Real time</button></div></div>' +
+      '<div><h4>Data and look</h4><label>Starting state<select id="pb-start"><option value="pre"' + (S.start === 'pre' ? ' selected' : '') + '>Pre-season: lists open</option><option value="mid"' + (S.start === 'mid' ? ' selected' : '') + '>Mid-season: games played</option></select></label><div class="btns"><button type="button" data-pb="reset">Reset data</button></div>' +
+      '<div class="btns" style="margin-top:8px"><button type="button" data-pb="theme" data-a="auto">Auto</button><button type="button" data-pb="theme" data-a="light">Light</button><button type="button" data-pb="theme" data-a="dark">Dark</button></div><p>Saved in this browser. Nothing leaves the page.</p></div></div>' : '');
+}
+function setPersona(kind, name) {
+  const se = SE();
+  S.persona = { kind, name: name || (personaNames(kind)[0] || 'Alex') };
+  if (kind === 'viewer' || kind === 'notwl') S.signAs = kind;
+  U.menu = false; save();
+  if (location.hash === '#/' || !location.hash) render(); else location.hash = '#/';
+}
+
+/* ---------- actions ---------- */
+const ACT = {};
+const val = id => { const e = $('#' + id); return e ? e.value : ''; };
+const res = (r, ok) => { toast(r.msg || ok || 'Done.', !r.ok); render(); return r; };
+ACT.menu = () => { U.menu = !U.menu; render(); };
+ACT.signout = () => { if (S.persona.kind === 'viewer' || S.persona.kind === 'notwl') S.signAs = S.persona.kind; S.persona = { kind: 'signedout', name: S.persona.name }; U.menu = false; save(); location.hash = '#/'; render(); };
+ACT.authorise = () => { S.persona = { kind: S.signAs === 'notwl' ? 'notwl' : 'viewer', name: 'Alex' }; save(); location.hash = '#/'; render(); };
+ACT['authorise-notwl'] = () => { S.signAs = 'notwl'; ACT.authorise(); };
+ACT['copy-id'] = () => { const id = me().acct; try { navigator.clipboard.writeText(id).then(() => toast('Copied your ID.'), () => toast('Copy failed. Select the ID and copy it.', true)); } catch (e) { toast('Copy failed. Select the ID and copy it.', true); } };
+ACT.reload = () => { render(); if (me().state === 'in') toast('You are on the list now.'); else toast('Still not on the list.', true); };
+ACT.scroll = el => { const t = document.getElementById(el.dataset.a); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+ACT.join = () => { const r = joinLeague(); if (r.ok) { U.draft = null; go('#/my-list'); } else res(r); };
+ACT.leave = () => ask({ title: 'Leave the league?', body: '<p>This removes you from the list and clears your ranked factions.</p>', ok: 'Leave league', danger: true, cb: () => { const r = leaveLeague(); toast(r.ok ? 'You left the league.' : r.msg, !r.ok); location.hash = '#/'; } });
+
+/* my list */
+ACT['l-add'] = el => { U.draft.codes.push(el.dataset.a); render(); };
+ACT['l-remove'] = el => { U.draft.codes.splice(+el.dataset.a, 1); render(); };
+ACT['l-up'] = el => { const i = +el.dataset.a, c = U.draft.codes; [c[i - 1], c[i]] = [c[i], c[i - 1]]; render(); };
+ACT['l-down'] = el => { const i = +el.dataset.a, c = U.draft.codes; [c[i + 1], c[i]] = [c[i], c[i + 1]]; render(); };
+ACT['l-discard'] = () => { U.draft = null; toast('Changes discarded.'); render(); };
+ACT['l-submit'] = () => {
+  const m = me(), se = SE(), need = Math.max(se.minList, se.each);
+  if (!canEditList(m)) return toast('Lists are locked.', true);
+  if (U.draft.codes.length < need) return toast('Pick at least ' + need + ' factions.', true);
+  const old = listOf(m.pid).codes.map(c => FA[c].name).join(', ');
+  se.lists[m.pid] = { codes: U.draft.codes.slice(), st: 'submitted' };
+  logit('Lists', m.name + ' submitted a list', old, U.draft.codes.map(c => FA[c].name).join(', '));
+  S.ui.joined = null; U.draft = null; save(); toast('List submitted.'); location.hash = '#/';
+};
+/* pairings and games */
+ACT.pf = el => { U.pf = el.dataset.a; render(); };
+ACT['edit-result'] = el => { U.editing = Number(el.dataset.a); render(); };
+ACT['edit-cancel'] = () => { U.editing = null; render(); };
+ACT['submit-result'] = el => { const w = Array.from(document.querySelectorAll('input[name=win]:checked')).map(i => i.value); const r = submitResult(el.dataset.a, w); if (r.ok) U.editing = null; res(r); };
+ACT['save-pick'] = el => { const n = el.dataset.a; const r = savePick(n, fv('p1-' + n, null) || (SE().picks.find(p => p.acct === me().acct && p.game === +n) || {}).first, fv('p2-' + n, null) !== null ? fv('p2-' + n) : (SE().picks.find(p => p.acct === me().acct && p.game === +n) || {}).second); res(r); };
+/* whitelist */
+ACT['wl-add'] = () => { const r = addWl(fv('wl-id'), fv('wl-label')); if (r.ok) { U.f['wl-id'] = ''; U.f['wl-label'] = ''; U.wlErr = null; toast('Added to the whitelist.'); } else U.wlErr = r.msg; render(); };
+ACT['wl-check'] = () => { U.pasteErrs = parseWlPaste(fv('wl-paste')); render(); };
+ACT['wl-paste-add'] = () => {
+  const pr = parseWlPaste(fv('wl-paste'));
+  pr.rows.forEach(r => addWl(r.id, r.label));
+  const bad = fv('wl-paste').split('\n').filter(l => l.trim() && !pr.rows.some(r => l.trim().indexOf(r.id) === 0));
+  U.f['wl-paste'] = bad.join('\n'); U.pasteErrs = pr.errs.length ? { rows: [], errs: pr.errs } : null;
+  toast(pr.rows.length ? 'Added ' + plural(pr.rows.length, 'person') + '.' : 'Nothing added.', !pr.rows.length); render();
+};
+ACT['wl-admin'] = el => {
+  const w = wlOf(el.dataset.a);
+  if (w.admin && S.wl.filter(x => x.admin).length < 2) return toast('There must be at least one admin.', true);
+  w.admin = !w.admin; logit('Whitelist', (w.admin ? 'Made admin: ' : 'Removed admin: ') + (w.label || w.id), w.admin ? 'viewer' : 'admin', w.admin ? 'admin' : 'viewer'); save(); render();
+};
+ACT['wl-label'] = el => { const w = wlOf(el.dataset.a); ask({ title: 'Edit label', input: { label: 'Name label', value: w.label }, ok: 'Save', cb: v => { logit('Whitelist', 'Label for ' + w.id, w.label, v); w.label = v.trim(); save(); } }); };
+ACT['wl-remove'] = el => { const w = wlOf(el.dataset.a); ask({ title: 'Remove from the whitelist?', body: '<p>' + esc(w.label || w.id) + ' loses access at once, even in an open session. Their roster entry and list stay.</p>', ok: 'Remove', danger: true, cb: () => { if (w.admin && S.wl.filter(x => x.admin).length < 2) return toast('There must be at least one admin.', true); removeWl(w.id); toast('Removed.'); } }); };
+/* roster */
+ACT['r-move'] = el => { const pid = el.dataset.a, to = onList(pid) === 'league' ? 'wait' : 'league'; const r = rosterMove(pid, to); U.rosterErr = r.ok ? null : { msg: r.msg, swapFor: to === 'league' ? pid : null }; render(); };
+function reorder(pid, d) { const a = SE().wait, i = a.indexOf(pid), j = i + d; if (j < 0 || j >= a.length) return; [a[i], a[j]] = [a[j], a[i]]; logit('Roster', pname(pid) + ' moved ' + (d < 0 ? 'up' : 'down') + ' the waitlist', i + 1, j + 1); save(); render(); }
+ACT['r-up'] = el => reorder(el.dataset.a, -1);
+ACT['r-down'] = el => reorder(el.dataset.a, 1);
+ACT['r-remove'] = el => { const pid = el.dataset.a, n = SE().picks.filter(p => p.first === pid || p.second === pid).length; ask({ title: 'Remove ' + pname(pid) + '?', body: '<p>' + (listOf(pid).codes.length ? 'Their ranked list of ' + plural(listOf(pid).codes.length, 'faction') + ' is cleared. ' : '') + (n ? plural(n, 'pick\'em pick') + ' naming them are deleted.' : 'They have no picks.') + '</p>', ok: 'Remove', danger: true, cb: () => { res(removeFromRoster(pid)); } }); };
+ACT['r-add'] = () => { const r = addPerson(fv('np')); if (r.ok) U.f.np = ''; res(r); };
+ACT['r-swap'] = el => { const r = rosterSwap(el.dataset.a, val('swap-sel')); U.rosterErr = r.ok ? null : { msg: r.msg }; render(); if (r.ok) toast('Swapped.'); };
+let dragPid = null;
+function dropOn(t) {
+  const row = t.closest('[data-drop="row"]'), col = t.closest('[data-drop="col"]');
+  if (!dragPid || !(row || col)) return;
+  const list = (row || col).dataset.list, from = onList(dragPid), se = SE();
+  let r;
+  if (row) {
+    const tp = row.dataset.pid; if (tp === dragPid) return;
+    if (from !== list && list === 'league' && se.league.length >= se.cap) r = rosterSwap(dragPid, tp); else r = rosterMove(dragPid, list, tp);
+  } else r = rosterMove(dragPid, list);
+  U.rosterErr = r.ok ? null : { msg: r.msg, swapFor: list === 'league' && from !== 'league' ? dragPid : null };
+  dragPid = null; render();
+}
+/* season */
+const sdFix = () => { const d = U.sd; if (!(VALID[d.cap] || []).includes(d.games)) d.games = (VALID[d.cap] || [4]).includes(4) ? 4 : VALID[d.cap][0]; };
+ACT['sd-cap'] = el => { U.sd.cap = +el.dataset.a; sdFix(); U.sd.ack = null; render(); };
+ACT['sd-games'] = el => { U.sd.games = +el.dataset.a; U.sd.ack = null; render(); };
+ACT['sd-pool'] = el => { const p = U.sd.pool, c = el.dataset.a, i = p.indexOf(c); if (i >= 0) p.splice(i, 1); else p.push(c); render(); };
+ACT['sd-map-add'] = () => { const v = val('sd-newmap').trim(); if (!v) return toast('Type a map name.', true); if (U.sd.maps.includes(v)) return toast('That map is already there.', true); U.sd.maps.push(v); render(); };
+ACT['sd-map-del'] = el => { U.sd.maps.splice(+el.dataset.a, 1); render(); };
+ACT['sd-ack'] = () => { U.sd.ack = U.sd.cap + '-' + U.sd.games; render(); };
+const sdFields = () => { const d = U.sd; return { name: d.name, cap: +d.cap, games: +d.games, maps: d.maps.slice(), pool: ACTIVE_ORDER(d.pool), minList: +d.minList, lockAt: new Date(d.date + 'T' + d.time).getTime() }; };
+const ACTIVE_ORDER = pool => ALL_CODES.filter(c => pool.includes(c));
+ACT['sd-save'] = () => { const r = saveSeason(sdFields()); U.sdMsg = r; if (r.ok) { U.sd = null; toast(r.msg); } render(); };
+ACT['fx-season-save'] = () => {
+  const f = sdFields(), se = SE();
+  [['name', 'name', 'name'], ['cap', 'cap', 'capacity'], ['each', 'games', 'games each'], ['minList', 'minList', 'minimum list length'], ['lockAt', 'lockAt', 'lock date']].forEach(([k, fk, l]) => { if (se[k] !== f[fk]) { logit('Season', l, k === 'lockAt' ? fmtDT(se[k]) : se[k], k === 'lockAt' ? fmtDT(f[fk]) : f[fk]); se[k] = f[fk]; } });
+  save(); U.sd = null; toast('Season settings saved.'); render();
+};
+/* start season */
+function launch(seed) {
+  cancelRun(); U.fail = null; U.pct = 0; SE().draft = null; SE().seed = seed; save();
+  startRun(seed, p => { U.pct = p; if (/admin\/start/.test(location.hash)) render(); }, r => {
+    if (r.ok) { SE().draft = r.draft; U.fail = null; } else U.fail = r;
+    save(); if (/admin\/start/.test(location.hash)) render();
+  });
+  render();
+}
+ACT.run = () => { const s = parseInt(fv('seed', SE().seed), 10); if (!s) return toast('Enter a numeric seed.', true); launch(s); };
+ACT.reroll = () => { const s = 10000 + Math.floor(Math.random() * 89999); U.f.seed = String(s); launch(s); };
+ACT['run-cancel'] = () => { cancelRun(); U.pct = 0; toast('Run cancelled.'); render(); };
+ACT.publish = () => { const r = publishDraft(); if (r.ok) { toast('Pairings published. Joining is closed and pick\'ems are open.'); location.hash = '#/pairings'; } else res(r); };
+ACT['discard-draft'] = () => { SE().draft = null; save(); render(); };
+/* disputes */
+ACT['d-choice'] = el => { U.f['dchoice-' + el.dataset.a] = el.value; render(); };
+ACT['d-win'] = el => { const k = 'dw-' + el.dataset.a, cur = (U.f[k] || []).slice(), i = cur.indexOf(el.value); if (el.checked && i < 0) cur.push(el.value); if (!el.checked && i >= 0) cur.splice(i, 1); U.f[k] = cur; render(); };
+ACT['d-settle'] = el => {
+  const g = gameBy(el.dataset.a), ch = fv('dchoice-' + g.no, Object.keys(g.subs)[0] ? 'a:' + Object.keys(g.subs)[0] : 'other');
+  const w = ch === 'other' ? (U.f['dw-' + g.no] || []) : g.subs[ch.slice(2)];
+  const r = settleGame(g.no, w || []); if (r.ok) { U.f['dw-' + g.no] = null; U.f['dchoice-' + g.no] = null; U.dsel = null; } res(r);
+};
+ACT['d-cancel'] = () => { location.hash = '#/admin/disputes'; render(); };
+ACT.reopen = el => res(reopenGame(el.dataset.a));
+/* fix it */
+ACT['fx-save-seats'] = el => {
+  const g = gameBy(el.dataset.a), cur = U.fxSeats.seats;
+  g.seats.forEach((s, i) => {
+    const c = cur[i];
+    if (s.pid !== c.pid) { logit('Games', 'table ' + g.no + ', seat ' + s.seat + ' player', pname(s.pid), pname(c.pid)); g.hist.push({ who: me().name, text: 'replaced ' + pname(s.pid) + ' with ' + pname(c.pid) + ' in seat ' + s.seat, at: now() }); s.pid = c.pid; }
+    if (s.f !== c.f) { logit('Games', 'table ' + g.no + ', seat ' + s.seat + ' faction', FA[s.f].name, FA[c.f].name); s.f = c.f; }
+  });
+  U.fxSeats = null; save(); toast('Saved. The edit is in the log.'); render();
+};
+ACT['fx-cancel-seats'] = () => { U.fxSeats = null; render(); };
+ACT['fx-set-sub'] = el => {
+  const g = gameBy(el.dataset.a), [pid, sel] = el.dataset.b.split('|'), v = val(sel), old = g.subs[pid];
+  if (v) g.subs[pid] = [v]; else delete g.subs[pid];
+  logit('Results', 'Table ' + g.no + ': ' + pname(pid) + '\'s answer', old ? old.map(pname).join(', ') : 'none', v ? pname(v) : 'none'); g.hist.push({ who: me().name, text: 'edited ' + pname(pid) + '\'s answer', at: now() }); save(); toast('Saved. The edit is in the log.'); render();
+};
+ACT['fx-void'] = el => res(setVoid(el.dataset.a, el.dataset.b === '1'));
+ACT['fx-pick-del'] = el => { const p = SE().picks[+el.dataset.a]; logit('Pickems', 'Deleted ' + nameOfAcct(p.acct) + '\'s pick on table ' + p.game, pname(p.first) + (p.second ? ', ' + pname(p.second) : ''), ''); SE().picks.splice(+el.dataset.a, 1); save(); toast('Pick deleted.'); render(); };
+ACT['fx-rename'] = el => { const p = person(el.dataset.a); ask({ title: 'Rename', input: { label: 'Name', value: p.name }, ok: 'Save', cb: v => { if (!v.trim()) return; logit('People', 'Renamed', p.name, v.trim()); p.name = v.trim(); save(); } }); };
+ACT['fx-link'] = () => { const p = person(val('lk-p')), w = wlOf(val('lk-w')); p.did = w.id; logit('People', 'Linked sign-in ' + w.id + ' to ' + p.name, '', p.name); save(); toast('Linked.'); render(); };
+ACT['fx-person-del'] = el => {
+  const pid = el.dataset.a, se = SE(), seated = se.games.filter(g => seatOf(g, pid)).length;
+  if (seated) return toast(pname(pid) + ' is seated at ' + plural(seated, 'game') + '. Replace them in the games first.', true);
+  const picks = se.picks.filter(p => p.first === pid || p.second === pid || p.acct === (person(pid) || {}).did).length;
+  const subs = se.games.reduce((n, g) => n + (g.subs[pid] ? 1 : 0), 0);
+  ask({ title: 'Delete ' + pname(pid) + '?', body: '<p>This removes ' + plural(picks, 'pick\'em pick') + ', ' + plural(subs, 'submission') + ' and their roster place.</p>', ok: 'Delete person', danger: true, cb: () => {
+    const pr = person(pid);
+    se.picks = se.picks.filter(p => !(p.first === pid || p.second === pid || p.acct === pr.did));
+    se.games.forEach(g => { delete g.subs[pid]; Object.keys(g.subs).forEach(k => { g.subs[k] = g.subs[k].filter(x => x !== pid); if (!g.subs[k].length) delete g.subs[k]; }); });
+    se.league = se.league.filter(x => x !== pid); se.wait = se.wait.filter(x => x !== pid); delete se.lists[pid];
+    S.people = S.people.filter(p => p.id !== pid); logit('People', 'Deleted ' + pr.name, plural(picks, 'pick') + ', ' + plural(subs, 'submission'), ''); save(); toast('Deleted.');
+  } });
+};
+ACT['fx-l-up'] = el => { const c = U.fxList.codes, i = +el.dataset.a; [c[i - 1], c[i]] = [c[i], c[i - 1]]; render(); };
+ACT['fx-l-down'] = el => { const c = U.fxList.codes, i = +el.dataset.a; [c[i + 1], c[i]] = [c[i], c[i + 1]]; render(); };
+ACT['fx-l-rm'] = el => { U.fxList.codes.splice(+el.dataset.a, 1); render(); };
+ACT['fx-l-add'] = () => { const v = val('fx-add'); if (v) U.fxList.codes.push(v); render(); };
+ACT['fx-l-cancel'] = () => { U.fxList = null; render(); };
+ACT['fx-l-save'] = el => { const pid = el.dataset.a, se = SE(), old = listOf(pid); logit('Lists', pname(pid) + ' ranked list', old.codes.map(c => FA[c].name).join(', '), U.fxList.codes.map(c => FA[c].name).join(', ')); se.lists[pid] = { codes: U.fxList.codes.slice(), st: old.st }; U.fxList = null; save(); toast('Saved. The edit is in the log.'); render(); };
+/* csv */
+ACT['csv-picks'] = () => download('faction-picks.csv', exportPicksCsv());
+ACT['csv-state'] = () => download('league-state.zip', zipStore(exportFiles()));
+ACT['csv-confirm'] = () => { applyImport(U.csvPlan); U.csvPlan = null; toast('Imported. One entry is in the log.'); render(); };
+ACT['csv-cancel'] = () => { U.csvPlan = null; render(); };
+async function readFiles(list) {
+  const files = {};
+  try {
+    for (const f of list) {
+      if (/\.zip$/i.test(f.name)) Object.assign(files, await unzip(await f.arrayBuffer()));
+      else files[f.name] = await f.text();
+    }
+    U.csvPlan = importPlan(files);
+    if (U.csvPlan.errs.length === 0) U.csvPlan.names = Object.keys(files);
+  } catch (e) { U.csvPlan = { errs: [{ file: 'zip', msg: e.message }] }; }
+  render();
+}
+
+/* ---------- event wiring ---------- */
+document.addEventListener('click', ev => {
+  const t = ev.target.closest('[data-act],[data-pb]'); if (!t) return;
+  if (t.dataset.pb) return pbAct(t, ev);
+  const tn = t.tagName, ty = t.type;
+  if (tn === 'SELECT' || ty === 'checkbox' || ty === 'radio' || ty === 'file') return;
+  const f = ACT[t.dataset.act]; if (f) { ev.preventDefault && t.tagName === 'A' && ev.preventDefault(); f(t, ev); }
+});
+document.addEventListener('change', ev => {
+  const t = ev.target;
+  if (t.dataset.pb) return pbChange(t);
+  const a = t.dataset.act;
+  if (a === 'chk') { t.closest('.chk').classList.toggle('on', t.checked); return; }
+  if (a === 'pick-radio') { U.f[t.dataset.a + '-' + route().parts[1]] = t.value; U.keepFocus = false; return render(); }
+  if (a === 'sd-pool' || a === 'sd-cap' || a === 'sd-games' || a === 'd-choice' || a === 'd-win') return ACT[a](t);
+  if (a === 'fx-game') { U.f['fx-game'] = t.value; U.fxSeats = null; return render(); }
+  if (a === 'fx-seat') { const g = gameBy(U.f['fx-game'] || (SE().games[Math.min(6, SE().games.length - 1)] || {}).no); if (!U.fxSeats || U.fxSeats.no !== g.no) U.fxSeats = { no: g.no, seats: g.seats.map(s => ({ seat: s.seat, pid: s.pid, f: s.f })) }; U.fxSeats.seats[+t.dataset.a][t.dataset.b] = t.value; return render(); }
+  if (a === 'fx-person') { U.f['fx-person'] = t.value; U.fxList = null; return render(); }
+  if (a === 'fx-place') { const pid = t.dataset.a, se = SE(), v = t.value, old = onList(pid); se.league = se.league.filter(x => x !== pid); se.wait = se.wait.filter(x => x !== pid); if (v === 'league') se.league.push(pid); else if (v === 'wait') se.wait.push(pid); logit('Roster', pname(pid) + ' (Fix it)', old || 'none', v); save(); toast('Saved. The edit is in the log.'); return render(); }
+  if (a === 'csv-files') return readFiles(Array.from(t.files));
+  if (t.dataset.sd) { U.sd[t.dataset.sd] = t.value; if (t.tagName === 'SELECT') { U.sd.cap = +U.sd.cap; U.sd.games = +U.sd.games; } }
+});
+document.addEventListener('input', ev => {
+  const t = ev.target;
+  if (t.dataset.u) U.f[t.dataset.u] = t.value;
+  if (t.dataset.sd) U.sd[t.dataset.sd] = t.value;
+});
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape' && U.modal) { closeModal(); }
+  if (ev.key === 'Enter' && U.modal && ev.target.id === 'm-in') { ev.preventDefault(); modalOk(); }
+});
+function modalOk() { const o = U.modal; if (!o) return; const v = $('#m-in') ? $('#m-in').value : ''; closeModal(); o.cb && o.cb(v); render(); }
+ACT['modal-ok'] = modalOk;
+ACT['modal-cancel'] = closeModal;
+document.addEventListener('dragstart', ev => { const r = ev.target.closest && ev.target.closest('[data-drag]'); if (r) { dragPid = r.dataset.drag; try { ev.dataTransfer.setData('text/plain', dragPid); ev.dataTransfer.effectAllowed = 'move'; } catch (e) { /* ok */ } } });
+document.addEventListener('dragover', ev => { const d = ev.target.closest && ev.target.closest('[data-drop]'); if (d && dragPid) { ev.preventDefault(); document.querySelectorAll('.drop').forEach(x => x.classList.remove('drop')); d.classList.add('drop'); } });
+document.addEventListener('drop', ev => { if (!dragPid) return; ev.preventDefault(); document.querySelectorAll('.drop').forEach(x => x.classList.remove('drop')); dropOn(ev.target); });
+document.addEventListener('dragend', () => { dragPid = null; document.querySelectorAll('.drop').forEach(x => x.classList.remove('drop')); });
+window.addEventListener('hashchange', render);
+
+function pbAct(t) {
+  const a = t.dataset.pb;
+  if (a === 'toggle') { U.barOpen = !U.barOpen; return renderBar(); }
+  if (a === 'time') { S.clock += +t.dataset.a * HOUR; save(); return render(); }
+  if (a === 'lock') { const d = SE().lockAt - now(); if (d > 0) S.clock += d + 60000; save(); return render(); }
+  if (a === 'real') { S.clock = 0; save(); return render(); }
+  if (a === 'theme') { S.theme = t.dataset.a; save(); return render(); }
+  if (a === 'reset') { const v = $('#pb-start').value; const th = S.theme; cancelRun(); Object.keys(U).forEach(k => { if (k !== 'barOpen') delete U[k]; }); U.f = {}; U.menu = false; resetState(v); S.theme = th; save(); location.hash = '#/'; render(); toast('Demo data reset: ' + (v === 'mid' ? 'mid-season' : 'pre-season') + '.'); }
+}
+function pbChange(t) {
+  if (t.dataset.pb === 'persona') setPersona(t.value);
+  if (t.dataset.pb === 'name') { S.persona.name = t.value; save(); location.hash = '#/'; render(); }
+}
+
+/* ---------- boot ---------- */
+function boot() {
+  S = loadState() || seedState('pre');
+  window.__rl = { get S() { return S; }, exportFiles, importPlan, applyImport, exportPicksCsv, zipStore, unzip, seedState, resetState: s => { resetState(s); render(); }, me, stage, standings, leaderboard, gstate, render, csvParse };
+  render();
+  setInterval(() => {
+    if (!S) return;
+    if (U.stage !== stage()) return render();
+    document.querySelectorAll('[data-cd]').forEach(e => { e.textContent = fmtCd(+e.dataset.cd - now()); });
+  }, 15000);
+}
+boot();
+
+</script>
+</body>
+</html>
