@@ -258,6 +258,7 @@ Each commit is one implementation agent's scope. Run the tests named in its chec
 
 - Faction assignment as in `assign_factions`, with hard rules: own list only, no repeat for a player, no duplicate at a table, reach at least 21, at least one militant and one insurgent, never Vagabond with Knaves. The mix is a named constraint in one file.
 - Infeasible results return a report naming the blocking players and tables.
+- Make the mix a written rule: rule 7 in `league/pairing-rules.md` becomes "at least one militant and one insurgent per table, and never Vagabond and Knaves together"; remove the mix entry from `planning/open-questions.md`. Reach of at least 21 (rule 6) is already written and is enforced here.
 - Checks: `season-1/preferences.json` at 3 and 4 games gives zero off-list plays and every rule holds; a fixture where one player lists too few factions returns infeasible with that player named; the mix constraint is covered by unit tests.
 
 **A5. Pairing port: seats, check, report**

@@ -20,7 +20,7 @@ Decisions for the league website, newest first, in a short ADR form. All were ma
 
 - **Date:** 2026-11-26
 - **Context:** The Python tool can fall back to off-list factions and ignores the militant and insurgent mix. Rule 7 says only "a sensible mix".
-- **Decision:** The TypeScript pairing enforces every hard rule on [pairing rules](../../league/pairing-rules.md): own-list factions only, no repeated factions, table reach at least 21, and at least one militant and one insurgent per table with never Vagabond and Knaves together. The mix is a named constraint in one file so it can change. If the lists cannot satisfy the rules, the run says which players and tables block it.
+- **Decision:** Will adopted the sample pairings' mix as a written rule (2026-11-26). The TypeScript pairing enforces every hard rule on [pairing rules](../../league/pairing-rules.md): own-list factions only, no repeated factions, table reach at least 21, and at least one militant and one insurgent per table with never Vagabond and Knaves together. The mix is a named constraint in one file so it can change. If the lists cannot satisfy the rules, the run says which players and tables block it.
 - **Consequence:** A run can be infeasible where the Python tool would return something. That is intended; the fix is longer lists.
 
 ## 9. Faction lists lock at a fixed deadline, enforced automatically
