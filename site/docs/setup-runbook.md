@@ -27,6 +27,8 @@ Run shell commands from `site/` unless a step says otherwise. Replace quoted pla
 
 ## Supabase
 
+See the [hosted Supabase walkthrough](supabase-walkthrough.md) for dashboard steps, migration commands, and verification.
+
 - **Create** a hosted Supabase project; save its project reference, API URL, anon/publishable key and database-owner connection string privately.
 - **Disable** the Email provider and email sign-up in hosted Auth; keep Discord sign-up available for first-time users.
 - **Leave** the local Discord provider disabled in [config.toml](../supabase/config.toml); hosted settings belong in the dashboard.
