@@ -26,6 +26,16 @@ it.each([375, 1280])('navigates all three read-only pages at %i px', async (widt
   expect(screen.queryByText(/badge guide/i)).not.toBeInTheDocument()
 })
 
+it('switches pages from the Section picker used on phones', async () => {
+  h.db = makeFakeDb().db
+  const { router } = renderApp('/info', 375)
+  await screen.findByRole('heading', { name: 'League Format' })
+  await userEvent.selectOptions(screen.getByLabelText('Section'), 'rules')
+  expect(await screen.findByRole('heading', { name: 'Pairing Rules' })).toBeInTheDocument()
+  expect(router.state.location.pathname).toBe('/info/rules')
+  expect(screen.getByLabelText('Section')).toHaveValue('rules')
+})
+
 it('opens a deep link and defaults unknown keys to format', async () => {
   h.db = makeFakeDb().db
   const { router } = renderApp('/info/how')
