@@ -21,7 +21,7 @@ export const routes: RouteObject[] = [
       { path: '/pairings', element: <Pairings /> },
       { path: '/game/:gameNo', element: <Game /> },
       { path: '/pickems', element: <Placeholder title="Pick'ems" /> },
-      { path: '/my-list', element: <MyList /> },
+      { path: '/my-list', element: <MembershipListEntry><MyList /></MembershipListEntry> },
       { path: '/info', element: <LeagueInfo /> },
       { path: '/info/:page', element: <LeagueInfo /> },
       // Admin pages sit behind the admin guard. One line per route, as above.
