@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router'
+import { useMembership } from '../db/membership'
 import { isConfigured } from '../db/client'
 import { Landing } from '../pages/Landing'
 import { NotInvited } from '../pages/NotInvited'
@@ -42,6 +43,7 @@ export function AppRoot() {
 export function AppGate() {
   const session = useSession()
   const { pathname } = useLocation()
+  const membership = useMembership(session.status === 'in' ? session.whoami.personId : null)
 
   switch (session.status) {
     case 'loading':
@@ -85,8 +87,7 @@ export function AppGate() {
       const shell: ShellSession = {
         name: me.displayName ?? me.discordName ?? 'Signed in',
         isAdmin: me.isAdmin,
-        // The roster arrives with D2's tables; My list appears for roster members once U4 reads it.
-        onRoster: false,
+        onRoster: !!membership.data?.member,
       }
       return <Shell session={shell} onSignOut={session.signOut} />
     }
