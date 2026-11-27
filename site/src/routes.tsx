@@ -24,7 +24,7 @@ export const routes: RouteObject[] = [
           { path: '/admin', element: <Placeholder title="Dashboard" /> },
           { path: '/admin/whitelist', element: <Placeholder title="Whitelist" /> },
           { path: '/admin/roster', element: <Placeholder title="Roster" /> },
-          { path: '/admin/season', element: <Placeholder title="Season" /> },
+          { path: '/admin/season', HydrateFallback: () => <p role="status">Loading season</p>, lazy: async () => ({ Component: (await import('./pages/admin/Season')).Season }) },
           { path: '/admin/start', element: <Placeholder title="Start season" /> },
           { path: '/admin/disputes', element: <Placeholder title="Disputes" /> },
           { path: '/admin/fixit', element: <Placeholder title="Fix it" /> },
