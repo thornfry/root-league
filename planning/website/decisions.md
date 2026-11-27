@@ -15,6 +15,13 @@ Entries 40 to 51 come from writing the [build sequence](build.md). They are numb
 
 Entries from 52 on come from Will's click-through of the running site on 2026-11-27.
 
+## 55. Type is Baskervville, IM Fell English and Alegreya Sans
+
+- **Date:** 2026-11-27
+- **Context:** Will tried new faces on the design canvas and approved a classic, bookish set over Barlow Condensed and Inter.
+- **Decision:** The site uses Baskervville for reading text (`--f-body`), IM Fell English for headings and the wordmark (`--f-display`, weight 400 only, mixed case), and Alegreya Sans for labels, controls and numbers (`--f-ui`). This supersedes only the font names in the Look line of design.md. Decision 51's self-hosting through `@fontsource`, Latin subset, is unchanged.
+- **Consequence:** Headings are never bold or uppercase, because IM Fell English has one weight. Small text of 12 to 14px stays on Alegreya Sans, since Baskervville is weak at small sizes.
+
 ## 54. The roster board moves people with buttons, not drag and drop
 
 - **Date:** 2026-11-27

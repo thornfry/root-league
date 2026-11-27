@@ -4,11 +4,11 @@
 .players-open .players-entry { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
 .players-open .players-entry + .players-entry { border-top: 1px solid var(--line); }
 .players-heading { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); }
-.players-heading h2 { margin: 0; font: 600 16px var(--f-body); min-width: 0; }
+.players-heading h2 { margin: 0; font: 700 16px var(--f-ui); min-width: 0; }
 .players-heading > span { flex-shrink: 0; font-size: 14px; }
 .players-heading > a { flex-shrink: 0; font-size: 14px; }
-.players-list-in { color: var(--ok); font-weight: 600; }
-.players-not-ready { color: var(--warn); font-weight: 600; }
+.players-list-in { font-family: var(--f-ui); color: var(--ok); font-weight: 600; }
+.players-not-ready { font-family: var(--f-ui); color: var(--warn); font-weight: 600; }
 .players-status { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; text-decoration: none; }
 .players-status:hover { text-decoration: underline; }
 .players-factions { list-style: none; padding: 0; margin: var(--space-3) 0 0; display: grid; gap: var(--space-2); }

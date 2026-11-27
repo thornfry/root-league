@@ -1,12 +1,12 @@
 /* App shell: header band, phone menu, desktop top bar, admin bar. */
 .band { background: var(--forest-d); color: #E8EFEA; }
-.band .brand { font-family: var(--f-display); font-weight: 700; font-size: 28px; letter-spacing: .06em; text-transform: uppercase; color: #fff; text-decoration: none; }
+.band .brand { font-family: var(--f-display); font-weight: 400; font-size: 32px; letter-spacing: .01em; text-transform: none; color: #fff; text-decoration: none; }
 .lg .band a.brand { color: #fff; }
 .band .brand i { font-style: normal; color: var(--amber); }
-.band nav a { color: var(--band-text); text-decoration: none; font-size: 15px; font-weight: 500; padding: 22px 0 18px; border-bottom: 3px solid transparent; }
+.band nav a { color: var(--band-text); text-decoration: none; font-family: var(--f-ui); font-size: 16px; font-weight: 500; padding: 22px 0 18px; border-bottom: 3px solid transparent; }
 .lg .band nav a { color: var(--band-text); }
 .band nav a.on, .lg .band nav a.on { color: #fff; border-bottom-color: var(--amber); }
-.band .who { font-size: 14px; color: var(--band-text); }
+.band .who { font-family: var(--f-ui); font-size: 16px; font-weight: 500; color: var(--band-text); }
 .band .who b { color: #fff; }
 .band .btn.band-btn { background: transparent; color: #fff; border-color: var(--band-line); }
 .lg .band .btn.band-btn { color: #fff; }
@@ -26,7 +26,7 @@
 .bar { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 16px; gap: 8px; max-width: var(--page-max); margin: 0 auto; }
 .menu-btn { width: 44px; height: 44px; border-radius: var(--radius); border: 1px solid var(--band-line); background: transparent; color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
 
-.mlink { display: flex; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1px solid var(--line); font-weight: 600; font-size: 17px; text-decoration: none; color: var(--ink) !important; }
+.mlink { display: flex; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1px solid var(--line); font-family: var(--f-ui); font-weight: 600; font-size: 18px; text-decoration: none; color: var(--ink) !important; }
 .mlink.on { box-shadow: inset 4px 0 0 var(--amber); padding-left: 12px; }
 
 .page { max-width: var(--page-max); margin: 0 auto; padding: 24px 16px 120px; display: flex; flex-direction: column; gap: var(--space-5); }

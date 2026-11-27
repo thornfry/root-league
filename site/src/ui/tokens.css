@@ -29,8 +29,9 @@
   --seal-WA: #3E7A22; --seal-WA-ink: #FFFFFF;
   --seal-lizards: #C9A227; --seal-lizards-ink: #15201B;
 
-  --f-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-  --f-body: 'Inter', system-ui, sans-serif;
+  --f-display: 'IM Fell English', Georgia, serif;
+  --f-body: 'Baskervville', Baskerville, Georgia, serif;
+  --f-ui: 'Alegreya Sans', 'Segoe UI', system-ui, sans-serif;
 
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 22px; --space-6: 28px; --space-7: 44px;
   --radius-sm: 4px; --radius: 8px; --radius-card: 10px; --radius-modal: 14px;

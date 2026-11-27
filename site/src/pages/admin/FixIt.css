@@ -1,6 +1,6 @@
 .fix-columns { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); align-items: start; }
 .fix-columns > * { min-width: 0; }
-.fix-nav { padding: 10px 0; border-bottom: 1px solid var(--line); text-decoration: none; font-weight: 500; color: var(--ink); }
+.fix-nav { font-family: var(--f-ui); padding: 10px 0; border-bottom: 1px solid var(--line); text-decoration: none; font-weight: 500; color: var(--ink); }
 .fix-nav[aria-current='page'] { font-weight: 700; }
 .fix-page fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 .fix-page legend { font-weight: 600; padding: 0; margin-bottom: 6px; }
@@ -21,7 +21,7 @@ ol.fix-rows .fix-main { flex-direction: row; align-items: center; gap: 12px; }
 .fix-log { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .fix-log-row { display: grid; gap: 8px; padding: 14px 16px; min-width: 0; overflow-wrap: anywhere; }
 .fix-log-row > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.fix-note { font-size: 13px; }
+.fix-note { font-family: var(--f-ui); font-size: 14px; }
 @media (min-width: 900px) {
   .fix-columns { grid-template-columns: 220px minmax(0, 1fr); }
   .fix-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }

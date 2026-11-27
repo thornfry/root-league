@@ -88,9 +88,10 @@ describe('design tokens', () => {
     expect(light['--blue']).toBe('#2F4858')
   })
 
-  it('name the two typefaces', () => {
-    expect(light['--f-display']).toContain('Barlow Condensed')
-    expect(light['--f-body']).toContain('Inter')
+  it('name the three typefaces', () => {
+    expect(light['--f-display']).toContain('IM Fell English')
+    expect(light['--f-body']).toContain('Baskervville')
+    expect(light['--f-ui']).toContain('Alegreya Sans')
   })
 
   it('keep the dark values the same in the media query and the explicit theme', () => {

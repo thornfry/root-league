@@ -20,6 +20,6 @@
   .pairing-table { display: block; }
   .pairing-table table { border-collapse: collapse; width: 100%; table-layout: fixed; background: var(--card); }
   .pairing-table th, .pairing-table td { padding: 14px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
-  .pairing-table th { font-size: 12px; text-transform: uppercase; color: var(--ink2); }
+  .pairing-table th { font-family: var(--f-ui); font-size: 13px; text-transform: uppercase; color: var(--ink2); }
   .game-columns { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
 }

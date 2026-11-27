@@ -27,8 +27,9 @@
     "e2e:typecheck": "tsc --project e2e/support/tsconfig.json"
   },
   "dependencies": {
-    "@fontsource/barlow-condensed": "^5.3.0",
-    "@fontsource/inter": "^5.3.0",
+    "@fontsource/alegreya-sans": "^5.3.0",
+    "@fontsource/baskervville": "^5.3.0",
+    "@fontsource/im-fell-english": "^5.3.0",
     "@supabase/supabase-js": "^2.119.2",
     "@tanstack/react-query": "^5.108.4",
     "react": "^19.3.1",
