@@ -1,0 +1,28 @@
+name: Supabase keep-alive
+
+on:
+  schedule:
+    - cron: '23 9 * * 3'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Read Supabase REST metadata if configured
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        shell: bash
+        run: |
+          if [[ -z "$SUPABASE_URL" || -z "$SUPABASE_ANON_KEY" ]]; then
+            exit 0
+          fi
+          # The REST root works without a league sign-in or access to any table.
+          curl --fail --silent --output /dev/null \
+            --connect-timeout 10 --max-time 30 --retry 2 \
+            --header "apikey: $SUPABASE_ANON_KEY" \
+            "${SUPABASE_URL%/}/rest/v1/"

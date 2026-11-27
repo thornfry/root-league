@@ -1,0 +1,27 @@
+# Only repository inputs used by the site or its build-time link checks.
+**
+!site/
+!site/**
+!league/
+!league/**
+!planning/
+!planning/**
+!season-1/
+!season-1/**
+
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/discord-ids*.json
+**/*credentials*
+**/*.tsbuildinfo
+**/__pycache__
+**/playwright-report
+**/test-results
+**/blob-report
+**/.cache
+**/.temp
+**/.branches
