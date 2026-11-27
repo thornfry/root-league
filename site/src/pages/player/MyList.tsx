@@ -1,0 +1,136 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { Link } from 'react-router'
+import { useSession } from '../../auth/session'
+import { FACTIONS, findFaction } from '../../data/factions'
+import { getSupabase } from '../../db/client'
+import type { Database } from '../../db/types'
+import { Alert, Button, Tag } from '../../ui'
+import { FactionRow } from '../../ui/FactionRow'
+import './my-list.css'
+
+type Season = Database['public']['Tables']['seasons']['Row']
+type Entry = Database['public']['Views']['roster_public']['Row']
+
+/** Validation also handles old lists invalidated by a pool change, without silently dropping ranks. */
+export function listProblems(codes: string[], pool: string[]) {
+  const problems: string[] = []
+  if (new Set(codes).size !== codes.length) problems.push('Each faction can appear only once. Remove the duplicate faction.')
+  for (const code of new Set(codes)) {
+    if (!pool.includes(code)) problems.push(`${findFaction(code)?.name ?? code} is outside the season pool. Remove it before submitting.`)
+  }
+  return problems
+}
+
+export function MyList() {
+  const session = useSession()
+  const admin = session.status === 'in' && session.whoami.isAdmin
+  const personId = session.status === 'in' ? session.whoami.personId : null
+  const [selected, setSelected] = useState<string>('')
+  const query = useQuery({
+    queryKey: ['my-list', personId],
+    staleTime: 0,
+    refetchInterval: 30_000,
+    queryFn: async () => {
+      const db = getSupabase()
+      const seasonResult = await db.from('seasons').select('*').eq('is_current', true).maybeSingle()
+      if (seasonResult.error) throw new Error(seasonResult.error.message)
+      const season = seasonResult.data
+      if (!season) return null
+      const [stage, roster] = await Promise.all([
+        db.from('season_stage').select('stage').eq('season_id', season.id).single(),
+        db.from('roster_public').select('*').eq('season_id', season.id),
+      ])
+      if (stage.error) throw new Error(stage.error.message)
+      if (roster.error) throw new Error(roster.error.message)
+      return { season, stage: stage.data.stage, roster: roster.data }
+    },
+  })
+  if (query.isPending) return <><h1 className="disp h1s">My list</h1><p role="status">Loading your list…</p></>
+  if (query.error) return <><h1 className="disp h1s">My list</h1><Alert tone="bad">{query.error.message}</Alert></>
+  if (!query.data) return <><h1 className="disp h1s">My list</h1><p>No current season yet.</p></>
+  const { season, stage, roster } = query.data
+  const entry = roster.find(row => row.person_id === (admin && selected ? selected : personId))
+  return <div className="my-list stack">
+    <h1 className="disp h1s">My list</h1>
+    <p className="muted my-list-lock">{season.lists_lock_at
+      ? `Lists lock: ${new Intl.DateTimeFormat(undefined, { dateStyle: 'full', timeStyle: 'long' }).format(new Date(season.lists_lock_at))} (${Intl.DateTimeFormat().resolvedOptions().timeZone})`
+      : 'Lists lock date has not been set.'}</p>
+    {admin && <label className="stack8">Edit a player’s list
+      <select value={entry?.person_id ?? ''} onChange={e => setSelected(e.target.value)}>
+        <option value="">Choose a player</option>
+        {roster.map(row => <option key={row.person_id} value={row.person_id}>{row.display_name}</option>)}
+      </select>
+    </label>}
+    {!entry ? <Alert tone="info">Join the league to rank factions. <Link to="/">Back to Home</Link></Alert>
+      : <ListEditor key={`${season.id}:${entry.person_id}`} season={season} entry={entry} editable={admin || stage === 'open'} admin={admin} />}
+  </div>
+}
+
+function ListEditor({ season, entry, editable, admin }: { season: Season; entry: Entry; editable: boolean; admin: boolean }) {
+  const [codes, setCodes] = useState(entry.ranked_factions ?? [])
+  const [saved, setSaved] = useState(entry.ranked_factions ?? [])
+  const [message, setMessage] = useState('')
+  const client = useQueryClient()
+  const pool = season.faction_pool ?? []
+  const minimum = season.min_list_length
+  const problems = listProblems(codes, pool)
+  const ready = minimum !== null && codes.length >= minimum && problems.length === 0
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const args = { p_season_id: season.id, p_factions: codes }
+      const { error } = admin
+        ? await getSupabase().rpc('roster_set_list', { ...args, p_person_id: entry.person_id })
+        : await getSupabase().rpc('save_ranked_list', args)
+      if (error) throw new Error(error.message)
+    },
+    onSuccess: async () => {
+      setSaved([...codes])
+      setMessage('List submitted.')
+      await client.invalidateQueries({ queryKey: ['my-list'] })
+    },
+    onError: async () => { await client.invalidateQueries({ queryKey: ['my-list'] }) },
+  })
+  function change(next: string[], notice: string) { setCodes(next); setMessage(notice); mutation.reset() }
+  function move(index: number, delta: number) {
+    const next = [...codes]
+    const code = next[index]
+    const neighbor = next[index + delta]
+    if (code === undefined || neighbor === undefined) return
+    next[index] = neighbor
+    next[index + delta] = code
+    change(next, `${findFaction(code)?.name ?? code} moved to rank ${index + delta + 1}.`)
+  }
+  const dirty = JSON.stringify(codes) !== JSON.stringify(saved)
+  const submit = <Button variant="pri" disabled={!ready || mutation.isPending} onClick={() => mutation.mutate()}>{mutation.isPending ? 'Submitting…' : 'Submit list'}</Button>
+  return <>
+    {editable ? <>
+      <p className="muted">Best first. {minimum === null ? 'The admin must set a minimum list length before you can submit.' : `Pick at least ${minimum}.${codes.length < minimum ? ` ${minimum - codes.length} to go.` : ''}`} Each faction can appear only once.</p>
+      {submit}
+      {dirty ? <Tag tone="warn">Unsaved changes</Tag> : entry.list_in && !entry.list_flagged && problems.length === 0 ? <Tag tone="ok">Submitted</Tag> : <Tag tone="warn">Not submitted yet</Tag>}
+    </> : <><Tag icon="lock">Locked</Tag><Alert tone="info">Lists are locked. Ask the admin if something needs changing.</Alert></>}
+    {entry.list_flagged && <Alert tone="warn">The faction pool changed. Review your list before submitting again.</Alert>}
+    {problems.map(problem => <Alert key={problem} tone="warn">{problem}</Alert>)}
+    <p role="status" aria-label="List updates" aria-live="polite">{message}</p>
+    {mutation.error && <Alert tone="bad">{mutation.error.message}</Alert>}
+    <div className="stack" aria-label="Ranked factions">
+      {!codes.length && <p className="muted">Nothing ranked yet. Add a faction below.</p>}
+      {codes.map((code, i) => <FactionRow key={`${i}:${code}`} code={code} rank={i + 1} flagged={!pool.includes(code)}>
+        {editable && <>
+          <Button size="sm" disabled={i === 0 || mutation.isPending} aria-label={`Move ${findFaction(code)?.name ?? code} up`} onClick={() => move(i, -1)}>Up</Button>
+          <Button size="sm" disabled={i === codes.length - 1 || mutation.isPending} aria-label={`Move ${findFaction(code)?.name ?? code} down`} onClick={() => move(i, 1)}>Down</Button>
+          <Button size="sm" variant="ghost-danger" disabled={mutation.isPending} aria-label={`Remove ${findFaction(code)?.name ?? code}`} onClick={() => change(codes.filter((_, index) => index !== i), `${findFaction(code)?.name ?? code} removed.`)}>Remove</Button>
+        </>}
+      </FactionRow>)}
+    </div>
+    {editable && <>
+      <h2 className="disp h2">Add a faction</h2>
+      <div className="my-list-pool">{FACTIONS.filter(f => pool.includes(f.code) && !codes.includes(f.code)).map(f => <FactionRow key={f.code} code={f.code}>
+        <Button disabled={mutation.isPending} aria-label={`Add ${f.name}`} onClick={() => change([...codes, f.code], `${f.name} added.`)}>Add</Button>
+      </FactionRow>)}</div>
+      {pool.every(code => codes.includes(code)) && <p>All factions in the season pool are ranked.</p>}
+      <Button disabled={mutation.isPending || !dirty} onClick={() => change([...saved], 'Changes discarded.')}>Discard changes</Button>
+      <div className="my-list-bottom">{submit}</div>
+    </>}
+  </>
+}

@@ -4,6 +4,7 @@ import { Placeholder } from './pages/Placeholder'
 import { Home } from './pages/player/Home'
 import { MembershipListEntry } from './pages/player/ProspectHome'
 import { Roster } from './pages/admin/Roster'
+import { MyList } from './pages/player/MyList'
 import { LeagueInfo } from './pages/player/LeagueInfo'
 import { Players } from './pages/player/Players'
 
@@ -18,7 +19,7 @@ export const routes: RouteObject[] = [
       { path: '/pairings', element: <Placeholder title="Pairings" /> },
       { path: '/game/:gameNo', element: <Placeholder title="Game" /> },
       { path: '/pickems', element: <Placeholder title="Pick'ems" /> },
-      { path: '/my-list', element: <MembershipListEntry><Placeholder title="My list" /></MembershipListEntry> },
+      { path: '/my-list', element: <MyList /> },
       { path: '/info', element: <LeagueInfo /> },
       { path: '/info/:page', element: <LeagueInfo /> },
       // Admin pages sit behind the admin guard. One line per route, as above.

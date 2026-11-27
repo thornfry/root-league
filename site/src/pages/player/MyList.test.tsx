@@ -1,0 +1,101 @@
+import '@testing-library/jest-dom/vitest'
+import { configure, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { adminJson, makeFakeDb, viewerJson } from '../../test-support/fakeDb'
+import { renderApp } from '../../test-support/renderApp'
+import { listProblems } from './MyList'
+
+vi.setConfig({ testTimeout: 30_000 })
+configure({ asyncUtilTimeout: 10_000 })
+
+const h = vi.hoisted(() => ({ db: null as unknown }))
+vi.mock('../../db/client', () => ({ getSupabase: () => h.db, isConfigured: () => true }))
+
+function fixture({ admin = false, stage = 'open', codes = [] as string[], flagged = false } = {}) {
+  const fake = makeFakeDb({ whoami: admin ? adminJson() : viewerJson({ roles: ['viewer', 'prospect'] }) })
+  const state = {
+    stage,
+    season: { id: 'season', faction_pool: ['cats', 'birds', 'WA'], min_list_length: 2, lists_lock_at: '2027-01-01T12:00:00Z' },
+    roster: [{ person_id: 'p-alex', display_name: 'Alex', ranked_factions: codes, list_in: codes.length >= 2, list_flagged: flagged }],
+  }
+  const from = vi.fn((table: string) => {
+    const result = () => ({ data: table === 'seasons' ? state.season : table === 'season_stage' ? { stage: state.stage } : state.roster, error: null })
+    const chain = { select: () => chain, eq: () => chain, single: async () => result(), maybeSingle: async () => result(), then: (resolve: (value: unknown) => unknown) => Promise.resolve(result()).then(resolve) }
+    return chain
+  })
+  const rpc = vi.fn(async (name: string, args?: { p_factions: string[] }) => {
+    if (name === 'whoami') return { data: fake.state.whoami, error: null }
+    state.roster[0]!.ranked_factions = [...args!.p_factions]
+    state.roster[0]!.list_in = true
+    state.roster[0]!.list_flagged = false
+    return { data: null, error: null }
+  })
+  h.db = { ...fake.db, from, rpc }
+  return { state, rpc }
+}
+
+it.each([375, 1280])('adds, reorders, removes, submits and reloads at %i px', async width => {
+  const { rpc } = fixture()
+  const user = userEvent.setup()
+  const view = renderApp('/my-list', width)
+  await screen.findByRole('heading', { name: 'Add a faction' })
+  expect(screen.getAllByRole('button', { name: 'Submit list' })).toHaveLength(2)
+  expect(screen.getAllByRole('button', { name: 'Submit list' })[0]!).toBeDisabled()
+  await user.click(screen.getByRole('button', { name: 'Add Marquise de Cat' }))
+  expect(screen.queryByRole('button', { name: 'Add Marquise de Cat' })).toBeNull()
+  expect(screen.getByRole('status', { name: 'List updates' })).toHaveTextContent('Marquise de Cat added.')
+  await user.click(screen.getByRole('button', { name: 'Add Eyrie Dynasties' }))
+  await user.click(screen.getByRole('button', { name: 'Move Eyrie Dynasties up' }))
+  expect(screen.getByRole('status', { name: 'List updates' })).toHaveTextContent('rank 1')
+  await user.click(screen.getByRole('button', { name: 'Remove Marquise de Cat' }))
+  expect(screen.getAllByRole('button', { name: 'Submit list' })[0]!).toBeDisabled()
+  await user.click(screen.getByRole('button', { name: 'Add Woodland Alliance' }))
+  await user.click(screen.getAllByRole('button', { name: 'Submit list' })[1]!)
+  await screen.findByText('List submitted.')
+  expect(rpc).toHaveBeenCalledWith('save_ranked_list', { p_season_id: 'season', p_factions: ['birds', 'WA'] })
+  view.unmount()
+  renderApp('/my-list', width)
+  await screen.findByText('Submitted', { exact: true })
+  const ranks = screen.getByLabelText('Ranked factions')
+  expect(within(ranks).getAllByRole('strong')[0]).toHaveTextContent('Eyrie Dynasties')
+  expect(screen.getByRole('link', { name: /About Eyrie/ })).toHaveAttribute('href', 'https://www.therootdatabase.com/faction/eyrie-dynasties/')
+  expect(document.querySelectorAll('.my-list-lock')).toHaveLength(1)
+  expect(document.querySelector('.my-list-lock')).toHaveTextContent(Intl.DateTimeFormat().resolvedOptions().timeZone)
+  expect(document.querySelectorAll('main')).toHaveLength(1)
+})
+
+it('flags invalid stored lists and explains duplicate and pool validation', async () => {
+  fixture({ codes: ['cats', 'cats', 'rats'], flagged: true })
+  renderApp('/my-list')
+  await screen.findByText(/The faction pool changed/)
+  expect(screen.getByText(/Remove the duplicate faction/)).toBeInTheDocument()
+  expect(screen.getByText(/Lord of the Hundreds is outside/)).toBeInTheDocument()
+  expect(screen.getAllByRole('button', { name: 'Submit list' })[0]!).toBeDisabled()
+  expect(listProblems(['cats'], ['cats'])).toEqual([])
+})
+
+it.each(['locked', 'live'])('renders %s lists read-only', async stage => {
+  fixture({ stage, codes: ['cats', 'birds'] })
+  renderApp('/my-list')
+  await screen.findByText('Locked', { exact: true })
+  expect(screen.queryByRole('button', { name: 'Submit list' })).toBeNull()
+  expect(screen.queryByRole('button', { name: /Move|Remove|Add / })).toBeNull()
+})
+
+it('lets an admin edit another list after lock', async () => {
+  const { rpc } = fixture({ admin: true, stage: 'locked', codes: ['cats', 'birds'] })
+  renderApp('/my-list')
+  await userEvent.selectOptions(await screen.findByLabelText('Edit a player’s list'), 'p-alex')
+  await userEvent.click(screen.getByRole('button', { name: 'Move Eyrie Dynasties up' }))
+  await userEvent.click(screen.getAllByRole('button', { name: 'Submit list' })[0]!)
+  await screen.findByText('List submitted.')
+  expect(rpc).toHaveBeenCalledWith('roster_set_list', { p_season_id: 'season', p_person_id: 'p-alex', p_factions: ['birds', 'cats'] })
+})
+
+it('asks a viewer to join without exposing list controls', async () => {
+  const { state } = fixture()
+  state.roster = []
+  renderApp('/my-list')
+  await screen.findByText(/Join the league to rank factions/)
+  expect(screen.queryByRole('button', { name: 'Submit list' })).toBeNull()
+})
