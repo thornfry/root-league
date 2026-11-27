@@ -1,5 +1,7 @@
 import type { RouteObject } from 'react-router'
 import { AppRoot, CONSENT_PATH, LeaveGate, RequireAdmin } from './auth/AppGate'
+import { Pairings } from './pages/player/Pairings'
+import { Game } from './pages/player/Game'
 import { Placeholder } from './pages/Placeholder'
 import { Home } from './pages/player/Home'
 import { MembershipListEntry } from './pages/player/ProspectHome'
@@ -16,8 +18,8 @@ export const routes: RouteObject[] = [
       { path: CONSENT_PATH, element: <LeaveGate /> },
       { path: '/', element: <Home /> },
       { path: '/players', element: <Players /> },
-      { path: '/pairings', element: <Placeholder title="Pairings" /> },
-      { path: '/game/:gameNo', element: <Placeholder title="Game" /> },
+      { path: '/pairings', element: <Pairings /> },
+      { path: '/game/:gameNo', element: <Game /> },
       { path: '/pickems', element: <Placeholder title="Pick'ems" /> },
       { path: '/my-list', element: <MyList /> },
       { path: '/info', element: <LeagueInfo /> },

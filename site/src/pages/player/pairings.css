@@ -1,0 +1,25 @@
+.pairings-view { overflow-wrap: anywhere; }
+.pairing-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.p-head { padding: 14px 16px; }
+.layout-seats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+.layout-seats > div { padding: 12px; }
+.layout-seats .num { font-size: 26px; }
+.pairing-cards { display: grid; gap: 18px; }
+.pairing-seats { margin: 0; padding: 0; list-style: none; }
+.pairing-seats > li { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 14px 16px; border-top: 1px solid var(--line); min-width: 0; }
+.pairings-view .fchip { max-width: 100%; }
+.pairings-view .tag { max-width: 100%; white-space: normal; line-height: 1.3; }
+.pairing-table { display: none; }
+.game-columns { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr); }
+.game-seats > li:first-child { border-top: 0; }
+.game-history { padding-left: 20px; margin: 0; }
+.game-history li + li { margin-top: 12px; }
+@media (min-width: 900px) {
+  .pairing-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pairing-cards { display: none; }
+  .pairing-table { display: block; }
+  .pairing-table table { border-collapse: collapse; width: 100%; table-layout: fixed; background: var(--card); }
+  .pairing-table th, .pairing-table td { padding: 14px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+  .pairing-table th { font-size: 12px; text-transform: uppercase; color: var(--ink2); }
+  .game-columns { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+}
