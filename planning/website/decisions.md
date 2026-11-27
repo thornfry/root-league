@@ -65,7 +65,7 @@ Entries 40 to 51 come from writing the [build sequence](build.md). They are numb
 ## 44. A game's result is derived from its submissions
 
 - **Date:** 2026-11-26
-- **Context:** [Decision 18](#18-every-seated-player-submits-a-result-and-conflicts-go-to-the-admin) describes recorded, disputed and settled states, and decision 28 on the prototype branch removes per-player answers from the page. A stored state would have to be kept in step with the submissions.
+- **Context:** [Decision 18](#18-every-seated-player-submits-a-result-and-conflicts-go-to-the-admin) describes recorded, disputed and settled states, and [decision 26](#26-the-approved-design-amends-the-story-screens) removes per-player answers from the page. A stored state would have to be kept in step with the submissions.
 - **Decision:** The state comes from a view over submissions and the admin's settlement. No submission is upcoming; all submissions with the same winners are recorded; different winners are disputed with no winners shown; a settlement overrides and stops player edits until the admin reopens; a void game is void. Standings and pick'em scores read the view, so a change anywhere recalculates them. A seated admin submits like a player. An admin who is not seated enters a result as a settlement.
 - **Consequence:** A dispute clears itself when the answers agree, and there is nothing to repair if a row is edited on Fix it. Players read only their own submission.
 

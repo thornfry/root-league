@@ -4,8 +4,8 @@ The ordered commits that turn the approved plan, stories and design into the fin
 
 Three things this build follows that were decided outside the stories:
 
-- **Screens:** the design canvas, as amended by decisions 26 to 28 (recorded on the prototype branch): Join league goes straight to faction picking with no queue place, a game page is ticked winners plus Submit with no per-player answers or confirmation counts, and there is no badge guide.
-- **Ranked lists are hidden** from everyone except their owner and the admin until the lists lock date. This supersedes story 3 and decisions 5 and 25 on visibility. A prototype agent is recording it as its own decision; this build only follows it, and it is enforced in the database, not the screen.
+- **Screens:** the design canvas, as amended by decision 26 and the differences table in [design.md](design.md): Join league goes straight to faction picking with no queue place, a game page is ticked winners plus Submit with no per-player answers or confirmation counts, and there is no badge guide.
+- **Ranked lists are hidden** from everyone except their owner and the admin until the lists lock date. This is [decision 27](decisions.md#27-ranked-lists-are-private-until-the-lists-lock-date), which supersedes story 3 and decisions 5 and 25 on visibility. It is enforced in the database, not the screen.
 - **Mine, All, Completed and Upcoming** and the other story rules stand unless a decision above says otherwise.
 
 ## Stack summary
