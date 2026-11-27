@@ -35,7 +35,7 @@ export const routes: RouteObject[] = [
           { path: '/admin/start', HydrateFallback: () => <p role="status">Loading season</p>, lazy: async () => ({ Component: (await import('./pages/admin/StartSeason')).StartSeason }) },
           { path: '/admin/disputes', lazy: async () => ({ Component: (await import('./pages/admin/Disputes')).Disputes }) },
           { path: '/admin/fixit', element: <Placeholder title="Fix it" /> },
-          { path: '/admin/csv', element: <Placeholder title="CSV" /> },
+          { path: '/admin/csv', lazy: async () => ({ Component: (await import('./pages/admin/Csv')).Csv }) },
         ],
       },
       { path: '*', element: <Placeholder title="Page not found" /> },
