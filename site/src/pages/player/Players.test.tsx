@@ -43,7 +43,22 @@ it('shows only status for others before lock, with the owner list in rank order 
   expect(screen.queryByRole('list', { name: "Other player's ranked factions" })).not.toBeInTheDocument()
   expect(document.querySelector('#main .tag')).toBeNull()
   expect(screen.queryByText(/waitlist|league list|prospect/i)).not.toBeInTheDocument()
-  expect(from.mock.calls.map(([table]) => table)).toEqual(['seasons', 'season_stage', 'roster_public'])
+  // Ranked lists come only from the privacy-filtered view; shell membership
+  // reads are allowed too, provided they remain scoped to the viewer.
+  for (const [table] of from.mock.calls) expect(['seasons', 'season_stage', 'roster_public']).toContain(table)
+  const rosterQueries = from.mock.calls.flatMap(([table], index) => table === 'roster_public' ? [from.mock.results[index]!.value] : [])
+  expect(rosterQueries.length).toBeGreaterThan(0)
+  expect(rosterQueries.some((query) => query.order.mock.calls.some((args: unknown[]) => args[0] === 'display_name'))).toBe(true)
+  for (const query of rosterQueries) {
+    expect(query.eq).toHaveBeenCalledWith('season_id', 'season-1')
+    if (query.order.mock.calls.length) {
+      expect(query.select).toHaveBeenCalledWith('person_id, display_name, is_me, list_in, ranked_factions')
+      expect(query.order).toHaveBeenCalledWith('display_name')
+    } else {
+      expect(query.select).toHaveBeenCalledWith('person_id, list_in, list_flagged, ranked_factions')
+      expect(query.eq).toHaveBeenCalledWith('is_me', true)
+    }
+  }
 })
 
 it.each(['locked', 'live'])('shows every returned list in %s stage', async (nextStage) => {
@@ -75,7 +90,8 @@ it('handles no current season without requesting roster data', async () => {
   current = false
   renderApp('/players')
   expect(await screen.findByText('No current season yet.')).toBeVisible()
-  expect(from).toHaveBeenCalledTimes(1)
+  expect(from).toHaveBeenCalledWith('seasons')
+  for (const [table] of from.mock.calls) expect(table).toBe('seasons')
 })
 
 it('reports query failures and offers a retry', async () => {

@@ -42,7 +42,18 @@ it.each([viewerJson(), viewerJson({ roles: ['viewer', 'prospect'] }), adminJson(
   expect(main).toHaveTextContent(Intl.DateTimeFormat().resolvedOptions().timeZone) // local zone is explicitly named
   expect(main).not.toHaveTextContent(names[0]!)
   expect(main).not.toHaveTextContent('Marquise')
-  expect(f.from.mock.calls.map(c => c[0])).toEqual(['seasons', 'season_stage'])
+  // The shell reads only the viewer's membership. Pre-start pairings must
+  // never request people, game seats, results, or anyone else's roster row.
+  for (const [index, [table]] of f.from.mock.calls.entries()) {
+    expect(['seasons', 'season_stage', 'roster_public']).toContain(table)
+    if (table === 'roster_public') {
+      const query = f.from.mock.results[index]!.value
+      expect(query.select).toHaveBeenCalledWith('person_id, list_in, list_flagged, ranked_factions')
+      expect(query.eq).toHaveBeenCalledWith('season_id', 'season')
+      expect(query.eq).toHaveBeenCalledWith('is_me', true)
+      expect(query.order).not.toHaveBeenCalled()
+    }
+  }
   expect(within(main).getAllByRole('article')).toHaveLength(4)
 })
 it('defaults to All, filters with exact counts, and retains disputed in Upcoming only', async () => {

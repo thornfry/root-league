@@ -41,7 +41,7 @@ function setup(admin = true) {
       if (table === 'roster_public') return rows.map((r) => ({ ...r })).sort((a, b) => a.position - b.position)
       return []
     }
-    const chain = { select: () => chain, eq: () => chain, order: () => chain, maybeSingle: () => chain, single: () => chain, then: (resolve: (value: unknown) => void) => Promise.resolve({ data: value(), error: null }).then(resolve) }
+    const chain = { select: vi.fn(() => chain), eq: vi.fn(() => chain), order: vi.fn(() => chain), maybeSingle: () => chain, single: () => chain, then: (resolve: (value: unknown) => void) => Promise.resolve({ data: value(), error: null }).then(resolve) }
     return chain
   })
   client.db = { ...fake.db, rpc, from } as unknown as Db
@@ -104,6 +104,18 @@ describe('Roster', () => {
   it('blocks players from loading admin roster data', async () => {
     const from = setup(false); renderApp('/admin/roster')
     await screen.findByRole('heading', { name: 'Home' })
-    expect(from).not.toHaveBeenCalled()
+    // The shell and Home may read membership, but the admin loader must stay blocked.
+    expect(from.mock.calls.map(([table]) => table)).toEqual(expect.arrayContaining(['roster_public']))
+    for (const [index, [table]] of from.mock.calls.entries()) {
+      expect(['seasons', 'season_stage', 'roster_public']).toContain(table)
+      const query = from.mock.results[index]!.value
+      if (table === 'roster_public') {
+        expect(query.select).toHaveBeenCalledWith('person_id, list_in, list_flagged, ranked_factions')
+        expect(query.eq).toHaveBeenCalledWith('season_id', 'season')
+        expect(query.eq).toHaveBeenCalledWith('is_me', true)
+        expect(query.order).not.toHaveBeenCalled()
+      }
+    }
+    expect(rpc.mock.calls.filter(([name]) => name.startsWith('roster_'))).toHaveLength(0)
   }, 15_000)
 })
