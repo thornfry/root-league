@@ -15,7 +15,7 @@ export function FactionRow({ code, rank, flagged, children }: {
     </div>
     <div className="row">
       {faction && <><Tag tone={faction.type === 'Militant' ? 'mil' : 'ins'}>{faction.type}</Tag><span>Reach {faction.reach}</span>
-        <a href={faction.infoUrl} target="_blank" rel="noopener noreferrer" aria-label={`About ${faction.name} (opens in a new tab)`}>Faction info</a></>}
+        <a href={faction.infoUrl} target="_blank" rel="noopener noreferrer" aria-label={`Faction info: ${faction.name} (opens in a new tab)`}>Faction info</a></>}
       {flagged && <Tag tone="warn">Outside the season pool</Tag>}
     </div>
     {children && <div className="row">{children}</div>}

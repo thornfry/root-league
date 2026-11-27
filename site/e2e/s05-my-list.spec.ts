@@ -32,7 +32,7 @@ test('S05: add, reorder, remove, save, reload, pool flag and locked read-only', 
   await expect(page.getByText('Ready', { exact: true })).toBeVisible()
   const rows = page.getByLabel('Ranked factions')
   await expect(rows.locator('strong').first()).toHaveText('Eyrie Dynasties')
-  await expect(page.getByRole('link', { name: /About Eyrie Dynasties/ })).toHaveAttribute('href', 'https://www.therootdatabase.com/faction/eyrie-dynasties/')
+  await expect(page.getByRole('link', { name: /Faction info: Eyrie Dynasties/ })).toHaveAttribute('href', 'https://www.therootdatabase.com/faction/eyrie-dynasties/')
   await expect(page.locator('.my-list-lock')).toHaveCount(1)
   const zone = await page.evaluate(() => Intl.DateTimeFormat().resolvedOptions().timeZone)
   await expect(page.locator('.my-list-lock')).toContainText(zone)
