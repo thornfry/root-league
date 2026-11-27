@@ -1,0 +1,12 @@
+/* Self-hosted with @fontsource, Latin subset only, so nothing loads from the network. */
+@import '@fontsource/baskervville/latin-400.css';
+@import '@fontsource/baskervville/latin-400-italic.css';
+@import '@fontsource/baskervville/latin-500.css';
+@import '@fontsource/baskervville/latin-600.css';
+@import '@fontsource/baskervville/latin-700.css';
+@import '@fontsource/im-fell-english/latin-400.css';
+@import '@fontsource/im-fell-english/latin-400-italic.css';
+@import '@fontsource/alegreya-sans/latin-400.css';
+@import '@fontsource/alegreya-sans/latin-500.css';
+@import '@fontsource/alegreya-sans/latin-700.css';
+@import '@fontsource/alegreya-sans/latin-800.css';

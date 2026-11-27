@@ -1,0 +1,137 @@
+{
+ "source": "planning/tools/pairing/mock12_preferences_FAKE.json",
+ "note": "MOCK data, mostly invented; names resolved to faction codes. Not real lists. assign.test.ts checks it against the source.",
+ "players": [
+  {
+   "id": "Delaney",
+   "name": "Delaney",
+   "list": [
+    "birds",
+    "cats",
+    "vagabond",
+    "WA",
+    "moles"
+   ]
+  },
+  {
+   "id": "Alex",
+   "name": "Alex",
+   "list": [
+    "moles",
+    "rats",
+    "WA",
+    "vagabond",
+    "frogs"
+   ]
+  },
+  {
+   "id": "Matt",
+   "name": "Matt",
+   "list": [
+    "WA",
+    "rats",
+    "birds",
+    "moles",
+    "vagabond"
+   ]
+  },
+  {
+   "id": "Nick",
+   "name": "Nick",
+   "list": [
+    "cats",
+    "birds",
+    "moles",
+    "rats",
+    "otters"
+   ]
+  },
+  {
+   "id": "Adam",
+   "name": "Adam",
+   "list": [
+    "WA",
+    "vagabond",
+    "cats"
+   ]
+  },
+  {
+   "id": "Zach",
+   "name": "Zach",
+   "list": [
+    "cats",
+    "rats",
+    "badgers",
+    "birds",
+    "moles"
+   ]
+  },
+  {
+   "id": "Will",
+   "name": "Will",
+   "list": [
+    "birds",
+    "moles",
+    "lizards",
+    "bats",
+    "WA"
+   ]
+  },
+  {
+   "id": "Kyra",
+   "name": "Kyra",
+   "list": [
+    "cats",
+    "vagabond",
+    "lizards",
+    "crows",
+    "bats"
+   ]
+  },
+  {
+   "id": "Anthony",
+   "name": "Anthony",
+   "list": [
+    "badgers",
+    "frogs",
+    "otters",
+    "bats",
+    "knaves"
+   ]
+  },
+  {
+   "id": "David",
+   "name": "David",
+   "list": [
+    "WA",
+    "knaves",
+    "vagabond",
+    "crows",
+    "moles",
+    "frogs"
+   ]
+  },
+  {
+   "id": "Fern",
+   "name": "Fern",
+   "list": [
+    "lizards",
+    "crows",
+    "birds",
+    "cats",
+    "vagabond"
+   ]
+  },
+  {
+   "id": "Derek",
+   "name": "Derek",
+   "list": [
+    "otters",
+    "moles",
+    "rats",
+    "WA",
+    "badgers"
+   ]
+  }
+ ]
+}

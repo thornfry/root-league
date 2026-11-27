@@ -1,0 +1,39 @@
+/* App shell: header band, phone menu, desktop top bar, admin bar. */
+.band { background: var(--forest-d); color: #E8EFEA; }
+.band .brand { font-family: var(--f-display); font-weight: 400; font-size: 32px; letter-spacing: .01em; text-transform: none; color: #fff; text-decoration: none; }
+.lg .band a.brand { color: #fff; }
+.band .brand i { font-style: normal; color: var(--amber); }
+.band nav a { color: var(--band-text); text-decoration: none; font-family: var(--f-ui); font-size: 16px; font-weight: 500; padding: 22px 0 18px; border-bottom: 3px solid transparent; }
+.lg .band nav a { color: var(--band-text); }
+.band nav a.on, .lg .band nav a.on { color: #fff; border-bottom-color: var(--amber); }
+.band .who { font-family: var(--f-ui); font-size: 16px; font-weight: 500; color: var(--band-text); }
+.band .who b { color: #fff; }
+.band .btn.band-btn { background: transparent; color: #fff; border-color: var(--band-line); }
+.lg .band .btn.band-btn { color: #fff; }
+.band.adm { background: var(--band-adm); color: #fff; }
+.band.adm .kicker { color: var(--band-adm-text); }
+.band.adm nav a, .lg .band.adm nav a { color: var(--band-adm-text); padding: 14px 0 11px; }
+.band.adm nav a.on, .lg .band.adm nav a.on { color: #fff; border-bottom-color: var(--amber); }
+
+.dtop { max-width: var(--page-max); margin: 0 auto; padding: 0 64px; }
+.dtop.top { display: flex; align-items: flex-end; gap: 40px; flex-wrap: wrap; }
+.dtop.top .brand { padding: 18px 0; }
+.dtop.top nav { display: flex; gap: 28px; flex-grow: 1; flex-wrap: wrap; }
+.dtop.top .right { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; flex-wrap: wrap; }
+.dtop.adminbar { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+.dtop.adminbar nav { display: flex; gap: 26px; flex-wrap: wrap; }
+
+.bar { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 16px; gap: 8px; max-width: var(--page-max); margin: 0 auto; }
+.menu-btn { width: 44px; height: 44px; border-radius: var(--radius); border: 1px solid var(--band-line); background: transparent; color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+
+.mlink { display: flex; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1px solid var(--line); font-family: var(--f-ui); font-weight: 600; font-size: 18px; text-decoration: none; color: var(--ink) !important; }
+.mlink.on { box-shadow: inset 4px 0 0 var(--amber); padding-left: 12px; }
+
+.page { max-width: var(--page-max); margin: 0 auto; padding: 24px 16px 120px; display: flex; flex-direction: column; gap: var(--space-5); }
+.page > * { min-width: 0; }
+@media (min-width: 900px) {
+  .page { padding: 44px 64px 100px; gap: var(--space-6); }
+  .h1 { font-size: 80px; }
+  .h1s { font-size: 72px; }
+}
+.page.menu { gap: 24px; }

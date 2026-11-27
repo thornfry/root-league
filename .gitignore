@@ -3,3 +3,16 @@
 # Local working context
 /CLAUDE.md
 /HANDOFF.md
+
+# site/ build and test output
+node_modules/
+dist/
+.env*.local
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+*.tsbuildinfo
+
+# Python
+__pycache__/

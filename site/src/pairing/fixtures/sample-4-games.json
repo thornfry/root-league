@@ -1,0 +1,410 @@
+{
+ "source": "planning/season-1/sample-pairings-4-games.md",
+ "note": "Transcribed from the sample; lists are season-1/preferences.json as of 2026-11-26. Not real pairings.",
+ "maps": [
+  "Winter",
+  "Autumn",
+  "Lake",
+  "Mountain"
+ ],
+ "gamesEach": 4,
+ "players": [
+  {
+   "id": "Alex",
+   "name": "Alex",
+   "list": [
+    "moles",
+    "rats",
+    "WA",
+    "vagabond",
+    "frogs"
+   ]
+  },
+  {
+   "id": "Will",
+   "name": "Will",
+   "list": [
+    "birds",
+    "moles",
+    "lizards",
+    "bats",
+    "WA"
+   ]
+  },
+  {
+   "id": "Matt",
+   "name": "Matt",
+   "list": [
+    "WA",
+    "rats",
+    "birds",
+    "moles",
+    "vagabond"
+   ]
+  },
+  {
+   "id": "David",
+   "name": "David",
+   "list": [
+    "WA",
+    "knaves",
+    "vagabond",
+    "crows",
+    "moles",
+    "frogs"
+   ]
+  },
+  {
+   "id": "Delaney",
+   "name": "Delaney",
+   "list": [
+    "rats",
+    "lizards",
+    "moles",
+    "frogs",
+    "cats"
+   ]
+  },
+  {
+   "id": "Kyra",
+   "name": "Kyra",
+   "list": [
+    "knaves",
+    "vagabond",
+    "cats",
+    "moles",
+    "otters"
+   ]
+  },
+  {
+   "id": "Nick",
+   "name": "Nick",
+   "list": [
+    "crows",
+    "lizards",
+    "WA",
+    "birds",
+    "cats"
+   ]
+  },
+  {
+   "id": "Adam",
+   "name": "Adam",
+   "list": [
+    "cats",
+    "vagabond",
+    "birds",
+    "WA"
+   ]
+  },
+  {
+   "id": "Zach",
+   "name": "Zach",
+   "list": [
+    "rats",
+    "bats",
+    "cats",
+    "WA",
+    "crows"
+   ]
+  },
+  {
+   "id": "Anthony",
+   "name": "Anthony",
+   "list": [
+    "rats",
+    "birds",
+    "cats",
+    "WA",
+    "vagabond"
+   ]
+  },
+  {
+   "id": "Chuck",
+   "name": "Chuck",
+   "list": [
+    "cats",
+    "birds",
+    "WA",
+    "vagabond"
+   ]
+  },
+  {
+   "id": "Corey",
+   "name": "Corey",
+   "list": [
+    "vagabond",
+    "rats",
+    "otters",
+    "birds",
+    "cats"
+   ]
+  }
+ ],
+ "games": [
+  {
+   "gameNo": 1,
+   "map": 0,
+   "seats": [
+    {
+     "player": "Will",
+     "faction": "bats"
+    },
+    {
+     "player": "Corey",
+     "faction": "birds"
+    },
+    {
+     "player": "Adam",
+     "faction": "WA"
+    },
+    {
+     "player": "Alex",
+     "faction": "moles"
+    }
+   ]
+  },
+  {
+   "gameNo": 2,
+   "map": 0,
+   "seats": [
+    {
+     "player": "Delaney",
+     "faction": "moles"
+    },
+    {
+     "player": "Kyra",
+     "faction": "vagabond"
+    },
+    {
+     "player": "Corey",
+     "faction": "rats"
+    },
+    {
+     "player": "David",
+     "faction": "WA"
+    }
+   ]
+  },
+  {
+   "gameNo": 3,
+   "map": 0,
+   "seats": [
+    {
+     "player": "Nick",
+     "faction": "birds"
+    },
+    {
+     "player": "David",
+     "faction": "knaves"
+    },
+    {
+     "player": "Anthony",
+     "faction": "cats"
+    },
+    {
+     "player": "Will",
+     "faction": "moles"
+    }
+   ]
+  },
+  {
+   "gameNo": 4,
+   "map": 1,
+   "seats": [
+    {
+     "player": "Alex",
+     "faction": "rats"
+    },
+    {
+     "player": "Zach",
+     "faction": "bats"
+    },
+    {
+     "player": "Nick",
+     "faction": "WA"
+    },
+    {
+     "player": "Corey",
+     "faction": "vagabond"
+    }
+   ]
+  },
+  {
+   "gameNo": 5,
+   "map": 1,
+   "seats": [
+    {
+     "player": "Adam",
+     "faction": "birds"
+    },
+    {
+     "player": "Nick",
+     "faction": "lizards"
+    },
+    {
+     "player": "Kyra",
+     "faction": "cats"
+    },
+    {
+     "player": "Matt",
+     "faction": "rats"
+    }
+   ]
+  },
+  {
+   "gameNo": 6,
+   "map": 1,
+   "seats": [
+    {
+     "player": "David",
+     "faction": "vagabond"
+    },
+    {
+     "player": "Matt",
+     "faction": "birds"
+    },
+    {
+     "player": "Alex",
+     "faction": "WA"
+    },
+    {
+     "player": "Delaney",
+     "faction": "rats"
+    }
+   ]
+  },
+  {
+   "gameNo": 7,
+   "map": 2,
+   "seats": [
+    {
+     "player": "Chuck",
+     "faction": "cats"
+    },
+    {
+     "player": "Delaney",
+     "faction": "frogs"
+    },
+    {
+     "player": "Will",
+     "faction": "birds"
+    },
+    {
+     "player": "Nick",
+     "faction": "crows"
+    }
+   ]
+  },
+  {
+   "gameNo": 8,
+   "map": 2,
+   "seats": [
+    {
+     "player": "Anthony",
+     "faction": "birds"
+    },
+    {
+     "player": "Adam",
+     "faction": "cats"
+    },
+    {
+     "player": "Delaney",
+     "faction": "lizards"
+    },
+    {
+     "player": "Zach",
+     "faction": "WA"
+    }
+   ]
+  },
+  {
+   "gameNo": 9,
+   "map": 2,
+   "seats": [
+    {
+     "player": "Kyra",
+     "faction": "moles"
+    },
+    {
+     "player": "Alex",
+     "faction": "vagabond"
+    },
+    {
+     "player": "Chuck",
+     "faction": "birds"
+    },
+    {
+     "player": "Anthony",
+     "faction": "WA"
+    }
+   ]
+  },
+  {
+   "gameNo": 10,
+   "map": 3,
+   "seats": [
+    {
+     "player": "Zach",
+     "faction": "cats"
+    },
+    {
+     "player": "Chuck",
+     "faction": "WA"
+    },
+    {
+     "player": "David",
+     "faction": "crows"
+    },
+    {
+     "player": "Adam",
+     "faction": "vagabond"
+    }
+   ]
+  },
+  {
+   "gameNo": 11,
+   "map": 3,
+   "seats": [
+    {
+     "player": "Matt",
+     "faction": "moles"
+    },
+    {
+     "player": "Will",
+     "faction": "lizards"
+    },
+    {
+     "player": "Zach",
+     "faction": "rats"
+    },
+    {
+     "player": "Kyra",
+     "faction": "knaves"
+    }
+   ]
+  },
+  {
+   "gameNo": 12,
+   "map": 3,
+   "seats": [
+    {
+     "player": "Corey",
+     "faction": "otters"
+    },
+    {
+     "player": "Anthony",
+     "faction": "rats"
+    },
+    {
+     "player": "Matt",
+     "faction": "WA"
+    },
+    {
+     "player": "Chuck",
+     "faction": "vagabond"
+    }
+   ]
+  }
+ ]
+}

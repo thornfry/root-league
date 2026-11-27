@@ -2,8 +2,9 @@
 
 The visual and flow design for the league website, approved by Will on 2026-11-26. It is a design canvas, not code. The prototype and the site are built from it. It sits on top of the [user stories](user-stories.md) and the [plan](plan.md), which are unchanged; where the design differs from the stories, the difference is listed under [Changed from the stories](#changed-from-the-stories) and recorded as [decision 26](decisions.md#26-the-approved-design-amends-the-story-screens).
 
-- **Canvas:** https://claude.ai/artifact/LPSGY8KzUZDpCWFzHNxNBz (owned by Will, three pages: Player flows, Admin flows, Foundations). Artboard names below are the canvas file names.
-- **Look:** forest-green header band; Barlow Condensed for titles and numbers, Inter for text; a seal of initials and name for each of the 13 factions; shared status colours (green winner or valid, amber pending or disputed, clay void or militant, slate insurgent). Colour is never the only signal: every status has a word, and most have an icon. Text meets 4.5:1. The Foundations board has the tokens, controls, tags and navigation.
+- **Canvas:** https://claude.ai/artifact/LPSGY8KzUZDpCWFzHNxNBz (owned by Will: Player flows, Admin flows, Foundations, and the Font trial added on 2026-11-27). Artboard names below are the canvas file names.
+- **Design system:** https://claude.ai/artifact/YR51m4vFPwPH8awEKMYy2V (owned by Will), built from `site/src/ui` and the Font trial. A snapshot of its README, tokens and component guidelines is in [design-system/](design-system/README.md).
+- **Look:** forest-green header band; IM Fell English for titles, Baskervville for text, Alegreya Sans for labels, controls and numbers; a seal of initials and name for each of the 13 factions; shared status colours (green winner or valid, amber pending or disputed, clay void or militant, slate insurgent). Colour is never the only signal: every status has a word, and most have an icon. Text meets 4.5:1. The Foundations board has the tokens, controls, tags and navigation.
 - **Data on the canvas:** roster names, ranked lists, factions and the 12-player, 4-game sample layout are real, from `season-1/` and `planning/season-1/`. Results, picks, points, dates, seeds and Discord IDs are placeholders, marked on the boards.
 
 ## Artboards by flow

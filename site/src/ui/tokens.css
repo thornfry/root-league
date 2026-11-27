@@ -1,0 +1,59 @@
+/* Design tokens from the Foundations board of the design canvas (planning/website/design.md).
+   Light values are the canvas. Dark values follow the prototype and stay in two places that must match:
+   the media query (no explicit choice) and the data-theme attribute (explicit choice). */
+:root {
+  --paper: #EEF0EA; --card: #FFFFFF; --ink: #15201B; --ink2: #46544C; --line: #D3D9D0; --line2: #B3BDB0;
+  --forest: #1D4B38; --forest-d: #0F1C16; --forest-wash: #DDE9E0; --amber: #E39A2D;
+  --clay: #8A2F1A; --clay-wash: #F6E1D8; --ok: #1D6B43; --ok-wash: #DCEFE3;
+  --warn: #7A4B00; --warn-wash: #FBEBC7; --warn-ink: #5E3A00;
+  --blue: #2F4858; --blue-wash: #DDE8EE;
+  --link: #1D4B38; --adm: #15201B; --sel: #1D4B38;
+  --focus: #2B6CB0; --focus-on-band: #9CC3F0;
+  --discord: #4752C4;
+
+  /* the header band and the admin bar stay dark green in both themes */
+  --band-text: #C3D2C9; --band-line: #8FA699; --band-adm: #1D4B38; --band-adm-text: #D5E3DA;
+
+  /* faction seals: colour is identity; the code and the name carry the meaning */
+  --seal-cats: #E8742A; --seal-cats-ink: #15201B;
+  --seal-rats: #B5432E; --seal-rats-ink: #FFFFFF;
+  --seal-badgers: #6B6F7A; --seal-badgers-ink: #FFFFFF;
+  --seal-moles: #C8A57A; --seal-moles-ink: #15201B;
+  --seal-birds: #2C6FB7; --seal-birds-ink: #FFFFFF;
+  --seal-frogs: #1F7A59; --seal-frogs-ink: #FFFFFF;
+  --seal-otters: #3A9BC1; --seal-otters-ink: #15201B;
+  --seal-vagabond: #5B6770; --seal-vagabond-ink: #FFFFFF;
+  --seal-knaves: #1A1A1A; --seal-knaves-ink: #FFFFFF;
+  --seal-bats: #4E3524; --seal-bats-ink: #FFFFFF;
+  --seal-crows: #6B3FA0; --seal-crows-ink: #FFFFFF;
+  --seal-WA: #3E7A22; --seal-WA-ink: #FFFFFF;
+  --seal-lizards: #C9A227; --seal-lizards-ink: #15201B;
+
+  --f-display: 'IM Fell English', Georgia, serif;
+  --f-body: 'Baskervville', Baskerville, Georgia, serif;
+  --f-ui: 'Alegreya Sans', 'Segoe UI', system-ui, sans-serif;
+
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 22px; --space-6: 28px; --space-7: 44px;
+  --radius-sm: 4px; --radius: 8px; --radius-card: 10px; --radius-modal: 14px;
+  --page-max: 1280px;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F1713; --card: #17211C; --ink: #E8EFEA; --ink2: #A9B8AE; --line: #2A3831; --line2: #4A5C52;
+    --forest: #2E7B58; --forest-wash: #1F3A2D; --clay: #F0A08A; --clay-wash: #3C211A; --ok: #86D6A8; --ok-wash: #173A27;
+    --warn: #F2C56A; --warn-wash: #3B2D0C; --warn-ink: #F6D58E;
+    --blue: #A6CBE0; --blue-wash: #1A2D39; --link: #8FD1AE; --adm: #E8EFEA; --sel: #5FBF8E;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #0F1713; --card: #17211C; --ink: #E8EFEA; --ink2: #A9B8AE; --line: #2A3831; --line2: #4A5C52;
+  --forest: #2E7B58; --forest-wash: #1F3A2D; --clay: #F0A08A; --clay-wash: #3C211A; --ok: #86D6A8; --ok-wash: #173A27;
+  --warn: #F2C56A; --warn-wash: #3B2D0C; --warn-ink: #F6D58E;
+  --blue: #A6CBE0; --blue-wash: #1A2D39; --link: #8FD1AE; --adm: #E8EFEA; --sel: #5FBF8E;
+  color-scheme: dark;
+}

@@ -1,0 +1,14 @@
+.roster-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-5); align-items: start; }
+.roster-drop { min-height: 110px; }
+.roster-row { padding: var(--space-4); border-bottom: 1px solid var(--line); display: grid; gap: var(--space-3); }
+.roster-row:last-child { border-bottom: 0; }
+.roster-row .rowb { align-items: start; }
+.roster-person { min-width: 0; overflow-wrap: anywhere; }
+.roster-person .row { margin-top: var(--space-2); gap: 6px; }
+.roster-move { flex-shrink: 0; }
+.roster-add { max-width: 520px; }
+.roster-page select { display: block; width: 100%; max-width: 100%; }
+@media (max-width: 700px) { .roster-columns { grid-template-columns: minmax(0, 1fr); } }
+.roster-drop > p { padding: var(--space-4); }
+.roster-columns .num { font-size: 30px; }
+.roster-row { background: var(--card); }

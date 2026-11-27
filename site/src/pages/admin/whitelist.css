@@ -1,0 +1,16 @@
+.whitelist-fields { display: grid; grid-template-columns: 1fr; gap: 18px; align-items: end; }
+.whitelist-table { border-collapse: collapse; width: 100%; text-align: left; }
+.whitelist-table th { font-family: var(--f-ui); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink2); }
+.whitelist-table th, .whitelist-table td { padding: 14px 16px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.whitelist-table tbody tr:last-child td { border-bottom: 0; }
+.whitelist-table .num { font-size: 20px; }
+.whitelist-help { margin: 0; padding-left: 22px; line-height: 1.7; }
+@media (min-width: 900px) { .whitelist-fields { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 899px) {
+  .whitelist-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .whitelist-table, .whitelist-table tbody, .whitelist-table tr, .whitelist-table td { display: block; }
+  .whitelist-table tr { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .whitelist-table tr:last-child { border-bottom: 0; }
+  .whitelist-table td { padding: 6px 0; border: 0; }
+  .whitelist-table td[data-label]::before { content: attr(data-label); display: block; font-family: var(--f-ui); font-size: 13px; font-weight: 700; color: var(--ink2); margin-bottom: 4px; }
+}

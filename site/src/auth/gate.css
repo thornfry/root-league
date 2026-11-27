@@ -1,0 +1,6 @@
+/* The signed-out and not-invited pages: one narrow column under a plain header band. */
+.gate { max-width: 440px; margin: 0 auto; padding: 48px 16px 40px; display: flex; flex-direction: column; gap: 22px; }
+.gate .note { border: 1px dashed var(--line2); border-radius: 8px; padding: 8px 12px; font-family: var(--f-ui); font-size: 14px; line-height: 1.45; color: var(--ink2); background: var(--paper); }
+.gate-bar { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 16px; max-width: var(--page-max); margin: 0 auto; gap: 8px; }
+.gate .persona-list { display: flex; flex-wrap: wrap; gap: 6px; }
+@media (min-width: 900px) { .gate { padding-top: 96px; } }

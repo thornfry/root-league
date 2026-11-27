@@ -5,7 +5,6 @@ Everything still undecided about the league, and findings that are not rules unt
 ## Still open: every season
 
 - **Seat tiebreak for factions:** what seat order should favour when two faction choices are equally good.
-- **Militant and insurgent mix:** what "sensible mix" means at a table. The samples use at least one of each type, and never both Vagabond and Knaves. Each faction's type is on [factions](../league/factions.md).
 - **Final table:** whether to hold one, and if so, the tiebreak order for the cut, how finalists choose seats and factions, and the map. See [final table](season-1/final-table.md).
 
 ## Still open: season 1

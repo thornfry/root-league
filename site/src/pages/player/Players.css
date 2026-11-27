@@ -1,0 +1,18 @@
+.players-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); align-items: start; }
+.players-open { max-width: 640px; }
+.players-entry { min-width: 0; overflow-wrap: anywhere; }
+.players-open .players-entry { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.players-open .players-entry + .players-entry { border-top: 1px solid var(--line); }
+.players-heading { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); }
+.players-heading h2 { margin: 0; font: 700 16px var(--f-ui); min-width: 0; }
+.players-heading > span { flex-shrink: 0; font-size: 14px; }
+.players-heading > a { flex-shrink: 0; font-size: 14px; }
+.players-list-in { font-family: var(--f-ui); color: var(--ok); font-weight: 600; }
+.players-not-ready { font-family: var(--f-ui); color: var(--warn); font-weight: 600; }
+.players-status { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; text-decoration: none; }
+.players-status:hover { text-decoration: underline; }
+.players-factions { list-style: none; padding: 0; margin: var(--space-3) 0 0; display: grid; gap: var(--space-2); }
+.players-factions li { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+.players-factions .seal { flex-shrink: 0; }
+.players-rank { width: 18px; flex-shrink: 0; font-size: 20px; }
+@media (max-width: 700px) { .players-grid { grid-template-columns: minmax(0, 1fr); } }
