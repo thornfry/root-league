@@ -15,6 +15,12 @@ Entries 40 to 51 come from writing the [build sequence](build.md). They are numb
 
 Entries from 52 on come from Will's click-through of the running site on 2026-11-27.
 
+## 59. Pairings carries the game list and results return Home
+
+- **Date:** 2026-11-27
+- **Decision:** Pairings gives each game its own card and puts equal-width filters on a separate row on phones. Table names are plain headings. Report result and Edit result open a result form that returns to Home after saving. The old table route redirects to Pairings. Admins can still review settled game history in Disputes.
+- **Decision:** The Players tab is called Standings, with a shaded table header. Tapping a lone first pick again clears it. The Pick’em rules page under League info explains scoring, lock timing, and how picks change.
+
 ## 58. Once the season is live, Home is My games and a pick'em score, and Players is the standings
 
 - **Date:** 2026-11-27

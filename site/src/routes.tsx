@@ -1,7 +1,7 @@
-import type { RouteObject } from 'react-router'
+import { Navigate, type RouteObject } from 'react-router'
 import { AppRoot, CONSENT_PATH, LeaveGate, RequireAdmin } from './auth/AppGate'
 import { Pairings } from './pages/player/Pairings'
-import { Game } from './pages/player/Game'
+import { ReportResult } from './pages/player/ReportResult'
 import { Placeholder } from './pages/Placeholder'
 import { Home } from './pages/player/Home'
 import { MembershipListEntry } from './pages/player/ProspectHome'
@@ -20,7 +20,8 @@ export const routes: RouteObject[] = [
       { path: '/', element: <Home /> },
       { path: '/players', element: <Players /> },
       { path: '/pairings', element: <Pairings /> },
-      { path: '/game/:gameNo', element: <Game /> },
+      { path: '/game/:gameNo', element: <Navigate to="/pairings" replace /> },
+      { path: '/game/:gameNo/result', element: <ReportResult /> },
       { path: '/pickems', element: <Pickems /> },
       { path: '/pickems/leaderboard', element: <PickemLeaderboard /> },
       { path: '/my-list', element: <MembershipListEntry><MyList /></MembershipListEntry> },

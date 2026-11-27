@@ -184,9 +184,9 @@ test('S16: a live season, every game state', async ({ page }) => {
     await page.getByRole('button', { name: new RegExp(`^${filter} `) }).click()
     await audit(page, 'Table')
   }
-  await visit(page, '/game/1', 'Result')
-  await visit(page, '/game/3', 'Settled by admin')
-  await visit(page, '/game/5', 'Who won?')
+  await visit(page, '/game/1/result', 'Who won?')
+  await visit(page, '/pairings', 'Settled by admin')
+  await visit(page, '/game/5/result', 'Who won?')
   await page.getByRole('checkbox', { name: 'Delaney' }).check()
   await audit(page, 'Who won?')
   await visit(page, '/pickems', 'Score')

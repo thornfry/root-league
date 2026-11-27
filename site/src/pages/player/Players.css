@@ -16,8 +16,9 @@
 .players-factions .seal { flex-shrink: 0; }
 .players-rank { width: 18px; flex-shrink: 0; font-size: 20px; }
 @media (max-width: 700px) { .players-grid { grid-template-columns: minmax(0, 1fr); } }
-.players-standings { max-width: 480px; }
+.players-standings { max-width: 480px; overflow: hidden; }
 .players-standings table { width: 100%; border-collapse: collapse; }
+.players-standings thead { background: var(--forest-wash); }
 .players-standings th, .players-standings td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--line); }
 .players-standings tbody tr:last-child > * { border-bottom: 0; }
 .players-standings th[scope="row"] { font-weight: 700; overflow-wrap: anywhere; }

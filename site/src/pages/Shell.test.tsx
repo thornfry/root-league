@@ -26,7 +26,7 @@ function renderShell(session: ShellSession, path = '/', width = 375) {
         element: <Shell session={session} />,
         children: [
           { path: '/', element: <Placeholder title="Home" /> },
-          { path: '/players', element: <Placeholder title="Players" /> },
+          { path: '/players', element: <Placeholder title="Standings" /> },
           { path: '/pairings', element: <Placeholder title="Pairings" /> },
           { path: '/game/:gameNo', element: <Placeholder title="Game" /> },
           { path: '/admin/roster', element: <Placeholder title="Roster" /> },
@@ -93,8 +93,8 @@ describe('Shell at phone width (375)', () => {
     const user = userEvent.setup()
     renderShell(admin)
     await user.click(screen.getByRole('button', { name: 'Menu' }))
-    await user.click(screen.getByRole('link', { name: 'Players' }))
-    expect(screen.getByRole('heading', { name: 'Players' })).toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: 'Standings' }))
+    expect(screen.getByRole('heading', { name: 'Standings' })).toBeInTheDocument()
     expect(screen.queryByRole('navigation', { name: 'Menu' })).toBeNull()
     expect(screen.getByRole('button', { name: 'Menu' })).toBeInTheDocument()
   })
@@ -213,9 +213,9 @@ describe('routes', () => {
   it('can be clicked through from the top bar', async () => {
     const user = userEvent.setup()
     await at('/')
-    await user.click(screen.getByRole('link', { name: 'Players' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Players' })).toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: 'Standings' }))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Standings' })).toBeInTheDocument()
     await user.click(screen.getByRole('link', { name: 'Fix it' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Fix it' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Fix it' })).toBeInTheDocument()
   })
 })

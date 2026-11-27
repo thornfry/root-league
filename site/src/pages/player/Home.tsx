@@ -62,11 +62,11 @@ function LiveHome({ seasonId, personId }: { seasonId: string; personId: string |
         const seat = game.seats.find(s => s.person_id === personId)!
         const reportable = game.state !== 'void' && game.state !== 'settled'
         return <Card key={game.id} as="article" pad={16} className="stack">
-          <div className="rowb"><b><Link to={`/game/${game.game_no}`}>Table {game.game_no}, {game.mapName}</Link></b>
+          <div className="rowb"><b>Table {game.game_no}, {game.mapName}</b>
             <GameStatus game={game} /></div>
           <div className="row"><span className="muted">Seat {seat.seat}</span><SeatFaction seat={seat} /></div>
           <p className="muted">{game.state === 'disputed' ? 'The admin will decide.' : game.state === 'void' ? 'This game is not counted.' : game.state === 'upcoming' ? 'No result yet.' : <GameWinners game={game} />}</p>
-          {reportable ? <ButtonLink to={`/game/${game.game_no}`} variant={game.state === 'upcoming' ? 'pri' : 'default'}>{game.state === 'upcoming' ? 'Report result' : 'Edit result'}</ButtonLink> : null}
+          {reportable ? <ButtonLink to={`/game/${game.game_no}/result`} variant={game.state === 'upcoming' ? 'pri' : 'default'}>{game.state === 'upcoming' ? 'Report result' : 'Edit result'}</ButtonLink> : null}
         </Card>
       })}</div>
     </section> : null}

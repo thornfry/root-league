@@ -40,7 +40,7 @@ export function Players() {
   const expanded = !open || me?.isAdmin
   return <>
     <div className="stack8">
-      <h1 className="disp h1s">Players</h1>
+      <h1 className="disp h1s">Standings</h1>
       {open && <p className="muted">{me?.isAdmin
         ? 'Ranked lists show to players once they lock. As admin you see them now.'
         : 'Ranked lists show here once they lock. Until then only the owner and the admin see them.'}</p>}

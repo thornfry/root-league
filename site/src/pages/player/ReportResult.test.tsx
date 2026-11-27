@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { configure, screen, within } from '@testing-library/react'
+import { configure, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import { makeFakeDb, viewerJson, adminJson } from '../../test-support/fakeDb'
@@ -38,55 +38,56 @@ function setup(state = 'upcoming', persona = viewerJson({ roles: ['viewer', 'lea
 }
 it('submits one winner, then edits to two winners using only the owner’s answer', async () => {
   const f = setup()
-  renderApp('/game/1')
+  const { router } = renderApp('/game/1/result')
   await screen.findByRole('checkbox', { name: 'Alex' })
   expect(screen.getByRole('button', { name: 'Submit' })).toBeDisabled()
   await userEvent.click(screen.getByRole('checkbox', { name: 'Alex' }))
   await userEvent.click(screen.getByRole('button', { name: 'Submit' }))
-  await userEvent.click(await screen.findByRole('button', { name: 'Edit result' }))
-  expect(screen.getByRole('checkbox', { name: 'Alex' })).toBeChecked()
+  await screen.findByRole('heading', { name: 'Home' })
+  expect(router.state.location.pathname).toBe('/')
+  await router.navigate('/game/1/result')
+  expect(await screen.findByRole('checkbox', { name: 'Alex' })).toBeChecked()
   await userEvent.click(screen.getByRole('checkbox', { name: 'Blair' }))
   await userEvent.click(screen.getByRole('button', { name: 'Submit' }))
-  await screen.findByRole('button', { name: 'Edit result' })
+  await screen.findByRole('heading', { name: 'Home' })
+  expect(router.state.location.pathname).toBe('/')
   expect(f.rpc).toHaveBeenCalledWith('submit_result', { p_game_id: 'g', p_winners: ['p-alex', 'p1'] })
   expect(f.filters).toContainEqual(['eq', 'person_id', 'p-alex'])
   expect(f.filters).toContainEqual(['select', 'winners'])
 })
 it.each([viewerJson({ person_id: 'other', roles: ['league_player'] }), viewerJson({ person_id: 'other', roles: ['prospect'] })])('has no controls or submission reads for non-seated people', async persona => {
   const f = setup('recorded', persona, ['p1'])
-  renderApp('/game/1')
-  await screen.findByText('Won by Blair')
+  renderApp('/game/1/result')
+  await screen.findByText('You can’t report or edit a result for this game.')
   expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
   expect(f.from.mock.calls.filter(([t]) => t === 'submissions')).toHaveLength(0)
 })
 it('hides every disputed answer and lets the owner edit', async () => {
   setup('disputed', undefined, ['p1'])
-  renderApp('/game/1')
-  await screen.findByRole('button', { name: 'Edit result' })
-  const result = screen.getByRole('region', { name: 'Result' })
-  expect(result).toHaveTextContent('The admin will decide.')
-  expect(result).not.toHaveTextContent('Blair')
+  renderApp('/game/1/result')
+  expect(await screen.findByRole('checkbox', { name: 'Blair' })).toBeChecked()
+  expect(screen.getByRole('checkbox', { name: 'Alex' })).not.toBeChecked()
   expect(screen.queryByText(/Won by/)).not.toBeInTheDocument()
-  expect(within(result).queryByText(/confirm/i)).not.toBeInTheDocument()
+
 })
 it.each(['settled', 'void'])('prevents editing a %s game', async state => {
   const f = setup(state, undefined, ['p1'])
-  renderApp('/game/1')
-  await screen.findByRole('heading', { name: 'Table 1 Autumn' })
+  renderApp('/game/1/result')
+  await screen.findByText('You can’t report or edit a result for this game.')
   expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Edit result' })).not.toBeInTheDocument()
   expect(f.from.mock.calls.filter(([t]) => t === 'submissions')).toHaveLength(0)
 })
 it('explains that an unseated admin entry settles the game', async () => {
   const f = setup('upcoming', adminJson())
-  renderApp('/game/1')
+  renderApp('/game/1/result')
   await screen.findByRole('checkbox', { name: 'Alex' })
   expect(screen.getByText(/admin’s entry settles/)).toBeInTheDocument()
   expect(f.from.mock.calls.filter(([t]) => t === 'submissions')).toHaveLength(0)
 })
 it('keeps selected winners after a refused submission', async () => {
   const f = setup()
-  renderApp('/game/1')
+  renderApp('/game/1/result')
   await screen.findByRole('checkbox', { name: 'Alex' })
   await userEvent.click(screen.getByRole('checkbox', { name: 'Alex' }))
   f.rpc.mockResolvedValueOnce({ data: null, error: { message: 'This game is settled. Ask the admin to reopen it.' } })

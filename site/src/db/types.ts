@@ -449,6 +449,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"clear_pick":
+{ Args: { "p_game_id": string }; Returns: undefined
+                           },
 "export_league_state":
 { Args: { "p_season_id": string }; Returns: Json
                            },

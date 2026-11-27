@@ -5,7 +5,7 @@ import { expectAccessible } from './support/axe'
 
 // Four tables: upcoming, shared-win recorded, disputed, void. Void contributes
 // nothing; the dispute remains left. Every player starts at 1 win, 1 played, 2 left.
-test('S17: Players counts outcomes and refreshes after entry, edit and settlement', async ({ page }) => {
+test('S17: Standings counts outcomes and refreshes after entry, edit and settlement', async ({ page }) => {
   const fixture = await withDatabase(async db => {
     await db.query("update public.seasons set started_at=now(), maps=array['Autumn'] where id=$1", [SEASON_ID])
     const ids: string[] = []
@@ -24,7 +24,7 @@ test('S17: Players counts outcomes and refreshes after entry, edit and settlemen
     return { ids, games }
   })
   await signInAs(page, 'player')
-  // Standings are on Players, as a record (wins-losses).
+  // Standings show a record (wins-losses).
   const assertOwn = async (wins: number, played: number) => {
     await page.goto('/players')
     const own = page.getByRole('table', { name: 'Season standings' }).getByRole('row').filter({ hasText: 'Delaney' })
@@ -34,7 +34,7 @@ test('S17: Players counts outcomes and refreshes after entry, edit and settlemen
   await assertOwn(1, 1)
   const mine = page.getByRole('region', { name: 'My games' })
   await expect(mine.getByRole('article')).toHaveCount(4)
-  await expect(mine.getByRole('link', { name: 'Report result' })).toHaveAttribute('href', '/game/1')
+  await expect(mine.getByRole('link', { name: 'Report result' })).toHaveAttribute('href', '/game/1/result')
   await expect(mine).toContainText('Disputed')
   await expect(mine).toContainText('Void')
   await expectNoHorizontalScroll(page)

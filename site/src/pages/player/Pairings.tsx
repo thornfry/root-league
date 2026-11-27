@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router'
 import { useSession } from '../../auth/session'
 import { getSupabase } from '../../db/client'
 import { filterGames, pairingsQuery, type GameFilter, type LeagueGame, type GameSeat } from '../../db/games'
@@ -31,6 +30,7 @@ export function GameSeatCell({ seat, game, personId }: { seat: GameSeat; game: L
 export function Pairings() {
   const session = useSession()
   const personId = session.status === 'in' ? session.whoami.personId : null
+  const isAdmin = session.status === 'in' && session.whoami.isAdmin
   const [filter, setFilter] = useState<GameFilter>('All')
   const query = useQuery(pairingsQuery(getSupabase()))
   if (query.isPending) return <div className="stack"><h1 className="disp h1s">Pairings</h1><p role="status">Loading pairings…</p></div>
@@ -44,7 +44,7 @@ export function Pairings() {
   const active = filter === 'Mine' && !mine ? 'All' : filter
   const visible = filterGames(games, active, personId)
   return <div className="stack18 pairings-view">
-    <div className="pairings-title"><div className="stack8"><div className="kicker">{season.name}</div><h1 className="disp h1s">Pairings</h1></div>
+    <div className="pairings-title pairings-filter"><div className="stack8"><div className="kicker">{season.name}</div><h1 className="disp h1s">Pairings</h1></div>
       {stage === 'live' ? <Segmented label="Filter games" fit options={filters.map(f => ({ value: f, label: f, count: filterGames(games, f, personId).length }))} value={active} onChange={setFilter} /> : null}</div>
     {stage !== 'live' ? <>
       <Alert tone="info"><b>Not started.</b> Names and factions show up when the season starts. {season.lists_lock_at ? <>Lists lock {localDate(season.lists_lock_at)}.</> : 'The lists lock date has not been set.'}</Alert>
@@ -54,18 +54,18 @@ export function Pairings() {
           <div className="layout-seats">{g.slots.map((slot, seat) => <div key={seat}><div className="kicker">Seat {seat + 1}</div><span className="num">P{slot + 1}</span></div>)}</div>
         </Card>)}</div></> : <Card pad={16}>The admin is setting up this season’s layout.</Card>}
     </> : <>
-      {!visible.length ? <Card pad={16}>No games here.</Card> : <div className="card game-list">
+      {!visible.length ? <Card pad={16}>No games here.</Card> : <div>
         <div className="game-list-head" aria-hidden="true"><span>Table</span>{[1, 2, 3, 4].map(n => <span key={n}>Seat {n}</span>)}</div>
         <ul className="game-rows">{visible.map(g => {
           const seated = g.seats.some(s => s.person_id === personId)
           // A seated player can report or edit until the game is void or settled by the admin.
-          const report = seated && ['upcoming', 'recorded', 'disputed'].includes(g.state)
-          return <li key={g.id}><article className="game-row" aria-label={`Table ${g.game_no}`}>
+          const report = (seated || isAdmin) && ['upcoming', 'recorded', 'disputed'].includes(g.state)
+          return <li key={g.id}><article className="card game-row" aria-label={`Table ${g.game_no}`}>
             <div className="tcol">
-              <Link to={`/game/${g.game_no}`} className="tno disp">Table {g.game_no}</Link>
+              <h2 className="tno disp">Table {g.game_no}</h2>
               <span className="tmap">{g.mapName}</span>
               <span className="tact"><GameStatus game={g} />
-                {report ? <ButtonLink to={`/game/${g.game_no}`} size="sm" variant={g.state === 'upcoming' ? 'pri' : 'default'}>{g.state === 'upcoming' ? 'Report result' : 'Edit result'}</ButtonLink> : null}</span>
+                {report ? <ButtonLink to={`/game/${g.game_no}/result`} size="sm" variant={g.state === 'upcoming' ? 'pri' : 'default'}>{g.state === 'upcoming' ? 'Report result' : 'Edit result'}</ButtonLink> : null}</span>
             </div>
             <div className="seat-cells">{g.seats.map(s => <GameSeatCell key={s.seat} seat={s} game={g} personId={personId} />)}</div>
           </article></li>

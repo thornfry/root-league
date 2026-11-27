@@ -20,7 +20,7 @@ test('S01: the whitelist gates data and an existing session gains and loses acce
   await page.goto('/players')
   await expect(page.getByRole('link', { name: 'Continue with Discord' })).toBeVisible()
   await expect(page.getByRole('navigation')).toHaveCount(0)
-  await expect(page.getByRole('heading', { name: 'Players', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Standings', exact: true })).toHaveCount(0)
   await expectNoLeagueData(page)
   await expectNoHorizontalScroll(page)
 

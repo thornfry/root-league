@@ -5,13 +5,11 @@
 .layout-seats > div { padding: 12px; }
 .layout-seats .num { font-size: 26px; }
 .pairings-title { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 18px 24px; }
-.game-list { overflow: hidden; }
 .game-list-head { display: none; }
-.game-rows { list-style: none; margin: 0; padding: 0; }
-.game-rows > li + li { border-top: 1px solid var(--line); }
-.game-row { display: flex; flex-direction: column; }
+.game-rows { display: grid; gap: 16px; list-style: none; margin: 0; padding: 0; }
+.game-row { display: flex; flex-direction: column; overflow: hidden; }
 .tcol { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 14px; font-family: var(--f-ui); }
-.tcol .tno { font-size: 28px; color: var(--ink); text-decoration: none; }
+.tcol .tno { margin: 0; font-size: 28px; color: var(--ink); }
 .tcol .tmap { font-weight: 600; color: var(--ink2); font-size: 15px; }
 .tcol .tact { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-left: auto; }
 .seat-cells { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--line); }
@@ -19,16 +17,16 @@
 .seat-cells > .pc:nth-child(2n) { border-right: 0; }
 .seat-cells > .pc:nth-child(n+3) { border-bottom: 0; }
 .game-columns { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr); }
-.pairing-seats { margin: 0; padding: 0; list-style: none; }
-.pairing-seats > li { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 14px 16px; border-top: 1px solid var(--line); min-width: 0; }
 .pairings-view .fchip { max-width: 100%; }
 .pairings-view .tag { max-width: 100%; white-space: normal; line-height: 1.3; }
-.game-seats > li:first-child { border-top: 0; }
-.game-history { padding-left: 20px; margin: 0; }
-.game-history li + li { margin-top: 12px; }
+@media (width < 900px) {
+  .pairings-filter { flex-direction: column; align-items: stretch; }
+  .pairings-filter .seg.fit { width: 100%; }
+  .pairings-filter .seg.fit button { flex: 1 1 0; padding-inline: 2px; }
+}
 @media (min-width: 900px) {
   .pairing-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .game-list-head { display: grid; grid-template-columns: 200px repeat(4, minmax(0, 1fr)); padding: 12px 0; border-bottom: 1px solid var(--line2); font: 700 13px var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink2); }
+  .game-list-head { display: grid; grid-template-columns: 200px repeat(4, minmax(0, 1fr)); padding: 0 1px 8px; font: 700 13px var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink2); }
   .game-list-head > span { padding-left: 14px; }
   .game-row { display: grid; grid-template-columns: 200px minmax(0, 1fr); align-items: stretch; }
   .tcol { flex-direction: column; align-items: flex-start; flex-wrap: nowrap; border-right: 1px solid var(--line); }

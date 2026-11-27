@@ -85,21 +85,18 @@ it('puts Report result or Edit result beside the status on any game you sit at t
   fixture()
   renderApp('/pairings')
   const first = await screen.findByRole('article', { name: 'Table 1' })
-  expect(within(first).getByRole('link', { name: 'Report result' })).toHaveAttribute('href', '/game/1')
+  expect(within(first).getByRole('link', { name: 'Report result' })).toHaveAttribute('href', '/game/1/result')
   // Alex sits only at table 1 here, so nobody else's game carries a button.
   expect(screen.getAllByRole('link', { name: /Report result|Edit result/ })).toHaveLength(1)
 })
-it('hides Mine from a viewer with no seat and opens another player’s game', async () => {
+it('hides Mine from spectators and redirects old detail links to Pairings', async () => {
   fixture('live', viewerJson({ person_id: 'spectator' }))
-  renderApp('/game/2', 375)
-  await screen.findByRole('heading', { name: 'Table 2 Autumn' })
-  expect(screen.getByRole('main')).toHaveTextContent(names[0]!)
-  expect(screen.getByRole('main')).toHaveTextContent('Reach 25')
-  expect(screen.getByRole('main')).toHaveTextContent('Militant + Insurgent')
-  expect(await screen.findByText('No history available to you.')).toBeInTheDocument()
-  expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
-  await userEvent.click(screen.getByRole('link', { name: 'All pairings' }))
+  const { router } = renderApp('/game/2', 375)
   await screen.findByRole('button', { name: 'All 5' })
+  expect(router.state.location.pathname).toBe('/pairings')
+  const row = screen.getByRole('article', { name: 'Table 2' })
+  expect(row).toHaveTextContent(names[0]!)
+  expect(within(row).queryByRole('link')).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: /Mine/ })).not.toBeInTheDocument()
 })
 it('never displays disputed or void winners', async () => {
@@ -111,7 +108,7 @@ it('never displays disputed or void winners', async () => {
 })
 it('shows a missing-game message for unpublished or unknown games', async () => {
   fixture('locked')
-  renderApp('/game/999')
+  renderApp('/game/999/result')
   expect(await screen.findByRole('heading', { name: 'No such game' })).toBeInTheDocument()
 })
 it('formats history with actors and event text, never raw answers', async () => {

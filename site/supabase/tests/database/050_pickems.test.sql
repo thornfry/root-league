@@ -3,7 +3,7 @@
 -- games score. A game takes picks until it has a submission, a settlement or is
 -- void; other people's picks are hidden until then. No fixture depends on seed.sql.
 begin;
-select plan(106);
+select plan(114);
 grant all on all tables in schema pg_temp to anon, authenticated, service_role;
 grant all on all sequences in schema pg_temp to anon, authenticated, service_role;
 create function pg_temp.id(n integer) returns uuid language sql immutable as $$
@@ -207,6 +207,18 @@ reset role; select pg_temp.act_as(8);
 select lives_ok($q$select public.save_pick(pg_temp.id(104),pg_temp.id(2),null)$q$, 'it takes picks again');
 select is(pg_temp.board(8), array[6,1]::bigint[], 'an open pick adds no points');
 select is(pg_temp.board(7), array[3,2]::bigint[], 'ranks follow the new totals');
+
+select lives_ok($q$select public.clear_pick(pg_temp.id(104))$q$, 'a viewer can clear their lone first pick');
+select is((select count(*) from public.picks where game_id=pg_temp.id(104) and person_id=pg_temp.id(8)), 0::bigint, 'clearing removes the pick row');
+select lives_ok($q$select public.clear_pick(pg_temp.id(104))$q$, 'clearing an already empty pick is safe to retry');
+select lives_ok($q$select public.save_pick(pg_temp.id(104),pg_temp.id(3),null)$q$, 'a different first pick can be saved');
+select throws_ok($q$select public.clear_pick(pg_temp.id(100))$q$, '55000', null, 'a closed game keeps its picks');
+reset role; select pg_temp.act_as(2);
+select throws_ok($q$select public.clear_pick(pg_temp.id(104))$q$, '42501', null, 'a seated player cannot clear a pick on their own game');
+reset role; select pg_temp.act_as(9);
+select throws_ok($q$select public.clear_pick(pg_temp.id(104))$q$, '42501', null, 'an uninvited account cannot clear picks');
+reset role; set local role anon;
+select throws_ok($q$select public.clear_pick(pg_temp.id(104))$q$, '42501', null, 'an anonymous account cannot clear picks');
 
 select * from finish();
 rollback;

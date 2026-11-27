@@ -40,6 +40,9 @@ function setup() {
       const picks = (rows.picks as { game_id: string }[]).filter(p => p.game_id !== args.p_game_id)
       rows.picks = [...picks, { game_id: args.p_game_id, person_id: 'p-alex', first_pick: args.p_first, second_pick: args.p_second, people: { display_name: 'Alex' } }]
     }
+    if (name === 'clear_pick' && args) {
+      rows.picks = (rows.picks as { game_id: string }[]).filter(p => p.game_id !== args.p_game_id)
+    }
     return { data: name === 'whoami' ? auth.state.whoami : {}, error: null }
   })
   h.db = { ...auth.db, from }
@@ -53,7 +56,7 @@ describe('nextPicks', () => {
     ['both exist: the tap replaces the second', 'a', 'b', 'c', { first: 'a', second: 'c' }],
     ['the second pick is tapped: it is removed', 'a', 'b', 'b', { first: 'a', second: null }],
     ['the first pick is tapped with a second: the second moves up', 'a', 'b', 'a', { first: 'b', second: null }],
-    ['the lone first pick is tapped: nothing changes, a pick always has a first', 'a', null, 'a', { first: 'a', second: null }],
+    ['the lone first pick is tapped: it is removed', 'a', null, 'a', { first: null, second: null }],
   ] as const)('%s', (_name, first, second, tapped, expected) => {
     expect(nextPicks(first, second, tapped)).toEqual(expected)
   })
@@ -81,6 +84,7 @@ it('shows your score and rank at the top and links to the leaderboard page', asy
   const card = (await screen.findByText('Score')).closest('.scorecard') as HTMLElement
   await waitFor(() => expect(card).toHaveTextContent('Rank2 of 3'))
   expect(card).toHaveTextContent('Score3 points')
+  expect(within(card).getByRole('link', { name: 'Pick’em rules' })).toHaveAttribute('href', '/info/pickems')
   await userEvent.click(within(card).getByRole('link', { name: /Leaderboard/ }))
   expect(router.state.location.pathname).toBe('/pickems/leaderboard')
   const table = await screen.findByRole('table', { name: 'Pick’em leaderboard' })
@@ -97,22 +101,35 @@ it('saves each tap with no Save button: first pick, second pick, then drops the 
   await waitFor(() => expect(f.rpc).toHaveBeenCalledWith('save_pick', { p_game_id: 'g2', p_first: 'g2-p1', p_second: null }))
   await waitFor(() => expect(within(table).getByRole('button', { name: /Blair/ })).toHaveAttribute('aria-pressed', 'true'))
   expect(within(table).getByText('1st pick')).toBeInTheDocument()
+  await waitFor(() => expect(within(table).getByRole('button', { name: /Devon/ })).toBeEnabled())
   await userEvent.click(within(table).getByRole('button', { name: /Devon/ }))
   await waitFor(() => expect(f.rpc).toHaveBeenCalledWith('save_pick', { p_game_id: 'g2', p_first: 'g2-p1', p_second: 'g2-p3' }))
   await within(table).findByText('2nd pick')
+  await waitFor(() => expect(within(table).getByRole('button', { name: /Devon/ })).toBeEnabled())
   await userEvent.click(within(table).getByRole('button', { name: /Devon/ }))
   await waitFor(() => expect(f.rpc).toHaveBeenLastCalledWith('save_pick', { p_game_id: 'g2', p_first: 'g2-p1', p_second: null }))
 })
 
-it('does nothing when the only pick is tapped, since a pick needs a first', async () => {
+it('clears a lone first pick and lets another player become the first pick', async () => {
   const f = setup()
   renderApp('/pickems', 375)
   const table = await screen.findByRole('article', { name: 'Table 2' })
-  await userEvent.click(within(table).getByRole('button', { name: /Blair/ }))
-  await within(table).findByText('1st pick')
-  f.rpc.mockClear()
-  await userEvent.click(within(table).getByRole('button', { name: /Blair/ }))
-  expect(f.rpc.mock.calls.filter(([name]) => name === 'save_pick')).toEqual([])
+  const blair = within(table).getByRole('button', { name: /Blair/ })
+  const devon = within(table).getByRole('button', { name: /Devon/ })
+  await waitFor(() => expect(blair).toBeEnabled())
+  await userEvent.click(blair)
+  await waitFor(() => {
+    expect(blair).toHaveAttribute('aria-pressed', 'true')
+    expect(blair).toBeEnabled()
+  })
+  await userEvent.click(blair)
+  await waitFor(() => expect(f.rpc).toHaveBeenCalledWith('clear_pick', { p_game_id: 'g2' }))
+  await waitFor(() => {
+    expect(blair).toHaveAttribute('aria-pressed', 'false')
+    expect(devon).toBeEnabled()
+  })
+  await userEvent.click(devon)
+  await waitFor(() => expect(f.rpc).toHaveBeenLastCalledWith('save_pick', { p_game_id: 'g2', p_first: 'g2-p3', p_second: null }))
 })
 
 it('puts the old picks back and says so when a save is refused', async () => {
