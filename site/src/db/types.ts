@@ -33,6 +33,58 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"game_seats": {
+                  Row: {
+                    "faction": string,"game_id": string,"person_id": string,"seat": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "faction": string,"game_id": string,"person_id": string,"seat": number
+                  }
+                  Update: {
+                    "faction"?: string,"game_id"?: string,"person_id"?: string,"seat"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "game_seats_game_id_fkey"
+      columns: ["game_id"]
+isOneToOne: false
+      referencedRelation: "games"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "game_seats_person_id_fkey"
+      columns: ["person_id"]
+isOneToOne: false
+      referencedRelation: "people"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"games": {
+                  Row: {
+                    "game_no": number,"id": string,"map_index": number,"season_id": string,"void": boolean
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "game_no": number,"id"?: string,"map_index": number,"season_id": string,"void"?: boolean
+                  }
+                  Update: {
+                    "game_no"?: number,"id"?: string,"map_index"?: number,"season_id"?: string,"void"?: boolean
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "games_season_id_fkey"
+      columns: ["season_id"]
+isOneToOne: false
+      referencedRelation: "season_stage"
+      referencedColumns: ["season_id"]
+    },{
+      foreignKeyName: "games_season_id_fkey"
+      columns: ["season_id"]
+isOneToOne: false
+      referencedRelation: "seasons"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"people": {
                   Row: {
                     "auth_user_id": string | null,"discord_id": string | null,"display_name": string,"id": string,"seed_key": string | null
@@ -178,6 +230,9 @@ isOneToOne: false
                            },
 "leave_league":
 { Args: { "p_season_id": string }; Returns: undefined
+                           },
+"publish_pairings":
+{ Args: { "p_games": Json,"p_order": (string)[],"p_season_id": string,"p_seed": string }; Returns: undefined
                            },
 "roster_add":
 { Args: { "p_display_name": string,"p_list"?: string,"p_season_id": string }; Returns: string
