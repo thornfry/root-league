@@ -449,17 +449,55 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"export_league_state":
+{ Args: { "p_season_id": string }; Returns: Json
+                           },
+"fixit_delete":
+{ Args: { "p_key": Json,"p_table": string }; Returns: Json
+                           },
+"fixit_delete_preview":
+{ Args: { "p_key": Json,"p_table": string }; Returns: Json
+                           },
+"fixit_insert":
+{ Args: { "p_row": Json,"p_table": string }; Returns: Json
+                           },
+"fixit_update":
+{ Args: { "p_changes": Json,"p_key": Json,"p_table": string }; Returns: Json
+                           },
+"fixit_warnings":
+{ Args: { "p_key": Json,"p_table": string }; Returns: Json
+                           },
+"import_league_state":
+{ Args: { "p_files": Json,"p_preview"?: boolean,"p_season_id": string }; Returns: Json
+                           },
 "join_league":
 { Args: { "p_season_id": string }; Returns: undefined
                            },
 "leave_league":
 { Args: { "p_season_id": string }; Returns: undefined
                            },
+"link_person":
+{ Args: { "p_seeded_person": string,"p_sign_in_person": string }; Returns: {
+              "auth_user_id": string | null,
+"discord_id": string | null,
+"display_name": string,
+"id": string,
+"seed_key": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "people"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "publish_pairings":
 { Args: { "p_games": Json,"p_order": (string)[],"p_season_id": string,"p_seed": string }; Returns: undefined
                            },
 "reopen_game":
 { Args: { "p_game_id": string }; Returns: undefined
+                           },
+"replace_player":
+{ Args: { "p_from": string,"p_game_id"?: string,"p_season_id": string,"p_to": string }; Returns: Json
                            },
 "roster_add":
 { Args: { "p_display_name": string,"p_list"?: string,"p_season_id": string }; Returns: string
