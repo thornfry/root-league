@@ -2,7 +2,14 @@
 
 Decisions for the league website, newest first, in a short ADR form. All were made in the planning interview on 2026-11-26. The plan they shape is [plan.md](plan.md). League-wide decisions are on [planning decisions](../decisions.md).
 
-Entries 13 to 25 come from the user stories review on 2026-11-26. Each names the decision it supersedes or reaffirms; the old entries and the [plan](plan.md) are left as they were. The stories are in [user-stories.md](user-stories.md).
+Entries 13 to 25 come from the user stories review on 2026-11-26, and entry 26 from the design review the same day. Each names the decision it supersedes or reaffirms; the old entries and the [plan](plan.md) are left as they were. The stories are in [user-stories.md](user-stories.md).
+
+## 26. The approved design amends the story screens
+
+- **Date:** 2026-11-26
+- **Context:** Will reviewed the design canvas ([design.md](design.md)) with comments and approved it. Several screens differ from the stories: they are simpler than the stories describe.
+- **Decision:** The canvas is the source of truth for screens. It drops the Join page and the queue place (Join league goes straight to faction picking), the per-player answer list and confirmation counts on a game, the badge reading guide, role tags for players, and the large lock countdown card. It adds a Submit list button, a Your games block on Home, and a phone menu. The Players page shows only who has a list in until lists lock. The rules in the stories are unchanged: disputes, submissions and their log, pool-change flags and the lock date all stay. The full list is on [design.md](design.md#changed-from-the-stories). This supersedes the story text it names, for the screens only.
+- **Consequence:** The stories are not edited. A builder reads the design for what to show and the stories for what must be true. Three points wait for Will: whether disputes stay, whether ranked lists stay hidden until lock, and the countdown line.
 
 ## 25. Access is a whitelist of Discord user IDs
 
