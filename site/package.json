@@ -22,7 +22,9 @@
     "layouts": "python3 scripts/gen-layouts.py",
     "layouts:check": "python3 scripts/gen-layouts.py --check",
     "check:no-dev": "node scripts/check-no-dev.mjs",
-    "seed": "node scripts/seed.ts"
+    "seed": "node scripts/seed.ts",
+    "e2e": "playwright test --config e2e/playwright.config.ts",
+    "e2e:typecheck": "tsc --project e2e/support/tsconfig.json"
   },
   "dependencies": {
     "@fontsource/barlow-condensed": "^5.3.0",
@@ -34,12 +36,15 @@
     "react-router": "^8.5.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.1",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
     "@testing-library/jest-dom": "^8.0.0",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.13",
     "@types/jsdom": "^30.0.0",
     "@types/node": "^26.6.11",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19.3.3",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.3.0",
@@ -48,6 +53,7 @@
     "globals": "^17.14.0",
     "jsdom": "^31.0.1",
     "marked": "^18.3.0",
+    "pg": "^8.23.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.74.0",
     "vite": "^8.4.0",
