@@ -35,6 +35,18 @@ npm run build
 npm run check:no-dev
 ```
 
+## CI and local checks
+
+GitHub Actions runs TypeScript type checking, lint and Vitest unit tests, plus
+`python3 -m unittest` in `planning/tools/pairing`. The application tests stub
+Supabase auth and data calls. CI skips the optional Postgres seed test and leaves
+build-guard and cross-language parity tests to the full local `npm test` suite.
+
+With the local Supabase stack running, use `npm run db:test` for pgTAP and
+`npm run db:types:check` to compare the generated schema types. See the
+[Playwright setup](e2e/support/README.md) for browser tests. The weekly keep-alive
+is a separate production maintenance workflow.
+
 ## Environment variables
 
 Every `VITE_` value is **public**: Vite embeds it in browser JavaScript. Never put
